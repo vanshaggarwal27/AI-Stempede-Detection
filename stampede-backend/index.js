@@ -13,8 +13,8 @@ const port = process.env.PORT || 5000; // Use port 5000 for backend
 // IMPORTANT: These variables in .env MUST include the 'whatsapp:' prefix
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
-const twilioWhatsAppPhoneNumber = process.env.TWILIO_PHONE_NUMBER; // Renamed for clarity, assuming it's the WhatsApp FROM number
-const recipientWhatsAppPhoneNumber = process.env.RECIPIENT_PHONE_NUMBER; // Renamed for clarity, assuming it's the WhatsApp TO number
+const twilioWhatsAppPhoneNumber = process.env.TWILIO_PHONE_NUMBER; // Assuming it's the WhatsApp FROM number
+const recipientWhatsAppPhoneNumber = process.env.RECIPIENT_PHONE_NUMBER; // Assuming it's the WhatsApp TO number
 
 // Initialize Twilio client
 const client = new twilio(accountSid, authToken);
@@ -30,15 +30,14 @@ app.get('/', (req, res) => {
 
 // API endpoint to trigger a stampede alert
 app.post('/api/alert/stampede', async (req, res) => {
-    const { message, crowdDensity, timestamp } = req.body;
+    const { message, crowdDensity, timestamp } = req.body; // 'timestamp' is still received but not used in the message
 
-    if (!message || !crowdDensity || !timestamp) {
-        return res.status(400).json({ success: false, error: 'Missing required fields: message, crowdDensity, timestamp' });
+    if (!message || !crowdDensity) { // Removed timestamp from validation as it's not strictly needed for the message content
+        return res.status(400).json({ success: false, error: 'Missing required fields: message, crowdDensity' });
     }
 
-    // Format the alert message
-    const alertMessage = `🚨 STAMPEDE ALERT! 🚨\nCrowd Density: ${crowdDensity}\nTime: ${new Date(timestamp).toLocaleString('en-US', { timeZone: 'Asia/Kolkata'})}\nDetails: ${message}`;
-    // Using 'en-US' locale and 'Asia/Kolkata' timezone for more consistent date formatting for India.
+    // Simplified alert message - NO DATE/TIME
+    const alertMessage = `🚨 STAMPEDE ALERT! 🚨\nCrowd Density: ${crowdDensity}\nDetails: ${message}`;
 
     console.log(`Received alert: ${alertMessage}`);
     console.log(`Attempting to send WhatsApp message from: ${twilioWhatsAppPhoneNumber} to: ${recipientWhatsAppPhoneNumber}`);
@@ -46,13 +45,13 @@ app.post('/api/alert/stampede', async (req, res) => {
     try {
         await client.messages.create({
             body: alertMessage,
-            to: recipientWhatsAppPhoneNumber, // Must include 'whatsapp:' prefix, e.g., 'whatsapp:+919876543210'
-            from: twilioWhatsAppPhoneNumber   // Must include 'whatsapp:' prefix, e.g., 'whatsapp:+14155238886'
+            to: recipientWhatsAppPhoneNumber, // Must include 'whatsapp:' prefix
+            from: twilioWhatsAppPhoneNumber   // Must include 'whatsapp:' prefix
         });
         console.log('WhatsApp alert sent successfully!');
         res.status(200).json({ success: true, message: 'WhatsApp alert sent!' });
     } catch (error) {
-        console.error('Error sending WhatsApp:', error.message); // Log only the message for cleaner output
+        console.error('Error sending WhatsApp:', error.message);
         res.status(500).json({ success: false, error: 'Failed to send WhatsApp alert', details: error.message });
     }
 });
