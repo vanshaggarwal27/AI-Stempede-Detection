@@ -3,35 +3,33 @@ import React, { useRef, useState, useEffect, useCallback } from 'react';
 import Webcam from 'react-webcam';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
 import * as tf from '@tensorflow/tfjs';
-import { Camera, Loader2, AlertTriangle, CheckCircle, WifiOff } from 'lucide-react'; // Icons
+import { Camera, Loader2, AlertTriangle, CheckCircle, WifiOff, XCircle, Users, EyeOff } from 'lucide-react'; // Added Users, EyeOff icons
 
-// Main App component
 function App() {
-  const webcamRef = useRef(null); // Reference to the webcam component
-  const canvasRef = useRef(null); // Reference to the canvas for drawing detections
+  const webcamRef = useRef(null);
+  const canvasRef = useRef(null);
 
-  const [model, setModel] = useState(null); // State to hold the loaded COCO-SSD model
-  const [loadingModel, setLoadingModel] = useState(true); // State for model loading status
-  const [detectedPeople, setDetectedPeople] = useState(0); // State for the number of detected people
-  const [alertStatus, setAlertStatus] = useState('idle'); // 'idle', 'warning', 'alerting', 'sent', 'error'
-  const [alertCooldown, setAlertCooldown] = useState(false); // To prevent rapid-fire alerts
-  const [webcamEnabled, setWebcamEnabled] = useState(false); // State to control webcam activation
+  const [model, setModel] = useState(null);
+  const [loadingModel, setLoadingModel] = useState(true);
+  const [detectedPeople, setDetectedPeople] = useState(0);
+  const [alertStatus, setAlertStatus] = useState('idle'); // 'idle', 'warning', 'alerting', 'sent', 'error', 'no-webcam'
+  const [alertCooldown, setAlertCooldown] = useState(false);
+  const [webcamEnabled, setWebcamEnabled] = useState(false);
+  const [recentActivities, setRecentActivities] = useState([]); // New state for recent activities
 
-  // Configuration for alert thresholds
-  const HIGH_DENSITY_THRESHOLD = 0; // Number of people to trigger a 'warning'
-  const CRITICAL_DENSITY_THRESHOLD = 10; // Number of people to trigger an 'alert'
-  const ALERT_COOLDOWN_SECONDS = 30; // Cooldown period for sending alerts
+  // Configuration for alert thresholds (adjusted for more realistic testing)
+  const HIGH_DENSITY_THRESHOLD = 1; // Warning for 1 or more people
+  const CRITICAL_DENSITY_THRESHOLD = 3; // Alert for 3 or more people
+  const ALERT_COOLDOWN_SECONDS = 10;
 
-  // Backend API URL
-  const BACKEND_URL = 'http://localhost:5000/api/alert/stampede'; // Ensure this matches your Node.js backend URL
+  const BACKEND_URL = 'http://localhost:5000/api/alert/stampede';
 
-  // Effect to load the COCO-SSD model when the component mounts
+  // Effect to load the COCO-SSD model
   useEffect(() => {
     const loadModel = async () => {
       try {
-        // Ensure the CPU backend is registered first for initial loading
-        await tf.setBackend('webgl'); // Prefer WebGL for performance
-        await tf.ready(); // Ensure TensorFlow.js is ready
+        await tf.setBackend('webgl');
+        await tf.ready();
 
         const loadedModel = await cocoSsd.load();
         setModel(loadedModel);
@@ -40,45 +38,47 @@ function App() {
       } catch (error) {
         console.error('Failed to load COCO-SSD model:', error);
         setLoadingModel(false);
-        setAlertStatus('error'); // Indicate a critical error
+        setAlertStatus('error');
       }
     };
 
     loadModel();
-  }, []); // Empty dependency array means this runs once on mount
+  }, []);
 
   // Function to detect objects in the video stream
   const detect = useCallback(async () => {
-    // console.log('Detect function called.'); // Debug: confirm function is called
-    if (webcamRef.current && webcamRef.current.video.readyState === 4 && model) {
+    if (webcamRef.current && webcamRef.current.video && webcamRef.current.video.readyState === 4 && model) {
       const video = webcamRef.current.video;
       const videoWidth = video.videoWidth;
       const videoHeight = video.videoHeight;
 
-      // console.log(`Video readyState: ${video.readyState}, Dimensions: ${videoWidth}x${videoHeight}`); // Debug: video status
+      if (canvasRef.current) {
+        canvasRef.current.width = videoWidth;
+        canvasRef.current.height = videoHeight;
+      }
 
-      // Set video and canvas dimensions
-      video.width = videoWidth;
-      video.height = videoHeight;
-      canvasRef.current.width = videoWidth;
-      canvasRef.current.height = videoHeight;
-
-      // Perform object detection
       const predictions = await model.detect(video);
-      // console.log('Raw predictions:', predictions); // Debug: see all predictions
-
-      // Filter for 'person' objects and update count
       const people = predictions.filter(prediction => prediction.class === 'person');
-      setDetectedPeople(people.length);
-      // console.log('Detected people:', people.length); // Debug: count of people
+      const currentPeopleCount = people.length;
+      setDetectedPeople(currentPeopleCount);
 
-      // Draw bounding boxes on the canvas
+      // Add to recent activities if count changes or on an interval (e.g., every few seconds)
+      // For simplicity, adding on every detection frame for now, but could optimize
+      // Only add if the count is different from the last recorded activity or after a certain time
+      if (recentActivities.length === 0 || recentActivities[0].count !== currentPeopleCount) {
+        setRecentActivities(prevActivities => [
+          { timestamp: new Date().toLocaleTimeString(), count: currentPeopleCount },
+          ...prevActivities.slice(0, 9) // Keep last 10 activities
+        ]);
+      }
+
+
       const ctx = canvasRef.current.getContext('2d');
-      ctx.clearRect(0, 0, videoWidth, videoHeight); // Clear previous drawings
+      ctx.clearRect(0, 0, videoWidth, videoHeight);
       ctx.font = '16px Arial';
-      ctx.strokeStyle = '#FF0000'; // Red for bounding box
+      ctx.strokeStyle = '#00FF00'; // Green for bounding box
       ctx.lineWidth = 2;
-      ctx.fillStyle = '#FF0000'; // Red for text
+      ctx.fillStyle = '#00FF00'; // Green for text
 
       people.forEach(prediction => {
         const [x, y, width, height] = prediction.bbox;
@@ -90,31 +90,29 @@ function App() {
 
       // Check for alert conditions
       if (!alertCooldown) {
-        if (people.length >= CRITICAL_DENSITY_THRESHOLD) {
+        if (currentPeopleCount >= CRITICAL_DENSITY_THRESHOLD) {
           setAlertStatus('alerting');
-          sendAlert(`Critical stampede risk! ${people.length} people detected.`, people.length);
-          setAlertCooldown(true); // Activate cooldown
-          setTimeout(() => setAlertCooldown(false), ALERT_COOLDOWN_SECONDS * 1000); // Reset cooldown
-        } else if (people.length >= HIGH_DENSITY_THRESHOLD) {
+          sendAlert(`Critical stampede risk! ${currentPeopleCount} people detected.`, currentPeopleCount);
+          setAlertCooldown(true);
+          setTimeout(() => setAlertCooldown(false), ALERT_COOLDOWN_SECONDS * 1000);
+        } else if (currentPeopleCount >= HIGH_DENSITY_THRESHOLD) {
           setAlertStatus('warning');
-          // Could send a less critical alert here or just update UI
         } else {
           setAlertStatus('idle');
         }
       }
     } else {
-      // console.log('Detect conditions not met:', {
-      //   webcamRefCurrent: !!webcamRef.current,
-      //   videoReadyState: webcamRef.current?.video?.readyState,
-      //   model: !!model
-      // }); // Debug: why detect is not running
+      if (webcamEnabled && !model) {
+        setAlertStatus('error');
+      } else if (webcamEnabled && (!webcamRef.current || !webcamRef.current.video || webcamRef.current.video.readyState !== 4)) {
+        setAlertStatus('no-webcam');
+      }
     }
 
-    // Request next animation frame for continuous detection
-    if (webcamEnabled) { // Only loop if webcam is enabled
+    if (webcamEnabled) {
       requestAnimationFrame(detect);
     }
-  }, [model, alertCooldown, webcamEnabled]); // Dependencies for useCallback
+  }, [model, alertCooldown, webcamEnabled, recentActivities]); // Added recentActivities to dependencies
 
   // Function to send alert to backend
   const sendAlert = async (message, crowdDensity) => {
@@ -127,14 +125,14 @@ function App() {
         body: JSON.stringify({
           message: message,
           crowdDensity: crowdDensity,
-          timestamp: new Date().toISOString(), // ISO 8601 format for backend
+          timestamp: new Date().toISOString(),
         }),
       });
 
       if (response.ok) {
         console.log('Alert sent to backend successfully!');
         setAlertStatus('sent');
-        setTimeout(() => setAlertStatus('idle'), 5000); // Reset status after 5 seconds
+        setTimeout(() => setAlertStatus('idle'), 5000);
       } else {
         const errorData = await response.json();
         console.error('Failed to send alert to backend:', errorData);
@@ -151,129 +149,167 @@ function App() {
     setWebcamEnabled(prev => !prev);
   };
 
-  // Effect to start/stop the detection loop when webcamEnabled changes
+  // Effect to manage the detection loop based on webcamEnabled state
   useEffect(() => {
     if (webcamEnabled && model) {
-      console.log('Starting detection loop...'); // Debug: confirm loop initiation
       requestAnimationFrame(detect);
     } else if (!webcamEnabled) {
-      console.log('Stopping detection loop.'); // Debug: confirm loop stopping
-      // No explicit stop needed for requestAnimationFrame, it just won't call itself again
+      setDetectedPeople(0);
+      setAlertStatus('idle');
     }
-  }, [webcamEnabled, model, detect]); // Added detect as a dependency
+  }, [webcamEnabled, model, detect]);
 
-  // Render UI
+  // Determine status text for the "Current Count" card
+  const getCurrentStatusText = () => {
+    if (detectedPeople >= CRITICAL_DENSITY_THRESHOLD) return "Critical";
+    if (detectedPeople >= HIGH_DENSITY_THRESHOLD) return "High Density";
+    return "Quiet";
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4 font-sans antialiased">
-      <header className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-800 mb-2">
-          AI-Driven Stampede Prevention
-        </h1>
-        <p className="text-lg text-gray-600">Real-time crowd monitoring with automated alerts</p>
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4 font-sans antialiased text-gray-900">
+      {/* Header */}
+      <header className="w-full max-w-2xl flex items-center justify-between py-4 px-2 mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">Crowd Monitor</h1>
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={toggleWebcam}
+            className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            title={webcamEnabled ? "Disable Monitoring" : "Enable Monitoring"}
+          >
+            {webcamEnabled ? <EyeOff size={24} className="text-red-500" /> : <Camera size={24} className="text-blue-500" />}
+          </button>
+          <Users size={24} className="text-gray-600" />
+        </div>
       </header>
 
-      <div className="relative w-full max-w-4xl bg-white rounded-lg shadow-xl overflow-hidden p-6 mb-8">
+      {/* Main Content Area */}
+      <div className="w-full max-w-2xl bg-white rounded-3xl shadow-xl overflow-hidden p-6 mb-6">
+        {/* Loading overlay */}
         {loadingModel && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 text-white text-xl z-10 rounded-lg">
-            <Loader2 className="animate-spin mr-2" size={24} /> Loading AI Model...
+          <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 text-blue-600 text-xl z-10 rounded-2xl flex-col p-4">
+            <Loader2 className="animate-spin mb-4" size={36} />
+            <p>Loading AI Model...</p>
+            <p className="text-sm text-gray-500 mt-2">This might take a moment.</p>
           </div>
         )}
 
+        {/* Webcam off overlay */}
         {!webcamEnabled && !loadingModel && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-800 bg-opacity-75 text-white text-xl z-10 rounded-lg">
-            <Camera size={48} className="mb-4" />
-            <p className="mb-4">Webcam is off. Click "Enable Webcam" to start monitoring.</p>
-            <button
-              onClick={toggleWebcam}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
-            >
-              Enable Webcam
-            </button>
+          <div className="relative flex flex-col items-center justify-center bg-gray-200 text-gray-600 text-xl rounded-2xl p-8 h-96">
+            <Camera size={64} className="mb-6 text-gray-400" />
+            <p className="mb-6 text-lg text-gray-500 text-center">Webcam is off. Click the camera icon above to start monitoring.</p>
           </div>
         )}
 
-        <div className="relative w-full aspect-video bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center">
-          <Webcam
-            ref={webcamRef}
-            muted={true}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              transform: 'scaleX(-1)' // Mirror the webcam feed
-            }}
-            onUserMedia={() => {
-              if (webcamEnabled) { // Only start if webcam was intended to be enabled
-                console.log('Webcam enabled and ready.');
-                requestAnimationFrame(detect); // Start detection loop
-              }
-            }}
-            onUserMediaError={(error) => {
-              console.error('Webcam access denied or error:', error);
-              setWebcamEnabled(false); // Turn off webcam control
-              setAlertStatus('error'); // Indicate an error
-              // Display a user-friendly message
-              alert("Error accessing webcam. Please ensure you've granted camera permissions and no other application is using it.");
-            }}
-          />
-          <canvas
-            ref={canvasRef}
-            className="absolute top-0 left-0"
-            style={{
-              transform: 'scaleX(-1)' // Mirror the canvas drawing to match the mirrored video
-            }}
-          />
+        {/* Webcam and Canvas Container */}
+        {webcamEnabled && !loadingModel && (
+          <div className="relative w-full aspect-video bg-black rounded-xl overflow-hidden shadow-lg">
+            <Webcam
+              ref={webcamRef}
+              muted={true}
+              videoConstraints={{
+                facingMode: 'user',
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+              }}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                transform: 'scaleX(-1)'
+              }}
+              onUserMedia={() => {
+                if (webcamEnabled && model) {
+                  requestAnimationFrame(detect);
+                }
+              }}
+              onUserMediaError={(error) => {
+                console.error('Webcam access denied or error:', error);
+                setWebcamEnabled(false);
+                setAlertStatus('error');
+                alert("Error accessing webcam. Please ensure you've granted camera permissions and no other application is using it.");
+              }}
+            />
+            <canvas
+              ref={canvasRef}
+              className="absolute top-0 left-0"
+              style={{
+                width: '100%',
+                height: '100%',
+                transform: 'scaleX(-1)'
+              }}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Current Count Card */}
+      <div className="w-full max-w-2xl bg-gradient-to-r from-green-500 to-green-700 text-white rounded-2xl shadow-xl p-6 text-center mb-6">
+        <p className="text-lg font-medium opacity-90">Current Count</p>
+        <p className="text-6xl font-extrabold my-2">{detectedPeople}</p>
+        <p className="text-xl font-semibold opacity-90">{getCurrentStatusText()}</p>
+      </div>
+
+      {/* Recent Activity */}
+      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-6">
+        <h2 className="text-xl font-bold text-gray-800 mb-4">Recent Activity</h2>
+        <div className="max-h-60 overflow-y-auto pr-2 custom-scrollbar"> {/* Added custom-scrollbar */}
+          {recentActivities.length > 0 ? (
+            recentActivities.map((activity, index) => (
+              <div key={index} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
+                <span className="text-gray-600 text-sm">{activity.timestamp}</span>
+                <span className="font-semibold text-gray-800">Count: {activity.count}</span>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500 text-center py-4">No recent activity yet. Enable webcam to start monitoring.</p>
+          )}
         </div>
       </div>
 
-      <div className="w-full max-w-4xl bg-white rounded-lg shadow-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="text-2xl font-semibold text-gray-700">
-            People Detected: <span className="text-blue-600">{detectedPeople}</span>
-          </div>
-          <div
-            className={`px-4 py-2 rounded-full font-semibold text-sm ${
-              alertStatus === 'alerting'
-                ? 'bg-red-500 text-white'
-                : alertStatus === 'warning'
-                ? 'bg-yellow-500 text-gray-900'
-                : alertStatus === 'sent'
-                ? 'bg-green-500 text-white'
-                : alertStatus === 'error'
-                ? 'bg-red-700 text-white'
-                : 'bg-gray-200 text-gray-700'
-            }`}
-          >
-            {alertStatus === 'loading' && <><Loader2 className="animate-spin inline mr-2" size={16} /> Loading...</>}
-            {alertStatus === 'idle' && 'Monitoring'}
-            {alertStatus === 'warning' && 'High Density'}
-            {alertStatus === 'alerting' && <><AlertTriangle className="inline mr-1" size={16} /> CRITICAL ALERT!</>}
-            {alertStatus === 'sent' && <><CheckCircle className="inline mr-1" size={16} /> Alert Sent!</>}
-            {alertStatus === 'error' && <><WifiOff className="inline mr-1" size={16} /> Error!</>}
-          </div>
-        </div>
-
-        <button
-          onClick={toggleWebcam}
-          className={`py-3 px-6 rounded-full font-bold shadow-lg transition duration-300 ease-in-out transform hover:scale-105 ${
-            webcamEnabled ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'
-          }`}
-          disabled={loadingModel}
-        >
-          {webcamEnabled ? 'Disable Webcam' : 'Enable Webcam'}
-        </button>
-      </div>
-
+      {/* Status and Error Messages (Moved to bottom, simplified for new UI) */}
       {alertCooldown && alertStatus !== 'sent' && (
-        <p className="mt-4 text-sm text-gray-500">
-          Alert cooldown active. Next alert can be sent in {ALERT_COOLDOWN_SECONDS} seconds.
+        <p className="mt-6 text-sm text-gray-600">
+          Alert cooldown active. Next alert in <span className="font-semibold text-blue-500">{ALERT_COOLDOWN_SECONDS}</span> seconds.
         </p>
       )}
       {alertStatus === 'error' && (
-        <p className="mt-4 text-red-700 font-semibold">
-          An error occurred. Check console for details or ensure backend is running.
+        <p className="mt-6 text-red-600 font-semibold text-lg animate-pulse">
+          <XCircle size={18} className="inline mr-2" /> System Error! Check console.
         </p>
       )}
+      {alertStatus === 'no-webcam' && (
+        <p className="mt-6 text-yellow-600 font-semibold text-lg">
+          <WifiOff size={18} className="inline mr-2" /> Webcam Not Ready! Grant permissions.
+        </p>
+      )}
+
+      {/* Hidden original alert status display - for debugging if needed */}
+      {/* <div
+        className={`px-5 py-2 rounded-full font-semibold text-lg flex items-center gap-2 transition-colors duration-300 mt-4 ${
+          alertStatus === 'alerting'
+            ? 'bg-red-600 text-white shadow-red-500/50 animate-pulse'
+            : alertStatus === 'warning'
+            ? 'bg-yellow-500 text-gray-900 shadow-yellow-500/50'
+            : alertStatus === 'sent'
+            ? 'bg-green-600 text-white shadow-green-500/50'
+            : alertStatus === 'error' || alertStatus === 'no-webcam'
+            ? 'bg-red-800 text-white shadow-red-800/50'
+            : 'bg-gray-700 text-gray-300'
+        }`}
+      >
+        {alertStatus === 'loading' && <><Loader2 size={20} /> Loading...</>}
+        {alertStatus === 'idle' && 'Monitoring Active'}
+        {alertStatus === 'warning' && 'High Density Detected'}
+        {alertStatus === 'alerting' && <><AlertTriangle size={20} /> CRITICAL ALERT!</>}
+        {alertStatus === 'sent' && <><CheckCircle size={20} /> Alert Sent Successfully!</>}
+        {alertStatus === 'error' && <><XCircle size={20} /> System Error!</>}
+        {alertStatus === 'no-webcam' && <><WifiOff size={20} /> Webcam Not Ready!</>}
+      </div> */}
     </div>
   );
 }
