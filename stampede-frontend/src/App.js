@@ -128,7 +128,17 @@ function App() {
 
   // Function to send alert to backend
   const sendAlert = async (message, crowdDensity) => {
+    // Double-check cooldown before sending (extra protection)
+    const currentTime = Date.now();
+    const timeSinceLastAlert = currentTime - lastAlertTimeRef.current;
+
+    if (timeSinceLastAlert < (ALERT_COOLDOWN_SECONDS * 1000)) {
+      console.log('Alert blocked: Still in cooldown period');
+      return;
+    }
+
     try {
+      console.log('Sending alert to backend:', message);
       const response = await fetch(BACKEND_URL, {
         method: 'POST',
         headers: {
