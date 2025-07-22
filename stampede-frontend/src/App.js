@@ -89,18 +89,29 @@ function App() {
         ctx.fillText(`Person (${Math.round(prediction.score * 100)}%)`, x, y > 10 ? y - 5 : 10);
       });
 
-      // Check for alert conditions
-      if (!alertCooldown) {
-        if (currentPeopleCount >= CRITICAL_DENSITY_THRESHOLD) {
-          setAlertStatus('alerting');
-          sendAlert(`Critical stampede risk! ${currentPeopleCount} people detected.`, currentPeopleCount);
-          setAlertCooldown(true);
-          setTimeout(() => setAlertCooldown(false), ALERT_COOLDOWN_SECONDS * 1000);
-        } else if (currentPeopleCount >= HIGH_DENSITY_THRESHOLD) {
-          setAlertStatus('warning');
-        } else {
-          setAlertStatus('idle');
-        }
+      // Check for alert conditions with robust cooldown
+      const currentTime = Date.now();
+      const timeSinceLastAlert = currentTime - lastAlertTimeRef.current;
+      const cooldownActive = alertCooldownRef.current || timeSinceLastAlert < (ALERT_COOLDOWN_SECONDS * 1000);
+
+      if (!cooldownActive && currentPeopleCount >= CRITICAL_DENSITY_THRESHOLD) {
+        // Immediately set cooldown to prevent spam
+        alertCooldownRef.current = true;
+        lastAlertTimeRef.current = currentTime;
+
+        setAlertStatus('alerting');
+        sendAlert(`Critical stampede risk! ${currentPeopleCount} people detected.`, currentPeopleCount);
+        setAlertCooldown(true);
+
+        // Reset cooldown after timeout
+        setTimeout(() => {
+          alertCooldownRef.current = false;
+          setAlertCooldown(false);
+        }, ALERT_COOLDOWN_SECONDS * 1000);
+      } else if (currentPeopleCount >= HIGH_DENSITY_THRESHOLD) {
+        setAlertStatus('warning');
+      } else {
+        setAlertStatus('idle');
       }
     } else {
       if (webcamEnabled && !model) {
