@@ -8,6 +8,8 @@ import { Camera, Loader2, AlertTriangle, CheckCircle, WifiOff, XCircle, Users, E
 function App() {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
+  const lastAlertTimeRef = useRef(0); // Track last alert time immediately
+  const alertCooldownRef = useRef(false); // Immediate cooldown tracking
 
   const [model, setModel] = useState(null);
   const [loadingModel, setLoadingModel] = useState(true);
