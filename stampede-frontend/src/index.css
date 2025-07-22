@@ -1,20 +1,250 @@
-/* src/index.css */
-/* Add this at the bottom of your index.css */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 
+/* Futuristic Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 8px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: rgba(31, 41, 55, 0.3);
   border-radius: 10px;
+  border: 1px solid rgba(96, 165, 250, 0.2);
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #888;
+  background: linear-gradient(45deg, #06b6d4, #3b82f6);
   border-radius: 10px;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: linear-gradient(45deg, #0891b2, #2563eb);
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
+}
+
+/* Firefox scrollbar */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #06b6d4 rgba(31, 41, 55, 0.3);
+}
+
+/* Glowing text animation */
+@keyframes glow {
+  0%, 100% {
+    text-shadow: 0 0 5px rgba(6, 182, 212, 0.5),
+                 0 0 10px rgba(6, 182, 212, 0.3),
+                 0 0 15px rgba(6, 182, 212, 0.2);
+  }
+  50% {
+    text-shadow: 0 0 10px rgba(6, 182, 212, 0.8),
+                 0 0 20px rgba(6, 182, 212, 0.6),
+                 0 0 30px rgba(6, 182, 212, 0.4);
+  }
+}
+
+.text-glow {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+/* Pulse animation for critical alerts */
+@keyframes danger-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3),
+                0 0 40px rgba(239, 68, 68, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.6),
+                0 0 60px rgba(239, 68, 68, 0.4);
+  }
+}
+
+.danger-pulse {
+  animation: danger-pulse 1s ease-in-out infinite;
+}
+
+/* Backdrop blur fallback */
+.backdrop-blur-fallback {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+@supports (backdrop-filter: blur(0)) {
+  .backdrop-blur-fallback {
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(12px);
+  }
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition: all 0.2s ease-out;
+}
+
+/* Custom button hover effects */
+button {
+  position: relative;
+  overflow: hidden;
+}
+
+button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  transition: width 0.6s, height 0.6s, top 0.6s, left 0.6s;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+}
+
+button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+button > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Floating animation for decorative elements */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-10px) rotate(1deg); }
+  66% { transform: translateY(5px) rotate(-1deg); }
+}
+
+.float-animation {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Matrix-style digital rain effect for loading */
+@keyframes matrix {
+  0% { transform: translateY(-100%); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+.matrix-rain {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.matrix-rain::before {
+  content: '01001001 01101110 01110100 01100101 01101100 01101100 01101001 01100111 01100101 01101110 01100011 01100101';
+  position: absolute;
+  top: -100%;
+  left: 0;
+  right: 0;
+  height: 200vh;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: rgba(6, 182, 212, 0.1);
+  white-space: pre-wrap;
+  word-break: break-all;
+  animation: matrix 10s linear infinite;
+}
+
+/* Neon border effect */
+.neon-border {
+  position: relative;
+}
+
+.neon-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, #06b6d4, #3b82f6, #8b5cf6, #06b6d4);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0.7;
+  filter: blur(1px);
+}
+
+/* Enhanced focus states for accessibility */
+button:focus,
+input:focus,
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.5);
+}
+
+/* Loading spinner enhancement */
+@keyframes enhanced-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.enhanced-spin {
+  animation: enhanced-spin 1s linear infinite;
+}
+
+/* Video container enhancements */
+.video-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.video-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, 
+    transparent 48%, 
+    rgba(6, 182, 212, 0.03) 49%, 
+    rgba(6, 182, 212, 0.03) 51%, 
+    transparent 52%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Responsive design improvements */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .text-7xl {
+    font-size: 4rem;
+  }
+  
+  .text-4xl {
+    font-size: 2.5rem;
+  }
+}
+
+/* Dark mode enhancements */
+@media (prefers-color-scheme: dark) {
+  * {
+    color-scheme: dark;
+  }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
