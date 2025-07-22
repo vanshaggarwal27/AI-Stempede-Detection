@@ -178,6 +178,10 @@ function App() {
     } else if (!webcamEnabled) {
       setDetectedPeople(0);
       setAlertStatus('idle');
+      // Reset cooldown when webcam is disabled
+      alertCooldownRef.current = false;
+      lastAlertTimeRef.current = 0;
+      setAlertCooldown(false);
     }
   }, [webcamEnabled, model, detect]);
 
