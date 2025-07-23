@@ -288,19 +288,4 @@ module.exports = {
   testFreeNotificationServices
 };
 
-// Usage in your SOS routes:
-/*
-const { sendFreeEmergencyAlerts } = require('./free-notification-service');
-
-// In your SOS approval endpoint:
-if (decision === 'approved') {
-  const nearbyUsers = await User.findInRadius(
-    sosReport.incident.location.coordinates[0],
-    sosReport.incident.location.coordinates[1],
-    1000 // 1km radius
-  );
-  
-  const alertResult = await sendFreeEmergencyAlerts(sosReport, nearbyUsers);
-  console.log('Free emergency alerts sent:', alertResult);
-}
-*/
+// This service uses only FREE tier services - no credits required!
