@@ -1004,9 +1004,15 @@ function App() {
         {/* Video Modal */}
         {showVideoModal && selectedSOSReport && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="bg-black rounded-lg overflow-hidden max-w-4xl w-full max-h-[90vh]">
+            <div className="bg-black rounded-lg overflow-hidden max-w-4xl w-full max-h-[90vh] border border-green-500/30">
               <div className="p-4 border-b border-gray-700 flex items-center justify-between">
-                <h3 className="text-white font-semibold">Emergency Video - {selectedSOSReport.userInfo.name}</h3>
+                <div className="flex items-center space-x-3">
+                  <h3 className="text-white font-semibold">Emergency Video - {selectedSOSReport.userInfo.name}</h3>
+                  <div className="flex items-center space-x-2 bg-green-900/30 px-2 py-1 rounded border border-green-500/50">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span className="text-green-400 text-xs font-medium">Firebase Storage</span>
+                  </div>
+                </div>
                 <button
                   onClick={() => setShowVideoModal(false)}
                   className="text-gray-400 hover:text-white"
@@ -1015,13 +1021,25 @@ function App() {
                 </button>
               </div>
               <div className="p-4">
-                <video
-                  src={selectedSOSReport.incident.videoUrl}
-                  controls
-                  autoPlay
-                  className="w-full h-auto"
-                  poster={selectedSOSReport.incident.videoThumbnail}
-                />
+                {selectedSOSReport.incident.videoUrl ? (
+                  <video
+                    src={selectedSOSReport.incident.videoUrl}
+                    controls
+                    autoPlay
+                    className="w-full h-auto"
+                    poster={selectedSOSReport.incident.videoThumbnail}
+                    onLoadStart={() => console.log('🎥 Full screen video loading from Firebase Storage')}
+                    onCanPlay={() => console.log('✅ Full screen video ready to play')}
+                  />
+                ) : (
+                  <div className="w-full h-96 flex items-center justify-center bg-gray-800 rounded">
+                    <div className="text-center">
+                      <AlertTriangle className="mx-auto mb-4 text-yellow-500" size={48} />
+                      <p className="text-gray-400 text-lg mb-2">Video not available</p>
+                      <p className="text-gray-500">Firebase Storage URL missing or invalid</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
