@@ -19,6 +19,14 @@ function App() {
   const [webcamEnabled, setWebcamEnabled] = useState(false);
   const [recentActivities, setRecentActivities] = useState([]);
 
+  // SOS Alerts Management State
+  const [activeTab, setActiveTab] = useState('monitoring'); // 'monitoring' or 'sos-alerts'
+  const [sosReports, setSOSReports] = useState([]);
+  const [selectedSOSReport, setSelectedSOSReport] = useState(null);
+  const [sosLoading, setSOSLoading] = useState(false);
+  const [sosProcessing, setSOSProcessing] = useState({});
+  const [showVideoModal, setShowVideoModal] = useState(false);
+
   // Configuration for alert thresholds (adjusted for more realistic testing)
   const HIGH_DENSITY_THRESHOLD = 1; // Warning for 1 or more people
   const CRITICAL_DENSITY_THRESHOLD = 3; // Alert for 3 or more people
