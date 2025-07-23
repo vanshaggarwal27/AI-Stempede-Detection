@@ -33,6 +33,7 @@ function App() {
   const ALERT_COOLDOWN_SECONDS = 10;
 
   const BACKEND_URL = 'http://localhost:5000/api/alert/stampede';
+  const SOS_API_URL = 'http://localhost:5000/api/sos';
 
   // Effect to load the COCO-SSD model
   useEffect(() => {
