@@ -1,8 +1,8 @@
 // firebase/config.js - Firebase Configuration for SOS Alert System
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getStorage } from "firebase/storage";
-import { getFirestore } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getFirestore, collection, addDoc, doc, updateDoc, query, where, orderBy, onSnapshot, serverTimestamp } from "firebase/firestore";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 // Your Firebase configuration from console
