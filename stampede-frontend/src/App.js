@@ -362,6 +362,19 @@ function App() {
     }
   }, [webcamEnabled, model, detect]);
 
+  // Effect to fetch SOS reports when switching to SOS alerts tab
+  useEffect(() => {
+    fetchSOSReports();
+  }, [fetchSOSReports]);
+
+  // Auto-refresh SOS reports every 30 seconds when on SOS tab
+  useEffect(() => {
+    if (activeTab === 'sos-alerts') {
+      const interval = setInterval(fetchSOSReports, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [activeTab, fetchSOSReports]);
+
   // Determine status text for the "Current Count" card
   const getCurrentStatusText = () => {
     if (detectedPeople >= CRITICAL_DENSITY_THRESHOLD) return "CRITICAL ALERT";
