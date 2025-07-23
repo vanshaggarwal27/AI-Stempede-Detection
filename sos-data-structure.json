@@ -1,0 +1,206 @@
+{
+  "sosReportSchema": {
+    "id": "sos_12345678",
+    "userId": "user_abc123",
+    "userInfo": {
+      "name": "John Doe",
+      "phone": "+1234567890",
+      "email": "john@example.com"
+    },
+    "incident": {
+      "videoUrl": "https://firebasestorage.googleapis.com/v0/b/project/o/sos-videos%2Fsos_12345678.mp4",
+      "videoThumbnail": "https://firebasestorage.googleapis.com/v0/b/project/o/thumbnails%2Fsos_12345678.jpg",
+      "videoDuration": 12,
+      "message": "Large crowd stampede at metro station, people falling down",
+      "location": {
+        "latitude": 28.7041,
+        "longitude": 77.1025,
+        "address": "Connaught Place, New Delhi, India",
+        "accuracy": 5.2
+      },
+      "timestamp": "2024-01-15T14:30:45.123Z",
+      "deviceInfo": {
+        "platform": "ios",
+        "version": "17.2",
+        "model": "iPhone 14"
+      }
+    },
+    "status": "pending",
+    "adminReview": {
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "decision": null,
+      "adminNotes": ""
+    },
+    "alertSent": {
+      "isSent": false,
+      "sentAt": null,
+      "recipientCount": 0,
+      "alertId": null
+    },
+    "metadata": {
+      "createdAt": "2024-01-15T14:30:45.123Z",
+      "updatedAt": "2024-01-15T14:30:45.123Z",
+      "priority": "high",
+      "category": "stampede"
+    }
+  },
+  
+  "apiEndpoints": {
+    "POST /api/sos/report": {
+      "description": "Submit new SOS report",
+      "body": {
+        "userId": "user_abc123",
+        "videoUrl": "https://storage.url/video.mp4",
+        "videoThumbnail": "https://storage.url/thumbnail.jpg",
+        "videoDuration": 12,
+        "location": {
+          "latitude": 28.7041,
+          "longitude": 77.1025,
+          "accuracy": 5.2
+        },
+        "message": "Emergency situation description",
+        "deviceInfo": {
+          "platform": "ios",
+          "version": "17.2",
+          "model": "iPhone 14"
+        }
+      },
+      "response": {
+        "success": true,
+        "sosId": "sos_12345678",
+        "message": "SOS report submitted successfully"
+      }
+    },
+    
+    "GET /api/sos/pending": {
+      "description": "Get all pending SOS reports for admin review",
+      "response": {
+        "success": true,
+        "reports": ["...array of SOS reports..."],
+        "count": 5
+      }
+    },
+    
+    "PUT /api/sos/:sosId/review": {
+      "description": "Admin review SOS report",
+      "body": {
+        "decision": "approved",
+        "adminNotes": "Legitimate emergency, sending alerts"
+      },
+      "response": {
+        "success": true,
+        "alertSent": {
+          "recipientCount": 47,
+          "alertId": "alert_xyz789"
+        }
+      }
+    },
+    
+    "GET /api/sos/users-in-radius": {
+      "description": "Get users within radius for alert sending",
+      "query": {
+        "latitude": 28.7041,
+        "longitude": 77.1025,
+        "radius": 1000
+      },
+      "response": {
+        "success": true,
+        "users": [
+          {
+            "userId": "user_def456",
+            "fcmToken": "fcm_token_here",
+            "phone": "+1234567891",
+            "distance": 0.8
+          }
+        ],
+        "count": 47
+      }
+    }
+  },
+  
+  "notificationPayloads": {
+    "whatsappMessage": {
+      "to": "+1234567890",
+      "type": "template",
+      "template": {
+        "name": "sos_alert",
+        "language": {
+          "code": "en"
+        },
+        "components": [
+          {
+            "type": "body",
+            "parameters": [
+              {
+                "type": "text",
+                "text": "Connaught Place, New Delhi"
+              },
+              {
+                "type": "text", 
+                "text": "0.8 km"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    
+    "azurePushNotification": {
+      "notification": {
+        "title": "🚨 Emergency Alert",
+        "body": "Stampede reported 0.8km from your location. Stay alert and avoid the area.",
+        "sound": "emergency.wav"
+      },
+      "data": {
+        "type": "sos_alert",
+        "sosId": "sos_12345678",
+        "latitude": "28.7041",
+        "longitude": "77.1025",
+        "distance": "0.8",
+        "category": "stampede"
+      },
+      "android": {
+        "priority": "high",
+        "notification": {
+          "channel_id": "emergency_alerts",
+          "color": "#FF0000",
+          "icon": "emergency_icon"
+        }
+      },
+      "apns": {
+        "payload": {
+          "aps": {
+            "alert": {
+              "title": "🚨 Emergency Alert",
+              "body": "Stampede reported 0.8km from your location."
+            },
+            "sound": "emergency.wav",
+            "badge": 1,
+            "category": "EMERGENCY_ALERT"
+          }
+        }
+      }
+    }
+  },
+  
+  "databaseSchema": {
+    "collections": {
+      "sosReports": {
+        "indexes": [
+          {"timestamp": -1},
+          {"status": 1, "timestamp": -1},
+          {"location.coordinates": "2dsphere"},
+          {"userId": 1, "timestamp": -1}
+        ]
+      },
+      "users": {
+        "indexes": [
+          {"location.coordinates": "2dsphere"},
+          {"fcmToken": 1},
+          {"phone": 1}
+        ]
+      }
+    }
+  }
+}
