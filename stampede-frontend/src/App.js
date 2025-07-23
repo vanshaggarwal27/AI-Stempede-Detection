@@ -422,11 +422,43 @@ function App() {
               <h1 className="text-4xl font-extrabold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
                 STAMPEDE GUARD
               </h1>
-              <p className="text-cyan-300 text-sm font-medium">AI-Powered Crowd Monitoring System</p>
+              <p className="text-cyan-300 text-sm font-medium">AI-Powered Crowd Monitoring & Emergency Response System</p>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-6">
+            {/* Tab Navigation */}
+            <div className="flex items-center space-x-2 bg-black/40 backdrop-blur-lg rounded-2xl p-2 border border-gray-700/50">
+              <button
+                onClick={() => setActiveTab('monitoring')}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 ${
+                  activeTab === 'monitoring'
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg'
+                    : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
+                }`}
+              >
+                <Activity size={20} />
+                <span className="font-medium">Live Monitor</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('sos-alerts')}
+                className={`relative flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 ${
+                  activeTab === 'sos-alerts'
+                    ? 'bg-gradient-to-r from-red-500 to-orange-600 text-white shadow-lg'
+                    : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
+                }`}
+              >
+                <Bell size={20} />
+                <span className="font-medium">SOS Alerts</span>
+                {sosReports.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-pulse">
+                    {sosReports.length}
+                  </span>
+                )}
+              </button>
+            </div>
+
             {/* Status Indicator */}
             <div className="flex items-center space-x-2">
               <div className={`w-3 h-3 rounded-full ${webcamEnabled ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`}></div>
@@ -436,24 +468,26 @@ function App() {
             </div>
 
             {/* Control Button */}
-            <button
-              onClick={toggleWebcam}
-              className={`relative p-4 rounded-2xl backdrop-blur-lg transition-all duration-300 transform hover:scale-105 ${
-                webcamEnabled 
-                  ? 'bg-red-500/20 border border-red-400/50 shadow-lg shadow-red-500/25 hover:bg-red-500/30' 
-                  : 'bg-green-500/20 border border-green-400/50 shadow-lg shadow-green-500/25 hover:bg-green-500/30'
-              }`}
-              title={webcamEnabled ? "Disable Monitoring" : "Enable Monitoring"}
-            >
-              {webcamEnabled ? (
-                <EyeOff size={28} className="text-red-300" />
-              ) : (
-                <Camera size={28} className="text-green-300" />
-              )}
-              <span className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full flex items-center justify-center">
-                <Zap size={12} className="text-white" />
-              </span>
-            </button>
+            {activeTab === 'monitoring' && (
+              <button
+                onClick={toggleWebcam}
+                className={`relative p-4 rounded-2xl backdrop-blur-lg transition-all duration-300 transform hover:scale-105 ${
+                  webcamEnabled
+                    ? 'bg-red-500/20 border border-red-400/50 shadow-lg shadow-red-500/25 hover:bg-red-500/30'
+                    : 'bg-green-500/20 border border-green-400/50 shadow-lg shadow-green-500/25 hover:bg-green-500/30'
+                }`}
+                title={webcamEnabled ? "Disable Monitoring" : "Enable Monitoring"}
+              >
+                {webcamEnabled ? (
+                  <EyeOff size={28} className="text-red-300" />
+                ) : (
+                  <Camera size={28} className="text-green-300" />
+                )}
+                <span className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full flex items-center justify-center">
+                  <Zap size={12} className="text-white" />
+                </span>
+              </button>
+            )}
           </div>
         </header>
 
