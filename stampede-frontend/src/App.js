@@ -361,7 +361,21 @@ function App() {
 
   // Effect to fetch SOS reports when switching to SOS alerts tab
   useEffect(() => {
-    fetchSOSReports();
+    let unsubscribe = null;
+
+    const setupListener = async () => {
+      unsubscribe = await fetchSOSReports();
+    };
+
+    setupListener();
+
+    // Cleanup Firebase listener on unmount
+    return () => {
+      if (unsubscribe && typeof unsubscribe === 'function') {
+        console.log('🧹 Cleaning up Firebase SOS reports listener');
+        unsubscribe();
+      }
+    };
   }, [fetchSOSReports]);
 
   // Auto-refresh SOS reports every 30 seconds when on SOS tab
