@@ -187,91 +187,93 @@ function App() {
 
     try {
       setSOSLoading(true);
-      const response = await fetch(`${SOS_API_URL}/pending`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('adminToken') || 'demo-token'}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      console.log('🔥 Setting up Firebase real-time listener for SOS reports...');
 
-      if (response.ok) {
-        const data = await response.json();
-        setSOSReports(data.reports || []);
-      } else {
-        // For demo purposes, use mock data if API is not available
-        setSOSReports([
-          {
-            _id: 'sos_demo_1',
-            userId: 'user_123',
-            userInfo: {
-              name: 'John Doe',
-              phone: '+1234567890',
-              email: 'john@example.com'
+      // Set up real-time listener for Firebase SOS reports
+      const unsubscribe = listenToSOSReports((reports) => {
+        console.log('📥 Received SOS reports from Firebase:', reports);
+
+        // Transform Firebase data to match existing component structure
+        const transformedReports = reports.map(report => ({
+          _id: report.id,
+          userId: report.userId || 'unknown',
+          userInfo: {
+            name: report.userInfo?.name || 'Anonymous User',
+            phone: report.userInfo?.phone || '+91-XXXX-XXXX',
+            email: report.userInfo?.email || 'user@example.com'
+          },
+          incident: {
+            videoUrl: report.incident?.videoUrl || '',
+            videoThumbnail: report.incident?.videoThumbnail || '',
+            videoDuration: report.incident?.videoDuration || 0,
+            message: report.incident?.message || 'Emergency situation reported',
+            location: {
+              latitude: report.incident?.location?.latitude || 28.7041,
+              longitude: report.incident?.location?.longitude || 77.1025,
+              address: report.incident?.location?.address || 'Location not available',
+              accuracy: report.incident?.location?.accuracy || 0
             },
-            incident: {
-              videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
-              videoThumbnail: '',
-              videoDuration: 15,
-              message: 'Large crowd stampede at metro station, people falling down',
-              location: {
-                latitude: 28.7041,
-                longitude: 77.1025,
-                address: 'Connaught Place, New Delhi, India',
-                accuracy: 5.2
-              },
-              timestamp: new Date(Date.now() - 10 * 60 * 1000), // 10 minutes ago
-              deviceInfo: {
-                platform: 'ios',
-                version: '17.2',
-                model: 'iPhone 14'
-              }
-            },
-            status: 'pending',
-            metadata: {
-              priority: 'high',
-              category: 'stampede'
+            timestamp: report.createdAt?.toDate() || new Date(),
+            deviceInfo: {
+              platform: report.incident?.deviceInfo?.platform || 'unknown',
+              version: report.incident?.deviceInfo?.version || 'unknown',
+              model: report.incident?.deviceInfo?.model || 'unknown'
             }
           },
-          {
-            _id: 'sos_demo_2',
-            userId: 'user_456',
-            userInfo: {
-              name: 'Sarah Smith',
-              phone: '+1234567891',
-              email: 'sarah@example.com'
-            },
-            incident: {
-              videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4',
-              videoThumbnail: '',
-              videoDuration: 12,
-              message: 'Fire emergency at shopping mall, smoke everywhere',
-              location: {
-                latitude: 28.6139,
-                longitude: 77.2090,
-                address: 'India Gate, New Delhi, India',
-                accuracy: 3.1
-              },
-              timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-              deviceInfo: {
-                platform: 'android',
-                version: '13',
-                model: 'Samsung Galaxy S23'
-              }
-            },
-            status: 'pending',
-            metadata: {
-              priority: 'high',
-              category: 'fire'
-            }
+          status: report.status || 'pending',
+          metadata: {
+            priority: report.metadata?.priority || 'medium',
+            category: report.metadata?.category || 'emergency'
           }
-        ]);
-      }
+        }));
+
+        setSOSReports(transformedReports);
+        setSOSLoading(false);
+      });
+
+      // Store unsubscribe function for cleanup
+      return unsubscribe;
+
     } catch (error) {
-      console.error('Error fetching SOS reports:', error);
-      // Use mock data on error
-      setSOSReports([]);
-    } finally {
+      console.error('❌ Error setting up Firebase listener:', error);
       setSOSLoading(false);
+
+      // Fallback to demo data if Firebase fails
+      console.log('📋 Using demo data as fallback...');
+      setSOSReports([
+        {
+          _id: 'demo_firebase_1',
+          userId: 'demo_user_1',
+          userInfo: {
+            name: 'Demo User - Firebase',
+            phone: '+91-9876543210',
+            email: 'demo@firebase.com'
+          },
+          incident: {
+            videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+            videoThumbnail: '',
+            videoDuration: 15,
+            message: 'Demo emergency report - Firebase integration active',
+            location: {
+              latitude: 28.7041,
+              longitude: 77.1025,
+              address: 'Firebase Demo Location, New Delhi, India',
+              accuracy: 5.0
+            },
+            timestamp: new Date(Date.now() - 5 * 60 * 1000),
+            deviceInfo: {
+              platform: 'web',
+              version: '1.0',
+              model: 'Firebase Demo'
+            }
+          },
+          status: 'pending',
+          metadata: {
+            priority: 'high',
+            category: 'demo'
+          }
+        }
+      ]);
     }
   }, [activeTab]);
 
