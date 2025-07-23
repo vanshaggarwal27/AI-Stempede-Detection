@@ -806,6 +806,10 @@ function App() {
                                 <Clock size={14} />
                                 <span>Video: {report.incident.videoDuration}s</span>
                               </div>
+                              <div className="flex items-center space-x-1 bg-green-900/30 px-2 py-1 rounded border border-green-500/50">
+                                <div className="w-1 h-1 bg-green-400 rounded-full"></div>
+                                <span className="text-green-400 text-xs">Firebase Storage</span>
+                              </div>
                               <span className="capitalize bg-gray-800/50 px-2 py-1 rounded text-cyan-300">
                                 {report.metadata.category}
                               </span>
