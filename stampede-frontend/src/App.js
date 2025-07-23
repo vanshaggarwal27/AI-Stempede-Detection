@@ -858,22 +858,47 @@ function App() {
                         <h4 className="font-semibold text-white flex items-center space-x-2">
                           <Play size={16} className="text-red-400" />
                           <span>Emergency Video</span>
+                          <div className="flex items-center space-x-1 ml-2">
+                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                            <span className="text-xs text-green-400 font-medium">Firebase Storage</span>
+                          </div>
                         </h4>
-                        <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
-                          <video
-                            src={selectedSOSReport.incident.videoUrl}
-                            controls
-                            className="w-full h-full object-cover"
-                            poster={selectedSOSReport.incident.videoThumbnail}
-                          />
+                        <div className="relative bg-black rounded-lg overflow-hidden aspect-video border border-green-500/30">
+                          {selectedSOSReport.incident.videoUrl ? (
+                            <video
+                              src={selectedSOSReport.incident.videoUrl}
+                              controls
+                              className="w-full h-full object-cover"
+                              poster={selectedSOSReport.incident.videoThumbnail}
+                              onLoadStart={() => console.log('🎥 Loading video from Firebase Storage:', selectedSOSReport.incident.videoUrl)}
+                              onCanPlay={() => console.log('✅ Video loaded successfully from Firebase')}
+                              onError={(e) => console.error('❌ Video loading error:', e)}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-800">
+                              <div className="text-center">
+                                <AlertTriangle className="mx-auto mb-2 text-yellow-500" size={32} />
+                                <p className="text-gray-400 text-sm">Video not available</p>
+                                <p className="text-gray-500 text-xs">Firebase Storage URL missing</p>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        <button
-                          onClick={() => setShowVideoModal(true)}
-                          className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 text-sm"
-                        >
-                          <ExternalLink size={14} />
-                          <span>Open full screen</span>
-                        </button>
+                        <div className="flex items-center justify-between">
+                          <button
+                            onClick={() => setShowVideoModal(true)}
+                            className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 text-sm"
+                          >
+                            <ExternalLink size={14} />
+                            <span>Open full screen</span>
+                          </button>
+                          {selectedSOSReport.incident.videoUrl && (
+                            <div className="flex items-center space-x-2 text-green-400 text-xs">
+                              <div className="w-1 h-1 bg-green-400 rounded-full"></div>
+                              <span>Streamed from Firebase</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       {/* User Information */}
