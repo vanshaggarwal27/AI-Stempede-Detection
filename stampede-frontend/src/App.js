@@ -491,7 +491,9 @@ function App() {
           </div>
         </header>
 
-        <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Content Area */}
+        {activeTab === 'monitoring' ? (
+          <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Video Feed - Takes 2/3 width on large screens */}
           <div className="lg:col-span-2">
             <div className="bg-black/40 backdrop-blur-xl rounded-3xl border border-cyan-400/30 overflow-hidden shadow-2xl shadow-cyan-500/20">
@@ -709,6 +711,285 @@ function App() {
             </div>
           </div>
         </div>
+        ) : (
+          /* SOS Alerts Management */
+          <div className="w-full max-w-6xl">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* SOS Reports List */}
+              <div className="lg:col-span-2">
+                <div className="bg-black/40 backdrop-blur-xl rounded-2xl border border-gray-700/50 overflow-hidden">
+                  <div className="p-6 border-b border-gray-700/50">
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-2xl font-bold text-white flex items-center space-x-3">
+                        <AlertTriangle className="text-red-400" size={28} />
+                        <span>Emergency SOS Reports</span>
+                      </h2>
+                      <div className="flex items-center space-x-3">
+                        <span className="text-gray-400 text-sm">
+                          {sosReports.length} pending review{sosReports.length !== 1 ? 's' : ''}
+                        </span>
+                        <button
+                          onClick={fetchSOSReports}
+                          className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                          title="Refresh"
+                        >
+                          <Activity size={16} className="text-white" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {sosLoading ? (
+                    <div className="p-8 text-center">
+                      <div className="animate-spin mx-auto mb-4 w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                      <p className="text-gray-400">Loading SOS reports...</p>
+                    </div>
+                  ) : sosReports.length === 0 ? (
+                    <div className="p-8 text-center">
+                      <CheckCircle className="mx-auto mb-4 text-green-500" size={48} />
+                      <p className="text-gray-400 text-lg">No pending SOS reports</p>
+                      <p className="text-gray-500 text-sm mt-2">All emergency reports have been reviewed</p>
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-gray-700/50">
+                      {sosReports.map((report) => (
+                        <div
+                          key={report._id}
+                          className={`p-6 hover:bg-gray-800/50 transition-colors cursor-pointer ${
+                            selectedSOSReport?._id === report._id ? 'bg-blue-900/30 border-l-4 border-blue-500' : ''
+                          }`}
+                          onClick={() => setSelectedSOSReport(report)}
+                        >
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex items-center space-x-3">
+                              <div className={`px-3 py-1 rounded-full text-xs font-bold border ${getPriorityColor(report.metadata.priority)}`}>
+                                🚨 {report.metadata.priority.toUpperCase()} PRIORITY
+                              </div>
+                              <div className="px-2 py-1 bg-orange-900/30 border border-orange-500/50 rounded-full text-xs font-medium text-orange-300">
+                                PENDING REVIEW
+                              </div>
+                            </div>
+                            <span className="text-gray-400 text-sm">{formatTimeAgo(report.incident.timestamp)}</span>
+                          </div>
+
+                          <div className="space-y-3">
+                            <div className="flex items-center space-x-2 text-gray-300">
+                              <Users size={16} />
+                              <span className="font-medium text-white">{report.userInfo.name}</span>
+                              <span className="text-gray-500">•</span>
+                              <span className="text-gray-400">{report.userInfo.phone}</span>
+                            </div>
+
+                            <div className="flex items-center space-x-2 text-gray-300">
+                              <MapPin size={16} />
+                              <span className="text-sm">{report.incident.location.address || 'Location unavailable'}</span>
+                            </div>
+
+                            <div className="flex items-start space-x-2 text-gray-300">
+                              <MessageSquare size={16} className="mt-0.5" />
+                              <span className="text-sm">{report.incident.message}</span>
+                            </div>
+
+                            <div className="flex items-center space-x-4 text-gray-400 text-sm">
+                              <div className="flex items-center space-x-1">
+                                <Clock size={14} />
+                                <span>Video: {report.incident.videoDuration}s</span>
+                              </div>
+                              <span className="capitalize bg-gray-800/50 px-2 py-1 rounded text-cyan-300">
+                                {report.metadata.category}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center space-x-3 mt-6">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSOSReview(report._id, 'approved');
+                              }}
+                              disabled={sosProcessing[report._id]}
+                              className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm transition-colors font-medium"
+                            >
+                              <CheckCircle size={16} />
+                              <span>✅ APPROVE & SEND ALERTS</span>
+                            </button>
+
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSOSReview(report._id, 'rejected');
+                              }}
+                              disabled={sosProcessing[report._id]}
+                              className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm transition-colors font-medium"
+                            >
+                              <XCircle size={16} />
+                              <span>❌ REJECT</span>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Selected Report Detail */}
+              <div className="lg:col-span-1">
+                {selectedSOSReport ? (
+                  <div className="bg-black/40 backdrop-blur-xl rounded-2xl border border-gray-700/50 overflow-hidden">
+                    <div className="p-6 border-b border-gray-700/50">
+                      <h3 className="text-xl font-bold text-white">Emergency Details</h3>
+                    </div>
+
+                    <div className="p-6 space-y-6">
+                      {/* Video Player */}
+                      <div className="space-y-3">
+                        <h4 className="font-semibold text-white flex items-center space-x-2">
+                          <Play size={16} className="text-red-400" />
+                          <span>Emergency Video</span>
+                        </h4>
+                        <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
+                          <video
+                            src={selectedSOSReport.incident.videoUrl}
+                            controls
+                            className="w-full h-full object-cover"
+                            poster={selectedSOSReport.incident.videoThumbnail}
+                          />
+                        </div>
+                        <button
+                          onClick={() => setShowVideoModal(true)}
+                          className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 text-sm"
+                        >
+                          <ExternalLink size={14} />
+                          <span>Open full screen</span>
+                        </button>
+                      </div>
+
+                      {/* User Information */}
+                      <div className="space-y-3">
+                        <h4 className="font-semibold text-white">Reporter Information</h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-400">Name:</span>
+                            <span className="text-white font-medium">{selectedSOSReport.userInfo.name}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-400">Phone:</span>
+                            <div className="flex items-center space-x-2">
+                              <span className="text-white font-mono">{selectedSOSReport.userInfo.phone}</span>
+                              <button className="text-green-400 hover:text-green-300">
+                                <Phone size={14} />
+                              </button>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-400">Email:</span>
+                            <div className="flex items-center space-x-2">
+                              <span className="text-white">{selectedSOSReport.userInfo.email}</span>
+                              <button className="text-blue-400 hover:text-blue-300">
+                                <Mail size={14} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Location Information */}
+                      <div className="space-y-3">
+                        <h4 className="font-semibold text-white">Location Details</h4>
+                        <div className="space-y-2 text-sm">
+                          <div>
+                            <span className="text-gray-400">Address:</span>
+                            <p className="text-white mt-1 bg-gray-800/50 p-2 rounded">{selectedSOSReport.incident.location.address || 'Address not available'}</p>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-400">Coordinates:</span>
+                            <span className="text-white font-mono text-xs">
+                              {selectedSOSReport.incident.location.latitude.toFixed(6)}, {selectedSOSReport.incident.location.longitude.toFixed(6)}
+                            </span>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            const lat = selectedSOSReport.incident.location.latitude;
+                            const lng = selectedSOSReport.incident.location.longitude;
+                            window.open(`https://maps.google.com/maps?q=${lat},${lng}`, '_blank');
+                          }}
+                          className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 text-sm bg-blue-900/20 px-3 py-2 rounded-lg w-full justify-center"
+                        >
+                          <MapPin size={14} />
+                          <span>View on Google Maps</span>
+                        </button>
+                      </div>
+
+                      {/* Emergency Actions */}
+                      <div className="space-y-3">
+                        <h4 className="font-semibold text-white text-lg">🚨 EMERGENCY ACTIONS</h4>
+                        <div className="space-y-3">
+                          <button
+                            onClick={() => handleSOSReview(selectedSOSReport._id, 'approved')}
+                            disabled={sosProcessing[selectedSOSReport._id]}
+                            className="w-full flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-4 py-4 rounded-lg transition-colors font-bold text-lg"
+                          >
+                            <CheckCircle size={24} />
+                            <span>✅ APPROVE & SEND ALERTS</span>
+                          </button>
+
+                          <button
+                            onClick={() => handleSOSReview(selectedSOSReport._id, 'rejected')}
+                            disabled={sosProcessing[selectedSOSReport._id]}
+                            className="w-full flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-4 py-4 rounded-lg transition-colors font-bold text-lg"
+                          >
+                            <XCircle size={24} />
+                            <span>❌ REJECT REPORT</span>
+                          </button>
+                        </div>
+
+                        <div className="bg-yellow-900/30 border border-yellow-500/50 rounded-lg p-3 text-sm">
+                          <p className="text-yellow-300 font-medium mb-1">⚠️ Approval Action:</p>
+                          <p className="text-yellow-200">Clicking APPROVE will instantly send emergency alerts via WhatsApp and push notifications to all users within 1km radius of the incident location.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-black/40 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-8 text-center">
+                    <AlertTriangle className="mx-auto mb-4 text-gray-500" size={48} />
+                    <p className="text-gray-400">Select an SOS report to view details</p>
+                    <p className="text-gray-500 text-sm mt-2">Click on any pending report to review emergency details</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Video Modal */}
+        {showVideoModal && selectedSOSReport && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+            <div className="bg-black rounded-lg overflow-hidden max-w-4xl w-full max-h-[90vh]">
+              <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+                <h3 className="text-white font-semibold">Emergency Video - {selectedSOSReport.userInfo.name}</h3>
+                <button
+                  onClick={() => setShowVideoModal(false)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <XCircle size={24} />
+                </button>
+              </div>
+              <div className="p-4">
+                <video
+                  src={selectedSOSReport.incident.videoUrl}
+                  controls
+                  autoPlay
+                  className="w-full h-auto"
+                  poster={selectedSOSReport.incident.videoThumbnail}
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Alert Messages */}
         {alertStatus === 'error' && (
