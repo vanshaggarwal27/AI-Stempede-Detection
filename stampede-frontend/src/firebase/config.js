@@ -35,11 +35,11 @@ console.log('🌐 Auth Domain:', app.options.authDomain);
 export const testFirestoreConnection = async () => {
   try {
     console.log('🧪 Testing Firestore connection...');
-    const sosCollection = collection(db, 'sosReports');
+    const sosCollection = collection(db, 'sos-alerts');
     const snapshot = await getDocs(sosCollection);
 
     console.log('✅ Firestore connection successful!');
-    console.log('📊 Total documents in sosReports collection:', snapshot.size);
+    console.log('📊 Total documents in sos-alerts collection:', snapshot.size);
 
     snapshot.forEach((doc) => {
       const data = doc.data();
