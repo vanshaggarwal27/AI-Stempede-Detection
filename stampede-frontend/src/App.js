@@ -279,7 +279,7 @@ function App() {
       setSOSLoading(false);
 
       // Fallback to demo data if Firebase fails
-      console.log('���� Using demo data as fallback...');
+      console.log('📋 Using demo data as fallback...');
       setSOSReports([
         {
           _id: 'demo_firebase_1',
@@ -1031,6 +1031,29 @@ function App() {
                         </button>
                       </div>
 
+                      {/* Firebase Metadata */}
+                      <div className="space-y-3">
+                        <h4 className="font-semibold text-white">Firebase Details</h4>
+                        <div className="bg-gray-800/50 rounded-lg p-3 space-y-2 text-sm">
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-400">Document ID:</span>
+                            <span className="text-white font-mono text-xs">{selectedSOSReport._id}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-400">Collection:</span>
+                            <span className="text-cyan-300 font-mono">sosReports</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-400">Status:</span>
+                            <span className="text-orange-300 font-medium">{selectedSOSReport.status}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-400">Firebase Project:</span>
+                            <span className="text-green-300 font-mono text-xs">crowd-monitoring-e1f70</span>
+                          </div>
+                        </div>
+                      </div>
+
                       {/* Emergency Actions */}
                       <div className="space-y-3">
                         <h4 className="font-semibold text-white text-lg">🚨 EMERGENCY ACTIONS</h4>
@@ -1101,7 +1124,7 @@ function App() {
                     className="w-full h-auto"
                     poster={selectedSOSReport.incident.videoThumbnail}
                     onLoadStart={() => console.log('🎥 Full screen video loading from Firebase Storage')}
-                    onCanPlay={() => console.log('✅ Full screen video ready to play')}
+                    onCanPlay={() => console.log('��� Full screen video ready to play')}
                   />
                 ) : (
                   <div className="w-full h-96 flex items-center justify-center bg-gray-800 rounded">
