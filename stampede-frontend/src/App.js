@@ -242,7 +242,9 @@ function App() {
               location: {
                 latitude: report.location?.latitude || 28.7041,
                 longitude: report.location?.longitude || 77.1025,
-                address: `Lat: ${report.location?.latitude}, Lng: ${report.location?.longitude}`, // Generate address from coordinates
+                address: report.location?.latitude && report.location?.longitude
+                  ? `Emergency Location: ${report.location.latitude.toFixed(4)}, ${report.location.longitude.toFixed(4)}`
+                  : 'Location not available',
                 accuracy: report.location?.accuracy || 0
               },
               timestamp: report.createdAt?.toDate() || new Date(),
@@ -944,7 +946,7 @@ function App() {
                               controls
                               className="w-full h-full object-cover"
                               poster={selectedSOSReport.incident.videoThumbnail}
-                              onLoadStart={() => console.log('🎥 Loading video from Firebase Storage:', selectedSOSReport.incident.videoUrl)}
+                              onLoadStart={() => console.log('���� Loading video from Firebase Storage:', selectedSOSReport.incident.videoUrl)}
                               onCanPlay={() => console.log('✅ Video loaded successfully from Firebase')}
                               onError={(e) => console.error('❌ Video loading error:', e)}
                             />
