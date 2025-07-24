@@ -222,39 +222,44 @@ function App() {
 
         console.log('✅ Processing real Firebase SOS reports:', reports.length);
 
-        // Transform Firebase data to match existing component structure
-        const transformedReports = reports.map(report => ({
-          _id: report.id,
-          userId: report.userId || 'unknown',
-          userInfo: {
-            name: report.userInfo?.name || 'Anonymous User',
-            phone: report.userInfo?.phone || '+91-XXXX-XXXX',
-            email: report.userInfo?.email || 'user@example.com'
-          },
-          incident: {
-            videoUrl: report.incident?.videoUrl || '',
-            videoThumbnail: report.incident?.videoThumbnail || '',
-            videoDuration: report.incident?.videoDuration || 0,
-            message: report.incident?.message || 'Emergency situation reported',
-            location: {
-              latitude: report.incident?.location?.latitude || 28.7041,
-              longitude: report.incident?.location?.longitude || 77.1025,
-              address: report.incident?.location?.address || 'Location not available',
-              accuracy: report.incident?.location?.accuracy || 0
+        // Transform Firebase data to match user's actual Firestore structure
+        const transformedReports = reports.map(report => {
+          console.log('🔄 Transforming report:', report.id, report);
+
+          return {
+            _id: report.id,
+            userId: report.userId || 'unknown',
+            userInfo: {
+              name: `User ${report.userId.slice(-4)}` || 'Anonymous User', // Generate name from userId
+              phone: '+91-XXXX-XXXX', // Not in user's structure
+              email: 'user@example.com' // Not in user's structure
             },
-            timestamp: report.createdAt?.toDate() || new Date(),
-            deviceInfo: {
-              platform: report.incident?.deviceInfo?.platform || 'unknown',
-              version: report.incident?.deviceInfo?.version || 'unknown',
-              model: report.incident?.deviceInfo?.model || 'unknown'
+            incident: {
+              videoUrl: report.videoUrl || '',
+              videoThumbnail: report.videoThumbnail || '', // Optional field
+              videoDuration: report.videoDuration || 0,
+              message: report.message || 'Emergency situation reported',
+              location: {
+                latitude: report.location?.latitude || 28.7041,
+                longitude: report.location?.longitude || 77.1025,
+                address: `Lat: ${report.location?.latitude}, Lng: ${report.location?.longitude}`, // Generate address from coordinates
+                accuracy: report.location?.accuracy || 0
+              },
+              timestamp: report.createdAt?.toDate() || new Date(),
+              deviceInfo: {
+                platform: report.deviceInfo?.platform || 'unknown',
+                version: report.deviceInfo?.version || 'unknown',
+                model: report.deviceInfo?.model || 'unknown'
+              }
+            },
+            status: 'pending', // Default to pending since not in user's structure
+            metadata: {
+              priority: 'high', // Default priority for emergency reports
+              category: 'emergency',
+              firebaseDocId: report.id
             }
-          },
-          status: report.status || 'pending',
-          metadata: {
-            priority: report.metadata?.priority || 'medium',
-            category: report.metadata?.category || 'emergency'
-          }
-        }));
+          };
+        });
 
         setSOSReports(transformedReports);
         setSOSLoading(false);
