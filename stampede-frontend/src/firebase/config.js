@@ -143,7 +143,8 @@ export const listenToSOSReports = (callback) => {
     const sosCollection = collection(db, 'sosReports');
     console.log('📁 Collection reference created:', sosCollection.path);
 
-    // Use simpler query - just get all documents and filter client-side
+    // Get all documents from sosReports collection without any filters
+    console.log('📊 Creating query for collection:', sosCollection.path);
     const q = query(sosCollection);
 
     console.log('🔍 Starting real-time listener...');
