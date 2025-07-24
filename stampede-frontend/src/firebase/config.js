@@ -108,18 +108,26 @@ export const createSOSReport = async (sosData) => {
 
 // Real-time listener for admin panel
 export const listenToSOSReports = (callback) => {
+  // Use simpler query to avoid index requirement, then filter client-side
   const q = query(
     collection(db, 'sosReports'),
-    where('status', '==', 'pending'),
     orderBy('createdAt', 'desc')
   );
-  
+
   return onSnapshot(q, (querySnapshot) => {
     const reports = [];
     querySnapshot.forEach((doc) => {
-      reports.push({ id: doc.id, ...doc.data() });
+      const data = doc.data();
+      // Filter for pending status client-side to avoid composite index requirement
+      if (data.status === 'pending') {
+        reports.push({ id: doc.id, ...data });
+      }
     });
     callback(reports);
+  }, (error) => {
+    console.error('❌ Firebase listener error:', error);
+    // Provide fallback empty array on error
+    callback([]);
   });
 };
 
