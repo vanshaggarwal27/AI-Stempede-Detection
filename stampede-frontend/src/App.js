@@ -1045,7 +1045,7 @@ function App() {
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-gray-400">Collection:</span>
-                            <span className="text-cyan-300 font-mono">sosReports</span>
+                            <span className="text-cyan-300 font-mono">sos-alerts</span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-gray-400">Status:</span>
