@@ -107,7 +107,7 @@ export const uploadSOSVideo = async (videoFile, userId) => {
     const fileName = `sos_${userId}_${timestamp}.mp4`;
     const storageRef = ref(storage, `sos-videos/${fileName}`);
     
-    console.log('📤 Uploading SOS video to Firebase Storage...');
+    console.log('�� Uploading SOS video to Firebase Storage...');
     
     const snapshot = await uploadBytes(storageRef, videoFile);
     const downloadURL = await getDownloadURL(snapshot.ref);
@@ -128,7 +128,7 @@ export const uploadSOSVideo = async (videoFile, userId) => {
 // Firestore helpers for SOS reports
 export const createSOSReport = async (sosData) => {
   try {
-    const docRef = await addDoc(collection(db, 'sosReports'), {
+    const docRef = await addDoc(collection(db, 'sos-alerts'), {
       ...sosData,
       createdAt: serverTimestamp(),
       status: 'pending'
