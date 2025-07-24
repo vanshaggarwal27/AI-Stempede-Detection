@@ -917,6 +917,16 @@ function App() {
                             <span className="text-xs text-green-400 font-medium">Firebase Storage</span>
                           </div>
                         </h4>
+                        <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-2">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-blue-300">🔗 Storage Bucket:</span>
+                            <span className="text-blue-200 font-mono">crowd-monitoring-e1f70</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs mt-1">
+                            <span className="text-blue-300">📁 Project ID:</span>
+                            <span className="text-blue-200 font-mono">crowd-monitoring-e1f70</span>
+                          </div>
+                        </div>
                         <div className="relative bg-black rounded-lg overflow-hidden aspect-video border border-green-500/30">
                           {selectedSOSReport.incident.videoUrl ? (
                             <video
