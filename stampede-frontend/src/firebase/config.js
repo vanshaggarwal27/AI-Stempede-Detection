@@ -164,12 +164,13 @@ export const listenToSOSReports = (callback) => {
           const reportData = { id: doc.id, ...data };
           allReports.push(reportData);
 
-          // Filter for pending status client-side
-          if (data.status === 'pending') {
+          // Since user's structure doesn't have status field, treat all as pending
+          // Check if document has required fields to validate it's a valid SOS report
+          if (data.userId && data.message && data.location) {
             pendingReports.push(reportData);
-            console.log('✅ Found pending report:', doc.id);
+            console.log('✅ Found valid SOS report:', doc.id);
           } else {
-            console.log('⏭️ Skipping non-pending report:', doc.id, 'Status:', data.status);
+            console.log('⏭️ Skipping invalid document:', doc.id, 'Missing required fields');
           }
         });
 
