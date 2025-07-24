@@ -190,50 +190,26 @@ function App() {
 
       // Set up real-time listener for Firebase SOS reports
       const unsubscribe = listenToSOSReports((reports) => {
-        console.log('📥 Received SOS reports from Firebase:', reports);
+        console.log('🔥 Firebase Listener Triggered!');
+        console.log('📥 Raw Firebase data received:', reports);
+        console.log('📊 Number of reports:', reports ? reports.length : 'undefined');
 
-        if (!reports || reports.length === 0) {
-          console.log('📋 No pending SOS reports in Firebase, using demo data...');
-          // Use demo data when no Firebase data available
-          setSOSReports([
-            {
-              _id: 'demo_firebase_realtime_001',
-              userId: 'user_firebase_demo_123',
-              userInfo: {
-                name: 'Firebase Demo User',
-                phone: '+91-9876543210',
-                email: 'demo@crowd-monitoring.com'
-              },
-              incident: {
-                videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
-                videoThumbnail: '',
-                videoDuration: 18,
-                message: '🔥 LIVE Firebase Connection Active - Waiting for real SOS reports from Firestore database',
-                location: {
-                  latitude: 28.7041,
-                  longitude: 77.1025,
-                  address: 'Firebase Project: crowd-monitoring-e1f70, New Delhi, India',
-                  accuracy: 2.5
-                },
-                timestamp: new Date(Date.now() - 3 * 60 * 1000),
-                deviceInfo: {
-                  platform: 'web',
-                  version: '1.0.0',
-                  model: 'Firebase Real-time Demo'
-                }
-              },
-              status: 'pending',
-              metadata: {
-                priority: 'high',
-                category: 'firebase-demo',
-                firebaseConnected: true,
-                projectId: 'crowd-monitoring-e1f70'
-              }
-            }
-          ]);
+        // Always process Firebase data, even if empty
+        if (!reports) {
+          console.log('❌ Firebase returned null/undefined data');
+          setSOSReports([]);
           setSOSLoading(false);
           return;
         }
+
+        if (reports.length === 0) {
+          console.log('📋 Firebase connected but no pending SOS reports found');
+          setSOSReports([]);
+          setSOSLoading(false);
+          return;
+        }
+
+        console.log('✅ Processing real Firebase SOS reports:', reports.length);
 
         // Transform Firebase data to match existing component structure
         const transformedReports = reports.map(report => ({
