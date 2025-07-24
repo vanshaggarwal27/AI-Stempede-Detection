@@ -5,6 +5,7 @@ import * as cocoSsd from '@tensorflow-models/coco-ssd';
 import * as tf from '@tensorflow/tfjs';
 import { Camera, Loader2, AlertTriangle, CheckCircle, WifiOff, XCircle, Users, EyeOff, Activity, Shield, Zap, Bell, Play, ExternalLink, MapPin, Clock, MessageSquare, Phone, Mail } from 'lucide-react';
 import { listenToSOSReports, updateSOSStatus, sendWhatsAppNotifications, testFirestoreConnection } from './firebase/config';
+import FirebaseTest from './components/FirebaseTest';
 
 function App() {
   const webcamRef = useRef(null);
