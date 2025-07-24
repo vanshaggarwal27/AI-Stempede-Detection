@@ -108,27 +108,69 @@ export const createSOSReport = async (sosData) => {
 
 // Real-time listener for admin panel
 export const listenToSOSReports = (callback) => {
-  // Use simpler query to avoid index requirement, then filter client-side
-  const q = query(
-    collection(db, 'sosReports'),
-    orderBy('createdAt', 'desc')
-  );
+  console.log('🔄 Setting up Firebase listener for sosReports collection...');
+  console.log('📋 Firebase project:', db.app.options.projectId);
 
-  return onSnapshot(q, (querySnapshot) => {
-    const reports = [];
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      // Filter for pending status client-side to avoid composite index requirement
-      if (data.status === 'pending') {
-        reports.push({ id: doc.id, ...data });
+  try {
+    // First try to get all documents to check connection
+    const sosCollection = collection(db, 'sosReports');
+    console.log('📁 Collection reference created:', sosCollection.path);
+
+    // Use simpler query - just get all documents and filter client-side
+    const q = query(sosCollection);
+
+    console.log('🔍 Starting real-time listener...');
+
+    return onSnapshot(q,
+      (querySnapshot) => {
+        console.log('📡 Firebase snapshot received!');
+        console.log('📊 Total documents in sosReports:', querySnapshot.size);
+
+        const allReports = [];
+        const pendingReports = [];
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          console.log('📄 Document ID:', doc.id);
+          console.log('📄 Document data:', data);
+
+          const reportData = { id: doc.id, ...data };
+          allReports.push(reportData);
+
+          // Filter for pending status client-side
+          if (data.status === 'pending') {
+            pendingReports.push(reportData);
+            console.log('✅ Found pending report:', doc.id);
+          } else {
+            console.log('⏭️ Skipping non-pending report:', doc.id, 'Status:', data.status);
+          }
+        });
+
+        console.log('📈 Total reports found:', allReports.length);
+        console.log('📋 Pending reports found:', pendingReports.length);
+        console.log('🔄 Calling callback with reports...');
+
+        callback(pendingReports);
+      },
+      (error) => {
+        console.error('❌ Firebase listener error:', error);
+        console.error('❌ Error code:', error.code);
+        console.error('❌ Error message:', error.message);
+
+        // Check if it's a permission error
+        if (error.code === 'permission-denied') {
+          console.error('🚫 Permission denied - check Firestore security rules');
+        }
+
+        // Still call callback with empty array to show no data instead of hanging
+        callback([]);
       }
-    });
-    callback(reports);
-  }, (error) => {
-    console.error('❌ Firebase listener error:', error);
-    // Provide fallback empty array on error
+    );
+  } catch (error) {
+    console.error('❌ Error setting up Firebase listener:', error);
     callback([]);
-  });
+    return () => {}; // Return empty unsubscribe function
+  }
 };
 
 // Update SOS report status (for admin actions)
