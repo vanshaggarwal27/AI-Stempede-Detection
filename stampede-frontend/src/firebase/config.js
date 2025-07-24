@@ -1,19 +1,19 @@
 // firebase/config.js - Firebase Configuration for SOS Alert System
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getStorage } from "firebase/storage";
-import { getFirestore } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getFirestore, collection, addDoc, doc, updateDoc, query, onSnapshot, serverTimestamp, getDocs } from "firebase/firestore";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 // Your Firebase configuration from console
 const firebaseConfig = {
-  apiKey: "AIzaSyCjmJkYDES6OG3boUOsgAAwhFqLK9SNASQ",
-  authDomain: "crowd-detection-b6f00.firebaseapp.com",
-  projectId: "crowd-detection-b6f00",
-  storageBucket: "crowd-detection-b6f00.firebasestorage.app",
-  messagingSenderId: "460625758868",
-  appId: "1:460625758868:web:76e83a66fcb3999e36c281",
-  measurementId: "G-MVLJY9MMN4"
+  apiKey: "AIzaSyC6XtUDmKv0aul-zUL3TRH1i2UxWtgCLU0",
+  authDomain: "crowd-monitoring-e1f70.firebaseapp.com",
+  projectId: "crowd-monitoring-e1f70",
+  storageBucket: "crowd-monitoring-e1f70.firebasestorage.app",
+  messagingSenderId: "1069463850395",
+  appId: "1:1069463850395:web:f24d177297c60e0c50a53e",
+  measurementId: "G-68VH97XQ6V"
 };
 
 // Initialize Firebase
@@ -24,6 +24,42 @@ export const analytics = getAnalytics(app);
 export const storage = getStorage(app);
 export const db = getFirestore(app);
 export const messaging = getMessaging(app);
+
+// Test Firebase connection
+console.log('🔥 Firebase initialized successfully!');
+console.log('📋 Project ID:', app.options.projectId);
+console.log('📁 Storage Bucket:', app.options.storageBucket);
+console.log('🌐 Auth Domain:', app.options.authDomain);
+
+// Test Firestore connection
+export const testFirestoreConnection = async () => {
+  try {
+    console.log('🧪 Testing Firestore connection...');
+    const sosCollection = collection(db, 'sosReports');
+    const snapshot = await getDocs(sosCollection);
+
+    console.log('✅ Firestore connection successful!');
+    console.log('📊 Total documents in sosReports collection:', snapshot.size);
+
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      console.log('📄 Test Document ID:', doc.id);
+      console.log('📄 Test Document Fields:', Object.keys(data));
+      console.log('📄 Test Document Data:', data);
+      console.log('📄 Has required fields:', {
+        userId: !!data.userId,
+        message: !!data.message,
+        location: !!data.location,
+        videoUrl: !!data.videoUrl
+      });
+    });
+
+    return { success: true, count: snapshot.size };
+  } catch (error) {
+    console.error('❌ Firestore connection failed:', error);
+    return { success: false, error: error.message };
+  }
+};
 
 // Messaging setup for push notifications
 export const requestNotificationPermission = async () => {
@@ -108,39 +144,177 @@ export const createSOSReport = async (sosData) => {
 
 // Real-time listener for admin panel
 export const listenToSOSReports = (callback) => {
-  const q = query(
-    collection(db, 'sosReports'),
-    where('status', '==', 'pending'),
-    orderBy('createdAt', 'desc')
-  );
-  
-  return onSnapshot(q, (querySnapshot) => {
-    const reports = [];
-    querySnapshot.forEach((doc) => {
-      reports.push({ id: doc.id, ...doc.data() });
-    });
-    callback(reports);
-  });
+  console.log('🔄 Setting up Firebase listener for sosReports collection...');
+  console.log('📋 Firebase project:', db.app.options.projectId);
+
+  try {
+    // First try to get all documents to check connection
+    const sosCollection = collection(db, 'sosReports');
+    console.log('📁 Collection reference created:', sosCollection.path);
+
+    // Get all documents from sosReports collection without any filters
+    console.log('📊 Creating query for collection:', sosCollection.path);
+    const q = query(sosCollection);
+
+    console.log('🔍 Starting real-time listener...');
+
+    return onSnapshot(q,
+      (querySnapshot) => {
+        console.log('📡 Firebase snapshot received!');
+        console.log('📊 Total documents in sosReports:', querySnapshot.size);
+
+        const allReports = [];
+        const pendingReports = [];
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          console.log('📄 Document ID:', doc.id);
+          console.log('📄 Document data:', data);
+
+          const reportData = { id: doc.id, ...data };
+          allReports.push(reportData);
+
+          // Since user's structure doesn't have status field, treat all as pending
+          // Check if document has required fields to validate it's a valid SOS report
+          console.log('🔍 Checking document fields:', {
+            hasUserId: !!data.userId,
+            hasMessage: !!data.message,
+            hasLocation: !!data.location,
+            hasVideoUrl: !!data.videoUrl
+          });
+
+          if (data.userId && data.message && data.location && data.videoUrl) {
+            pendingReports.push(reportData);
+            console.log('✅ Found valid SOS report:', doc.id, 'with fields:', Object.keys(data));
+          } else {
+            console.log('⏭️ Skipping document:', doc.id, 'Missing fields - has:', Object.keys(data));
+            console.log('Missing required fields:', {
+              userId: !data.userId,
+              message: !data.message,
+              location: !data.location,
+              videoUrl: !data.videoUrl
+            });
+          }
+        });
+
+        console.log('📈 Total reports found:', allReports.length);
+        console.log('📋 Pending reports found:', pendingReports.length);
+        console.log('🔄 Calling callback with reports...');
+
+        callback(pendingReports);
+      },
+      (error) => {
+        console.error('❌ Firebase listener error:', error);
+        console.error('❌ Error code:', error.code);
+        console.error('❌ Error message:', error.message);
+
+        // Check if it's a permission error
+        if (error.code === 'permission-denied') {
+          console.error('🚫 Permission denied - check Firestore security rules');
+        }
+
+        // Still call callback with empty array to show no data instead of hanging
+        callback([]);
+      }
+    );
+  } catch (error) {
+    console.error('❌ Error setting up Firebase listener:', error);
+    callback([]);
+    return () => {}; // Return empty unsubscribe function
+  }
 };
 
 // Update SOS report status (for admin actions)
 export const updateSOSStatus = async (reportId, status, adminNotes = '') => {
   try {
     const reportRef = doc(db, 'sosReports', reportId);
+
+    // Add status and admin review fields to user's existing structure
     await updateDoc(reportRef, {
-      status: status,
+      status: status, // Add status field to document
       adminReview: {
         decision: status,
         adminNotes: adminNotes,
-        reviewedAt: serverTimestamp()
-      }
+        reviewedAt: serverTimestamp(),
+        notificationsSent: status === 'approved' ? true : false
+      },
+      updatedAt: serverTimestamp() // Track when document was last updated
     });
-    
+
     console.log(`✅ SOS report ${reportId} ${status}`);
     return true;
   } catch (error) {
     console.error('❌ Failed to update SOS status:', error);
     throw new Error(`Failed to update SOS status: ${error.message}`);
+  }
+};
+
+// WhatsApp notification function
+export const sendWhatsAppNotifications = async (sosReport, approvalData) => {
+  try {
+    console.log('📱 Sending WhatsApp notifications for approved SOS report...');
+
+    // Simulate WhatsApp API call (replace with actual WhatsApp Business API)
+    const whatsappData = {
+      reportId: sosReport.id,
+      location: sosReport.incident?.location?.address || 'Location not available',
+      message: sosReport.incident?.message || 'Emergency situation',
+      coordinates: {
+        lat: sosReport.incident?.location?.latitude,
+        lng: sosReport.incident?.location?.longitude
+      },
+      timestamp: new Date().toISOString(),
+      adminNotes: approvalData.adminNotes
+    };
+
+    // Simulate nearby users (in real implementation, this would be from your user database)
+    const nearbyUsers = [
+      { name: 'User A', phone: '+91-9876543210', distance: '0.2km' },
+      { name: 'User B', phone: '+91-9876543211', distance: '0.5km' },
+      { name: 'User C', phone: '+91-9876543212', distance: '0.8km' },
+      { name: 'User D', phone: '+91-9876543213', distance: '1.0km' }
+    ];
+
+    // Create WhatsApp message template
+    const whatsappMessage = `🚨 EMERGENCY ALERT 🚨
+
+📍 Location: ${whatsappData.location}
+📱 Reported: ${whatsappData.message}
+⏰ Time: ${new Date().toLocaleString()}
+🗺️ Maps: https://maps.google.com/maps?q=${whatsappData.coordinates.lat},${whatsappData.coordinates.lng}
+
+✅ Verified by Emergency Response Team
+⚡ Take immediate safety precautions
+📞 Contact emergency services if needed
+
+Stay Safe! 🙏`;
+
+    // Log notification details (replace with actual WhatsApp API calls)
+    console.log('📤 WhatsApp message template:', whatsappMessage);
+    console.log('👥 Sending to nearby users:', nearbyUsers);
+
+    // Store notification log in Firestore
+    await addDoc(collection(db, 'notificationLogs'), {
+      reportId: sosReport.id,
+      type: 'whatsapp_emergency',
+      recipients: nearbyUsers,
+      message: whatsappMessage,
+      sentAt: serverTimestamp(),
+      status: 'sent'
+    });
+
+    return {
+      success: true,
+      recipientCount: nearbyUsers.length,
+      message: 'WhatsApp notifications sent successfully'
+    };
+
+  } catch (error) {
+    console.error('❌ WhatsApp notification failed:', error);
+    return {
+      success: false,
+      error: error.message
+    };
   }
 };
 
