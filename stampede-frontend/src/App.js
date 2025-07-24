@@ -197,35 +197,37 @@ function App() {
           // Use demo data when no Firebase data available
           setSOSReports([
             {
-              _id: 'demo_firebase_1',
-              userId: 'demo_user_1',
+              _id: 'demo_firebase_realtime_001',
+              userId: 'user_firebase_demo_123',
               userInfo: {
-                name: 'Demo User - Firebase Ready',
+                name: 'Firebase Demo User',
                 phone: '+91-9876543210',
-                email: 'demo@firebase.com'
+                email: 'demo@crowd-monitoring.com'
               },
               incident: {
                 videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
                 videoThumbnail: '',
-                videoDuration: 15,
-                message: 'Demo emergency report - Firebase connected, waiting for real data',
+                videoDuration: 18,
+                message: '🔥 LIVE Firebase Connection Active - Waiting for real SOS reports from Firestore database',
                 location: {
                   latitude: 28.7041,
                   longitude: 77.1025,
-                  address: 'Firebase Demo Location, New Delhi, India',
-                  accuracy: 5.0
+                  address: 'Firebase Project: crowd-monitoring-e1f70, New Delhi, India',
+                  accuracy: 2.5
                 },
-                timestamp: new Date(Date.now() - 5 * 60 * 1000),
+                timestamp: new Date(Date.now() - 3 * 60 * 1000),
                 deviceInfo: {
                   platform: 'web',
-                  version: '1.0',
-                  model: 'Firebase Demo'
+                  version: '1.0.0',
+                  model: 'Firebase Real-time Demo'
                 }
               },
               status: 'pending',
               metadata: {
                 priority: 'high',
-                category: 'demo'
+                category: 'firebase-demo',
+                firebaseConnected: true,
+                projectId: 'crowd-monitoring-e1f70'
               }
             }
           ]);
@@ -1124,7 +1126,7 @@ function App() {
                     className="w-full h-auto"
                     poster={selectedSOSReport.incident.videoThumbnail}
                     onLoadStart={() => console.log('🎥 Full screen video loading from Firebase Storage')}
-                    onCanPlay={() => console.log('��� Full screen video ready to play')}
+                    onCanPlay={() => console.log('✅ Full screen video ready to play')}
                   />
                 ) : (
                   <div className="w-full h-96 flex items-center justify-center bg-gray-800 rounded">
