@@ -42,7 +42,16 @@ export const testFirestoreConnection = async () => {
     console.log('📊 Total documents in sosReports collection:', snapshot.size);
 
     snapshot.forEach((doc) => {
-      console.log('📄 Document:', doc.id, doc.data());
+      const data = doc.data();
+      console.log('📄 Test Document ID:', doc.id);
+      console.log('📄 Test Document Fields:', Object.keys(data));
+      console.log('📄 Test Document Data:', data);
+      console.log('📄 Has required fields:', {
+        userId: !!data.userId,
+        message: !!data.message,
+        location: !!data.location,
+        videoUrl: !!data.videoUrl
+      });
     });
 
     return { success: true, count: snapshot.size };
