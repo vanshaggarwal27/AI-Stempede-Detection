@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { getFirestore, collection, addDoc, doc, updateDoc, query, where, orderBy, onSnapshot, serverTimestamp } from "firebase/firestore";
+import { getFirestore, collection, addDoc, doc, updateDoc, query, orderBy, onSnapshot, serverTimestamp } from "firebase/firestore";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 // Your Firebase configuration from console
