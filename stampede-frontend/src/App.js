@@ -192,6 +192,47 @@ function App() {
       const unsubscribe = listenToSOSReports((reports) => {
         console.log('📥 Received SOS reports from Firebase:', reports);
 
+        if (!reports || reports.length === 0) {
+          console.log('📋 No pending SOS reports in Firebase, using demo data...');
+          // Use demo data when no Firebase data available
+          setSOSReports([
+            {
+              _id: 'demo_firebase_1',
+              userId: 'demo_user_1',
+              userInfo: {
+                name: 'Demo User - Firebase Ready',
+                phone: '+91-9876543210',
+                email: 'demo@firebase.com'
+              },
+              incident: {
+                videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+                videoThumbnail: '',
+                videoDuration: 15,
+                message: 'Demo emergency report - Firebase connected, waiting for real data',
+                location: {
+                  latitude: 28.7041,
+                  longitude: 77.1025,
+                  address: 'Firebase Demo Location, New Delhi, India',
+                  accuracy: 5.0
+                },
+                timestamp: new Date(Date.now() - 5 * 60 * 1000),
+                deviceInfo: {
+                  platform: 'web',
+                  version: '1.0',
+                  model: 'Firebase Demo'
+                }
+              },
+              status: 'pending',
+              metadata: {
+                priority: 'high',
+                category: 'demo'
+              }
+            }
+          ]);
+          setSOSLoading(false);
+          return;
+        }
+
         // Transform Firebase data to match existing component structure
         const transformedReports = reports.map(report => ({
           _id: report.id,
