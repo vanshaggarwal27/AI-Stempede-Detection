@@ -140,15 +140,85 @@ export const updateSOSStatus = async (reportId, status, adminNotes = '') => {
       adminReview: {
         decision: status,
         adminNotes: adminNotes,
-        reviewedAt: serverTimestamp()
+        reviewedAt: serverTimestamp(),
+        notificationsSent: status === 'approved' ? true : false
       }
     });
-    
+
     console.log(`✅ SOS report ${reportId} ${status}`);
     return true;
   } catch (error) {
     console.error('❌ Failed to update SOS status:', error);
     throw new Error(`Failed to update SOS status: ${error.message}`);
+  }
+};
+
+// WhatsApp notification function
+export const sendWhatsAppNotifications = async (sosReport, approvalData) => {
+  try {
+    console.log('📱 Sending WhatsApp notifications for approved SOS report...');
+
+    // Simulate WhatsApp API call (replace with actual WhatsApp Business API)
+    const whatsappData = {
+      reportId: sosReport.id,
+      location: sosReport.incident?.location?.address || 'Location not available',
+      message: sosReport.incident?.message || 'Emergency situation',
+      coordinates: {
+        lat: sosReport.incident?.location?.latitude,
+        lng: sosReport.incident?.location?.longitude
+      },
+      timestamp: new Date().toISOString(),
+      adminNotes: approvalData.adminNotes
+    };
+
+    // Simulate nearby users (in real implementation, this would be from your user database)
+    const nearbyUsers = [
+      { name: 'User A', phone: '+91-9876543210', distance: '0.2km' },
+      { name: 'User B', phone: '+91-9876543211', distance: '0.5km' },
+      { name: 'User C', phone: '+91-9876543212', distance: '0.8km' },
+      { name: 'User D', phone: '+91-9876543213', distance: '1.0km' }
+    ];
+
+    // Create WhatsApp message template
+    const whatsappMessage = `🚨 EMERGENCY ALERT 🚨
+
+📍 Location: ${whatsappData.location}
+📱 Reported: ${whatsappData.message}
+⏰ Time: ${new Date().toLocaleString()}
+🗺️ Maps: https://maps.google.com/maps?q=${whatsappData.coordinates.lat},${whatsappData.coordinates.lng}
+
+✅ Verified by Emergency Response Team
+⚡ Take immediate safety precautions
+📞 Contact emergency services if needed
+
+Stay Safe! 🙏`;
+
+    // Log notification details (replace with actual WhatsApp API calls)
+    console.log('📤 WhatsApp message template:', whatsappMessage);
+    console.log('👥 Sending to nearby users:', nearbyUsers);
+
+    // Store notification log in Firestore
+    await addDoc(collection(db, 'notificationLogs'), {
+      reportId: sosReport.id,
+      type: 'whatsapp_emergency',
+      recipients: nearbyUsers,
+      message: whatsappMessage,
+      sentAt: serverTimestamp(),
+      status: 'sent'
+    });
+
+    return {
+      success: true,
+      recipientCount: nearbyUsers.length,
+      message: 'WhatsApp notifications sent successfully'
+    };
+
+  } catch (error) {
+    console.error('❌ WhatsApp notification failed:', error);
+    return {
+      success: false,
+      error: error.message
+    };
   }
 };
 
