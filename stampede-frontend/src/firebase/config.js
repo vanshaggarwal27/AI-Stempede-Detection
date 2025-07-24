@@ -166,11 +166,24 @@ export const listenToSOSReports = (callback) => {
 
           // Since user's structure doesn't have status field, treat all as pending
           // Check if document has required fields to validate it's a valid SOS report
-          if (data.userId && data.message && data.location) {
+          console.log('🔍 Checking document fields:', {
+            hasUserId: !!data.userId,
+            hasMessage: !!data.message,
+            hasLocation: !!data.location,
+            hasVideoUrl: !!data.videoUrl
+          });
+
+          if (data.userId && data.message && data.location && data.videoUrl) {
             pendingReports.push(reportData);
-            console.log('✅ Found valid SOS report:', doc.id);
+            console.log('✅ Found valid SOS report:', doc.id, 'with fields:', Object.keys(data));
           } else {
-            console.log('⏭️ Skipping invalid document:', doc.id, 'Missing required fields');
+            console.log('⏭️ Skipping document:', doc.id, 'Missing fields - has:', Object.keys(data));
+            console.log('Missing required fields:', {
+              userId: !data.userId,
+              message: !data.message,
+              location: !data.location,
+              videoUrl: !data.videoUrl
+            });
           }
         });
 
