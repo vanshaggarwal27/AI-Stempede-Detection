@@ -279,7 +279,7 @@ function App() {
       setSOSLoading(false);
 
       // Fallback to demo data if Firebase fails
-      console.log('📋 Using demo data as fallback...');
+      console.log('���� Using demo data as fallback...');
       setSOSReports([
         {
           _id: 'demo_firebase_1',
@@ -781,10 +781,18 @@ function App() {
                 <div className="bg-black/40 backdrop-blur-xl rounded-2xl border border-gray-700/50 overflow-hidden">
                   <div className="p-6 border-b border-gray-700/50">
                     <div className="flex items-center justify-between">
-                      <h2 className="text-2xl font-bold text-white flex items-center space-x-3">
-                        <AlertTriangle className="text-red-400" size={28} />
-                        <span>Emergency SOS Reports</span>
-                      </h2>
+                      <div>
+                        <h2 className="text-2xl font-bold text-white flex items-center space-x-3">
+                          <AlertTriangle className="text-red-400" size={28} />
+                          <span>Emergency SOS Reports</span>
+                        </h2>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                          <span className="text-xs text-green-400">Real-time Firebase Firestore</span>
+                          <span className="text-xs text-gray-500">•</span>
+                          <span className="text-xs text-gray-400">Project: crowd-monitoring-e1f70</span>
+                        </div>
+                      </div>
                       <div className="flex items-center space-x-3">
                         <span className="text-gray-400 text-sm">
                           {sosReports.length} pending review{sosReports.length !== 1 ? 's' : ''}
@@ -792,7 +800,7 @@ function App() {
                         <button
                           onClick={fetchSOSReports}
                           className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-                          title="Refresh"
+                          title="Refresh Firebase Data"
                         >
                           <Activity size={16} className="text-white" />
                         </button>
