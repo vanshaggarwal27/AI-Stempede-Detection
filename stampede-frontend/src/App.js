@@ -133,7 +133,7 @@ function App() {
     if (webcamEnabled) {
       requestAnimationFrame(detect);
     }
-  }, [model, alertCooldown, webcamEnabled, recentActivities]);
+  }, [model, webcamEnabled, recentActivities]);
 
   // Function to send alert to backend
   const sendAlert = async (message, crowdDensity) => {
@@ -1045,7 +1045,7 @@ function App() {
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-gray-400">Collection:</span>
-                            <span className="text-cyan-300 font-mono">sosReports</span>
+                            <span className="text-cyan-300 font-mono">sos-alerts</span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-gray-400">Status:</span>

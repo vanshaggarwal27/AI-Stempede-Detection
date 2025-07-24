@@ -1,0 +1,18 @@
+{
+  "documentId": "auto-generated-by-firebase",
+  "userId": "user_12345",
+  "message": "Emergency situation! Stampede risk detected in crowd area",
+  "location": {
+    "latitude": 28.7041,
+    "longitude": 77.1025,
+    "accuracy": 5.0
+  },
+  "videoUrl": "https://firebase-storage-url/emergency-video.mp4",
+  "deviceInfo": {
+    "platform": "mobile",
+    "version": "1.0.0", 
+    "model": "iPhone 14"
+  },
+  "createdAt": "Firebase Timestamp",
+  "status": "pending"
+}

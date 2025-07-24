@@ -35,11 +35,11 @@ console.log('🌐 Auth Domain:', app.options.authDomain);
 export const testFirestoreConnection = async () => {
   try {
     console.log('🧪 Testing Firestore connection...');
-    const sosCollection = collection(db, 'sosReports');
+    const sosCollection = collection(db, 'sos-alerts');
     const snapshot = await getDocs(sosCollection);
 
     console.log('✅ Firestore connection successful!');
-    console.log('📊 Total documents in sosReports collection:', snapshot.size);
+    console.log('📊 Total documents in sos-alerts collection:', snapshot.size);
 
     snapshot.forEach((doc) => {
       const data = doc.data();
@@ -128,7 +128,7 @@ export const uploadSOSVideo = async (videoFile, userId) => {
 // Firestore helpers for SOS reports
 export const createSOSReport = async (sosData) => {
   try {
-    const docRef = await addDoc(collection(db, 'sosReports'), {
+    const docRef = await addDoc(collection(db, 'sos-alerts'), {
       ...sosData,
       createdAt: serverTimestamp(),
       status: 'pending'
@@ -144,15 +144,15 @@ export const createSOSReport = async (sosData) => {
 
 // Real-time listener for admin panel
 export const listenToSOSReports = (callback) => {
-  console.log('🔄 Setting up Firebase listener for sosReports collection...');
+  console.log('🔄 Setting up Firebase listener for sos-alerts collection...');
   console.log('📋 Firebase project:', db.app.options.projectId);
 
   try {
     // First try to get all documents to check connection
-    const sosCollection = collection(db, 'sosReports');
+    const sosCollection = collection(db, 'sos-alerts');
     console.log('📁 Collection reference created:', sosCollection.path);
 
-    // Get all documents from sosReports collection without any filters
+    // Get all documents from sos-alerts collection without any filters
     console.log('📊 Creating query for collection:', sosCollection.path);
     const q = query(sosCollection);
 
@@ -161,7 +161,7 @@ export const listenToSOSReports = (callback) => {
     return onSnapshot(q,
       (querySnapshot) => {
         console.log('📡 Firebase snapshot received!');
-        console.log('📊 Total documents in sosReports:', querySnapshot.size);
+        console.log('📊 Total documents in sos-alerts:', querySnapshot.size);
 
         const allReports = [];
         const pendingReports = [];
@@ -227,7 +227,7 @@ export const listenToSOSReports = (callback) => {
 // Update SOS report status (for admin actions)
 export const updateSOSStatus = async (reportId, status, adminNotes = '') => {
   try {
-    const reportRef = doc(db, 'sosReports', reportId);
+    const reportRef = doc(db, 'sos-alerts', reportId);
 
     // Add status and admin review fields to user's existing structure
     await updateDoc(reportRef, {
