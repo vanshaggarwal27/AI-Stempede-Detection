@@ -7,13 +7,13 @@ import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 // Your Firebase configuration from console
 const firebaseConfig = {
-  apiKey: "AIzaSyCjmJkYDES6OG3boUOsgAAwhFqLK9SNASQ",
-  authDomain: "crowd-detection-b6f00.firebaseapp.com",
-  projectId: "crowd-detection-b6f00",
-  storageBucket: "crowd-detection-b6f00.firebasestorage.app",
-  messagingSenderId: "460625758868",
-  appId: "1:460625758868:web:76e83a66fcb3999e36c281",
-  measurementId: "G-MVLJY9MMN4"
+  apiKey: "AIzaSyC6XtUDmKv0aul-zUL3TRH1i2UxWtgCLU0",
+  authDomain: "crowd-monitoring-e1f70.firebaseapp.com",
+  projectId: "crowd-monitoring-e1f70",
+  storageBucket: "crowd-monitoring-e1f70.firebasestorage.app",
+  messagingSenderId: "1069463850395",
+  appId: "1:1069463850395:web:f24d177297c60e0c50a53e",
+  measurementId: "G-68VH97XQ6V"
 };
 
 // Initialize Firebase
