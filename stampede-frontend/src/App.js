@@ -392,7 +392,15 @@ function App() {
     let unsubscribe = null;
 
     const setupListener = async () => {
-      unsubscribe = await fetchSOSReports();
+      console.log('🚀 Setting up Firebase listener for SOS reports...');
+      console.log('📱 Active tab:', activeTab);
+
+      if (activeTab === 'sos-alerts') {
+        console.log('✅ On SOS alerts tab - connecting to Firebase...');
+        unsubscribe = await fetchSOSReports();
+      } else {
+        console.log('ℹ️ Not on SOS alerts tab - skipping Firebase connection');
+      }
     };
 
     setupListener();
@@ -404,7 +412,7 @@ function App() {
         unsubscribe();
       }
     };
-  }, [fetchSOSReports]);
+  }, [fetchSOSReports, activeTab]);
 
   // Auto-refresh SOS reports every 30 seconds when on SOS tab
   useEffect(() => {
