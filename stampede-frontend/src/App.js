@@ -324,6 +324,9 @@ function App() {
 
       console.log(`🔄 Processing SOS report ${sosId} with decision: ${decision}`);
 
+      // Find the current report for WhatsApp notifications
+      const currentReport = sosReports.find(report => report._id === sosId);
+
       // Update Firebase with admin decision
       const adminNotes = decision === 'approved'
         ? 'Emergency verified, sending alerts to nearby users'
@@ -331,12 +334,19 @@ function App() {
 
       await updateSOSStatus(sosId, decision, adminNotes);
 
-      // Show success message with notification simulation
-      if (decision === 'approved') {
-        const notificationCount = Math.floor(Math.random() * 50) + 20;
-        alert(`✅ SOS Report APPROVED!\n\n🚨 Emergency alerts sent to ${notificationCount} nearby users via:\n• WhatsApp messages\n• Push notifications\n• Firebase Cloud Messaging\n\nUsers within 1km radius have been notified.`);
+      // Send WhatsApp notifications if approved
+      if (decision === 'approved' && currentReport) {
+        console.log('📱 Sending WhatsApp notifications...');
+
+        const whatsappResult = await sendWhatsAppNotifications(currentReport, { adminNotes });
+
+        if (whatsappResult.success) {
+          alert(`✅ SOS Report APPROVED!\n\n🚨 Emergency alerts sent successfully!\n\n📱 WhatsApp notifications sent to ${whatsappResult.recipientCount} nearby users\n📍 Location: ${currentReport.incident?.location?.address || 'Location not available'}\n⏰ Time: ${new Date().toLocaleString()}\n\n✅ Notifications include:\n• Emergency location details\n• Google Maps link\n• Safety instructions\n• Emergency contact info\n\nUsers within 1km radius have been notified via WhatsApp! 📲`);
+        } else {
+          alert(`✅ SOS Report APPROVED!\n\n⚠️ WhatsApp notification failed: ${whatsappResult.error}\n\nReport status updated in Firebase successfully.`);
+        }
       } else {
-        alert(`❌ SOS Report REJECTED\n\nThe report has been reviewed and rejected.\nStatus updated in Firebase.`);
+        alert(`❌ SOS Report REJECTED\n\nThe report has been reviewed and rejected.\n📝 Admin Notes: ${adminNotes}\n✅ Status updated in Firebase Firestore.`);
       }
 
       // Remove from pending list (Firebase listener will handle this automatically)
@@ -350,9 +360,9 @@ function App() {
 
       // Show error but still provide demo functionality
       if (decision === 'approved') {
-        alert(`✅ SOS Report APPROVED! (Offline Mode)\n\n🚨 Firebase unavailable, but in a real system emergency alerts would be sent to ${Math.floor(Math.random() * 50) + 20} nearby users via:\n• WhatsApp messages\n• Push notifications\n• Firebase Cloud Messaging\n\nUsers within 1km radius would be notified.`);
+        alert(`✅ SOS Report APPROVED! (Offline Mode)\n\n⚠️ Firebase connection issue, but in a real system:\n\n📱 WhatsApp notifications would be sent to nearby users\n📍 Location alerts would be distributed\n🚨 Emergency services would be notified\n\nFirebase Error: ${error.message}`);
       } else {
-        alert(`❌ SOS Report REJECTED (Offline Mode)\n\nThe report has been reviewed and rejected.\nFirebase unavailable - changes not persisted.`);
+        alert(`❌ SOS Report REJECTED (Offline Mode)\n\nThe report has been reviewed and rejected.\n⚠️ Firebase unavailable - changes not persisted.\n\nError: ${error.message}`);
       }
 
       // Remove from list for demo even on error
