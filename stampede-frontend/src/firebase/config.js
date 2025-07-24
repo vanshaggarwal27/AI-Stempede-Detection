@@ -31,6 +31,27 @@ console.log('📋 Project ID:', app.options.projectId);
 console.log('📁 Storage Bucket:', app.options.storageBucket);
 console.log('🌐 Auth Domain:', app.options.authDomain);
 
+// Test Firestore connection
+export const testFirestoreConnection = async () => {
+  try {
+    console.log('🧪 Testing Firestore connection...');
+    const sosCollection = collection(db, 'sosReports');
+    const snapshot = await getDocs(sosCollection);
+
+    console.log('✅ Firestore connection successful!');
+    console.log('📊 Total documents in sosReports collection:', snapshot.size);
+
+    snapshot.forEach((doc) => {
+      console.log('📄 Document:', doc.id, doc.data());
+    });
+
+    return { success: true, count: snapshot.size };
+  } catch (error) {
+    console.error('❌ Firestore connection failed:', error);
+    return { success: false, error: error.message };
+  }
+};
+
 // Messaging setup for push notifications
 export const requestNotificationPermission = async () => {
   try {
