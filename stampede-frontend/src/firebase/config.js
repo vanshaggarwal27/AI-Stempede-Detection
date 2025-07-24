@@ -107,7 +107,7 @@ export const uploadSOSVideo = async (videoFile, userId) => {
     const fileName = `sos_${userId}_${timestamp}.mp4`;
     const storageRef = ref(storage, `sos-videos/${fileName}`);
     
-    console.log('�� Uploading SOS video to Firebase Storage...');
+    console.log('📤 Uploading SOS video to Firebase Storage...');
     
     const snapshot = await uploadBytes(storageRef, videoFile);
     const downloadURL = await getDownloadURL(snapshot.ref);
@@ -144,15 +144,15 @@ export const createSOSReport = async (sosData) => {
 
 // Real-time listener for admin panel
 export const listenToSOSReports = (callback) => {
-  console.log('🔄 Setting up Firebase listener for sosReports collection...');
+  console.log('🔄 Setting up Firebase listener for sos-alerts collection...');
   console.log('📋 Firebase project:', db.app.options.projectId);
 
   try {
     // First try to get all documents to check connection
-    const sosCollection = collection(db, 'sosReports');
-    console.log('📁 Collection reference created:', sosCollection.path);
+    const sosCollection = collection(db, 'sos-alerts');
+    console.log('���� Collection reference created:', sosCollection.path);
 
-    // Get all documents from sosReports collection without any filters
+    // Get all documents from sos-alerts collection without any filters
     console.log('📊 Creating query for collection:', sosCollection.path);
     const q = query(sosCollection);
 
@@ -161,7 +161,7 @@ export const listenToSOSReports = (callback) => {
     return onSnapshot(q,
       (querySnapshot) => {
         console.log('📡 Firebase snapshot received!');
-        console.log('📊 Total documents in sosReports:', querySnapshot.size);
+        console.log('📊 Total documents in sos-alerts:', querySnapshot.size);
 
         const allReports = [];
         const pendingReports = [];
