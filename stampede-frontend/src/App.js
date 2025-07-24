@@ -186,6 +186,17 @@ function App() {
 
     try {
       setSOSLoading(true);
+      console.log('🔥 Starting SOS reports Firebase connection...');
+
+      // First test the Firestore connection
+      const connectionTest = await testFirestoreConnection();
+      if (!connectionTest.success) {
+        console.error('❌ Firebase connection test failed:', connectionTest.error);
+        setSOSLoading(false);
+        return;
+      }
+
+      console.log('✅ Firebase connection test passed!');
       console.log('🔥 Setting up Firebase real-time listener for SOS reports...');
 
       // Set up real-time listener for Firebase SOS reports
