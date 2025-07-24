@@ -150,7 +150,7 @@ export const listenToSOSReports = (callback) => {
   try {
     // First try to get all documents to check connection
     const sosCollection = collection(db, 'sos-alerts');
-    console.log('���� Collection reference created:', sosCollection.path);
+    console.log('📁 Collection reference created:', sosCollection.path);
 
     // Get all documents from sos-alerts collection without any filters
     console.log('📊 Creating query for collection:', sosCollection.path);
@@ -227,7 +227,7 @@ export const listenToSOSReports = (callback) => {
 // Update SOS report status (for admin actions)
 export const updateSOSStatus = async (reportId, status, adminNotes = '') => {
   try {
-    const reportRef = doc(db, 'sosReports', reportId);
+    const reportRef = doc(db, 'sos-alerts', reportId);
 
     // Add status and admin review fields to user's existing structure
     await updateDoc(reportRef, {
