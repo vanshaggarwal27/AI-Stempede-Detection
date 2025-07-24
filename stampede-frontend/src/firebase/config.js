@@ -205,14 +205,17 @@ export const listenToSOSReports = (callback) => {
 export const updateSOSStatus = async (reportId, status, adminNotes = '') => {
   try {
     const reportRef = doc(db, 'sosReports', reportId);
+
+    // Add status and admin review fields to user's existing structure
     await updateDoc(reportRef, {
-      status: status,
+      status: status, // Add status field to document
       adminReview: {
         decision: status,
         adminNotes: adminNotes,
         reviewedAt: serverTimestamp(),
         notificationsSent: status === 'approved' ? true : false
-      }
+      },
+      updatedAt: serverTimestamp() // Track when document was last updated
     });
 
     console.log(`✅ SOS report ${reportId} ${status}`);
