@@ -25,6 +25,12 @@ export const storage = getStorage(app);
 export const db = getFirestore(app);
 export const messaging = getMessaging(app);
 
+// Test Firebase connection
+console.log('🔥 Firebase initialized successfully!');
+console.log('📋 Project ID:', app.options.projectId);
+console.log('📁 Storage Bucket:', app.options.storageBucket);
+console.log('🌐 Auth Domain:', app.options.authDomain);
+
 // Messaging setup for push notifications
 export const requestNotificationPermission = async () => {
   try {
