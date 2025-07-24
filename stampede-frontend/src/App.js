@@ -780,6 +780,11 @@ function App() {
         ) : (
           /* SOS Alerts Management */
           <div className="w-full max-w-6xl">
+            {/* Firebase Connection Test */}
+            <div className="mb-6">
+              <FirebaseTest />
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* SOS Reports List */}
               <div className="lg:col-span-2">
