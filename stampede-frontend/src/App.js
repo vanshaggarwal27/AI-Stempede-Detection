@@ -4,7 +4,8 @@ import Webcam from 'react-webcam';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
 import * as tf from '@tensorflow/tfjs';
 import { Camera, Loader2, AlertTriangle, CheckCircle, WifiOff, XCircle, Users, EyeOff, Activity, Shield, Zap, Bell, Play, ExternalLink, MapPin, Clock, MessageSquare, Phone, Mail, Plus } from 'lucide-react';
-import { listenToSOSReports, updateSOSStatus, sendWhatsAppNotifications, testFirestoreConnection } from './firebase/config';
+import { listenToSOSReports, updateSOSStatus, sendWhatsAppNotifications, testFirestoreConnection, listenToActiveAlerts } from './firebase/config';
+import CreateAlertForm from './components/CreateAlertForm';
 
 function App() {
   const webcamRef = useRef(null);
@@ -888,7 +889,7 @@ function App() {
                               className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm transition-colors font-medium"
                             >
                               <CheckCircle size={16} />
-                              <span>✅ APPROVE & SEND ALERTS</span>
+                              <span>��� APPROVE & SEND ALERTS</span>
                             </button>
 
                             <button
