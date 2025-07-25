@@ -28,6 +28,8 @@ function App() {
   const [sosLoading, setSOSLoading] = useState(false);
   const [sosProcessing, setSOSProcessing] = useState({});
   const [showVideoModal, setShowVideoModal] = useState(false);
+  const [showCreateAlert, setShowCreateAlert] = useState(false);
+  const [activeAlerts, setActiveAlerts] = useState([]);
 
   // Configuration for alert thresholds (adjusted for more realistic testing)
   const HIGH_DENSITY_THRESHOLD = 1; // Warning for 1 or more people
@@ -889,7 +891,7 @@ function App() {
                               className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm transition-colors font-medium"
                             >
                               <CheckCircle size={16} />
-                              <span>��� APPROVE & SEND ALERTS</span>
+                              <span>✅ APPROVE & SEND ALERTS</span>
                             </button>
 
                             <button
