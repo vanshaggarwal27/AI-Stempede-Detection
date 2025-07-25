@@ -318,4 +318,138 @@ Stay Safe! 🙏`;
   }
 };
 
+// Alert creation function
+export const createAlert = async (alertData) => {
+  try {
+    console.log('🚨 Creating new alert...', alertData);
+
+    const docRef = await addDoc(collection(db, 'alerts'), {
+      ...alertData,
+      createdAt: serverTimestamp(),
+      id: '', // Will be updated with doc ID
+      isActive: true
+    });
+
+    // Update the document with its own ID
+    await updateDoc(docRef, {
+      id: docRef.id
+    });
+
+    console.log('✅ Alert created successfully with ID:', docRef.id);
+    return docRef.id;
+  } catch (error) {
+    console.error('❌ Failed to create alert:', error);
+    throw new Error(`Failed to create alert: ${error.message}`);
+  }
+};
+
+// Get user location with address
+export const getUserLocation = () => {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      resolve({
+        success: false,
+        error: 'Geolocation not supported by this browser'
+      });
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const coords = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        };
+
+        try {
+          // Try to get address using reverse geocoding
+          const response = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${coords.latitude}&longitude=${coords.longitude}&localityLanguage=en`
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            const address = data.display_name ||
+                          `${data.locality || ''}, ${data.city || ''}, ${data.countryName || ''}`.replace(/^,\s*|,\s*$/g, '') ||
+                          `${coords.latitude.toFixed(6)}, ${coords.longitude.toFixed(6)}`;
+
+            resolve({
+              success: true,
+              coords,
+              address: address || `${coords.latitude.toFixed(6)}, ${coords.longitude.toFixed(6)}`
+            });
+          } else {
+            resolve({
+              success: true,
+              coords,
+              address: `${coords.latitude.toFixed(6)}, ${coords.longitude.toFixed(6)}`
+            });
+          }
+        } catch (error) {
+          console.warn('Could not get address:', error);
+          resolve({
+            success: true,
+            coords,
+            address: `${coords.latitude.toFixed(6)}, ${coords.longitude.toFixed(6)}`
+          });
+        }
+      },
+      (error) => {
+        let errorMessage = 'Unknown location error';
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = 'Location access denied by user';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = 'Location information unavailable';
+            break;
+          case error.TIMEOUT:
+            errorMessage = 'Location request timed out';
+            break;
+        }
+
+        resolve({
+          success: false,
+          error: errorMessage
+        });
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 300000 // 5 minutes
+      }
+    );
+  });
+};
+
+// Listen to active alerts
+export const listenToActiveAlerts = (callback) => {
+  try {
+    const alertsCollection = collection(db, 'alerts');
+    const q = query(alertsCollection);
+
+    return onSnapshot(q, (querySnapshot) => {
+      const alerts = [];
+      const currentTime = new Date();
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const alert = { id: doc.id, ...data };
+
+        // Check if alert is still active and not expired
+        if (alert.isActive && alert.expiresAt && alert.expiresAt.toDate() > currentTime) {
+          alerts.push(alert);
+        }
+      });
+
+      console.log('📡 Active alerts received:', alerts.length);
+      callback(alerts);
+    });
+  } catch (error) {
+    console.error('❌ Error listening to alerts:', error);
+    callback([]);
+    return () => {};
+  }
+};
+
 export default app;
