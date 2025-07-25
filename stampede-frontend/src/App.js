@@ -443,6 +443,24 @@ function App() {
     }
   }, [activeTab, fetchSOSReports]);
 
+  // Listen to active alerts
+  useEffect(() => {
+    if (activeTab === 'sos-alerts') {
+      console.log('🚨 Setting up active alerts listener...');
+      const unsubscribe = listenToActiveAlerts((alerts) => {
+        console.log('📡 Active alerts received:', alerts.length);
+        setActiveAlerts(alerts);
+      });
+
+      return () => {
+        if (unsubscribe && typeof unsubscribe === 'function') {
+          console.log('🧹 Cleaning up active alerts listener');
+          unsubscribe();
+        }
+      };
+    }
+  }, [activeTab]);
+
   // Determine status text for the "Current Count" card
   const getCurrentStatusText = () => {
     if (detectedPeople >= CRITICAL_DENSITY_THRESHOLD) return "CRITICAL ALERT";
