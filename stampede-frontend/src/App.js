@@ -805,6 +805,14 @@ function App() {
                           {sosReports.length} pending review{sosReports.length !== 1 ? 's' : ''}
                         </span>
                         <button
+                          onClick={() => setShowCreateAlert(true)}
+                          className="flex items-center space-x-2 bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 text-white px-4 py-2 rounded-lg transition-all font-medium"
+                          title="Create New Alert"
+                        >
+                          <Plus size={16} />
+                          <span>Create Alert</span>
+                        </button>
+                        <button
                           onClick={fetchSOSReports}
                           className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
                           title="Refresh Firebase Data"
@@ -1071,7 +1079,7 @@ function App() {
                             className="w-full flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-4 py-4 rounded-lg transition-colors font-bold text-lg"
                           >
                             <CheckCircle size={24} />
-                            <span>✅ APPROVE & SEND ALERTS</span>
+                            <span>��� APPROVE & SEND ALERTS</span>
                           </button>
 
                           <button
