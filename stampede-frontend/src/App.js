@@ -800,6 +800,52 @@ function App() {
         ) : (
           /* SOS Alerts Management */
           <div className="w-full max-w-6xl">
+            {/* Active Alerts Banner */}
+            {activeAlerts.length > 0 && (
+              <div className="mb-6 bg-gradient-to-r from-red-500/20 to-orange-600/20 backdrop-blur-xl rounded-2xl border border-red-500/50 p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-red-500 rounded-lg animate-pulse">
+                      <AlertTriangle className="text-white" size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-red-300 font-bold text-lg">🚨 Active Emergency Alerts</h3>
+                      <p className="text-red-200 text-sm">{activeAlerts.length} alert{activeAlerts.length !== 1 ? 's' : ''} currently active</p>
+                    </div>
+                  </div>
+                  <div className="text-red-300 text-sm">
+                    <div className="w-3 h-3 bg-red-400 rounded-full animate-ping"></div>
+                  </div>
+                </div>
+                <div className="mt-3 space-y-2">
+                  {activeAlerts.slice(0, 3).map((alert) => (
+                    <div key={alert.id} className="bg-black/30 rounded-lg p-3 border border-red-500/30">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-white font-medium">{alert.title}</p>
+                          <p className="text-red-200 text-sm">{alert.location?.address || 'Location not specified'}</p>
+                        </div>
+                        <div className="text-right">
+                          <span className={`px-2 py-1 rounded text-xs font-bold ${
+                            alert.severity === 'high' ? 'bg-red-500/30 text-red-300' :
+                            alert.severity === 'medium' ? 'bg-yellow-500/30 text-yellow-300' :
+                            'bg-green-500/30 text-green-300'
+                          }`}>
+                            {alert.severity?.toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {activeAlerts.length > 3 && (
+                    <p className="text-red-300 text-sm text-center">
+                      +{activeAlerts.length - 3} more active alerts
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* SOS Reports List */}
               <div className="lg:col-span-2">
