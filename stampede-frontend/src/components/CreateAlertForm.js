@@ -33,13 +33,11 @@ const CreateAlertForm = ({ isOpen, onClose, onSuccess }) => {
 
   // Alert types
   const alertTypes = [
-    { value: 'emergency', label: 'Emergency Alert', icon: '🚨' },
+    { value: 'fire', label: 'Fire Alert', icon: '🔥' },
+    { value: 'medical', label: 'Medical Alert', icon: '🚑' },
     { value: 'crowd_warning', label: 'Crowd Warning', icon: '👥' },
     { value: 'weather', label: 'Weather Alert', icon: '🌦️' },
     { value: 'security', label: 'Security Alert', icon: '🔒' },
-    { value: 'traffic', label: 'Traffic Alert', icon: '🚦' },
-    { value: 'maintenance', label: 'Maintenance Notice', icon: '🔧' },
-    { value: 'event', label: 'Event Alert', icon: '🎉' },
     { value: 'general', label: 'General Alert', icon: '📢' }
   ];
 
