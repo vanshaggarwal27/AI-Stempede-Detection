@@ -1191,6 +1191,17 @@ function App() {
             </div>
           </div>
         )}
+
+        {/* Create Alert Form */}
+        <CreateAlertForm
+          isOpen={showCreateAlert}
+          onClose={() => setShowCreateAlert(false)}
+          onSuccess={(alertId) => {
+            console.log('Alert created successfully:', alertId);
+            alert('🚨 Alert Created Successfully!\n\nAlert ID: ' + alertId + '\n\nThe alert has been saved to Firebase and will be distributed to users in the specified area.');
+            // You could also refresh any active alerts list here
+          }}
+        />
       </div>
     </div>
   );
