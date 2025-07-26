@@ -1143,7 +1143,7 @@ function App() {
                             className="w-full flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-4 py-4 rounded-lg transition-colors font-bold text-lg"
                           >
                             <CheckCircle size={24} />
-                            <span>��� APPROVE & SEND ALERTS</span>
+                            <span>APPROVE & DISPATCH EMERGENCY SERVICES</span>
                           </button>
 
                           <button
