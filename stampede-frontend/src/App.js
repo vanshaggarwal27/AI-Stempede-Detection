@@ -3,8 +3,9 @@ import React, { useRef, useState, useEffect, useCallback } from 'react';
 import Webcam from 'react-webcam';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
 import * as tf from '@tensorflow/tfjs';
-import { Camera, Loader2, AlertTriangle, CheckCircle, WifiOff, XCircle, Users, EyeOff, Activity, Shield, Zap, Bell, Play, ExternalLink, MapPin, Clock, MessageSquare, Phone, Mail } from 'lucide-react';
-import { listenToSOSReports, updateSOSStatus, sendWhatsAppNotifications, testFirestoreConnection } from './firebase/config';
+import { Camera, Loader2, AlertTriangle, CheckCircle, WifiOff, XCircle, Users, EyeOff, Activity, Shield, Zap, Bell, Play, ExternalLink, MapPin, Clock, MessageSquare, Phone, Mail, Plus } from 'lucide-react';
+import { listenToSOSReports, updateSOSStatus, sendWhatsAppNotifications, testFirestoreConnection, listenToActiveAlerts } from './firebase/config';
+import CreateAlertForm from './components/CreateAlertForm';
 
 function App() {
   const webcamRef = useRef(null);
@@ -27,6 +28,8 @@ function App() {
   const [sosLoading, setSOSLoading] = useState(false);
   const [sosProcessing, setSOSProcessing] = useState({});
   const [showVideoModal, setShowVideoModal] = useState(false);
+  const [showCreateAlert, setShowCreateAlert] = useState(false);
+  const [activeAlerts, setActiveAlerts] = useState([]);
 
   // Configuration for alert thresholds (adjusted for more realistic testing)
   const HIGH_DENSITY_THRESHOLD = 1; // Warning for 1 or more people
@@ -337,7 +340,7 @@ function App() {
         const whatsappResult = await sendWhatsAppNotifications(currentReport, { adminNotes });
 
         if (whatsappResult.success) {
-          alert(`✅ SOS Report APPROVED!\n\n🚨 Emergency alerts sent successfully!\n\n📱 WhatsApp notifications sent to ${whatsappResult.recipientCount} nearby users\n📍 Location: ${currentReport.incident?.location?.address || 'Location not available'}\n⏰ Time: ${new Date().toLocaleString()}\n\n✅ Notifications include:\n• Emergency location details\n• Google Maps link\n• Safety instructions\n• Emergency contact info\n\nUsers within 1km radius have been notified via WhatsApp! 📲`);
+          alert(`�� SOS Report APPROVED!\n\n🚨 Emergency alerts sent successfully!\n\n📱 WhatsApp notifications sent to ${whatsappResult.recipientCount} nearby users\n📍 Location: ${currentReport.incident?.location?.address || 'Location not available'}\n⏰ Time: ${new Date().toLocaleString()}\n\n✅ Notifications include:\n• Emergency location details\n• Google Maps link\n• Safety instructions\n• Emergency contact info\n\nUsers within 1km radius have been notified via WhatsApp! 📲`);
         } else {
           alert(`✅ SOS Report APPROVED!\n\n⚠️ WhatsApp notification failed: ${whatsappResult.error}\n\nReport status updated in Firebase successfully.`);
         }
@@ -439,6 +442,24 @@ function App() {
       return () => clearInterval(interval);
     }
   }, [activeTab, fetchSOSReports]);
+
+  // Listen to active alerts
+  useEffect(() => {
+    if (activeTab === 'sos-alerts') {
+      console.log('🚨 Setting up active alerts listener...');
+      const unsubscribe = listenToActiveAlerts((alerts) => {
+        console.log('📡 Active alerts received:', alerts.length);
+        setActiveAlerts(alerts);
+      });
+
+      return () => {
+        if (unsubscribe && typeof unsubscribe === 'function') {
+          console.log('🧹 Cleaning up active alerts listener');
+          unsubscribe();
+        }
+      };
+    }
+  }, [activeTab]);
 
   // Determine status text for the "Current Count" card
   const getCurrentStatusText = () => {
@@ -779,6 +800,52 @@ function App() {
         ) : (
           /* SOS Alerts Management */
           <div className="w-full max-w-6xl">
+            {/* Active Alerts Banner */}
+            {activeAlerts.length > 0 && (
+              <div className="mb-6 bg-gradient-to-r from-red-500/20 to-orange-600/20 backdrop-blur-xl rounded-2xl border border-red-500/50 p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-red-500 rounded-lg animate-pulse">
+                      <AlertTriangle className="text-white" size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-red-300 font-bold text-lg">🚨 Active Emergency Alerts</h3>
+                      <p className="text-red-200 text-sm">{activeAlerts.length} alert{activeAlerts.length !== 1 ? 's' : ''} currently active</p>
+                    </div>
+                  </div>
+                  <div className="text-red-300 text-sm">
+                    <div className="w-3 h-3 bg-red-400 rounded-full animate-ping"></div>
+                  </div>
+                </div>
+                <div className="mt-3 space-y-2">
+                  {activeAlerts.slice(0, 3).map((alert) => (
+                    <div key={alert.id} className="bg-black/30 rounded-lg p-3 border border-red-500/30">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-white font-medium">{alert.title}</p>
+                          <p className="text-red-200 text-sm">{alert.location?.address || 'Location not specified'}</p>
+                        </div>
+                        <div className="text-right">
+                          <span className={`px-2 py-1 rounded text-xs font-bold ${
+                            alert.severity === 'high' ? 'bg-red-500/30 text-red-300' :
+                            alert.severity === 'medium' ? 'bg-yellow-500/30 text-yellow-300' :
+                            'bg-green-500/30 text-green-300'
+                          }`}>
+                            {alert.severity?.toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {activeAlerts.length > 3 && (
+                    <p className="text-red-300 text-sm text-center">
+                      +{activeAlerts.length - 3} more active alerts
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* SOS Reports List */}
               <div className="lg:col-span-2">
@@ -801,6 +868,14 @@ function App() {
                         <span className="text-gray-400 text-sm">
                           {sosReports.length} pending review{sosReports.length !== 1 ? 's' : ''}
                         </span>
+                        <button
+                          onClick={() => setShowCreateAlert(true)}
+                          className="flex items-center space-x-2 bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 text-white px-4 py-2 rounded-lg transition-all font-medium"
+                          title="Create New Alert"
+                        >
+                          <Plus size={16} />
+                          <span>Create Alert</span>
+                        </button>
                         <button
                           onClick={fetchSOSReports}
                           className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
@@ -888,7 +963,7 @@ function App() {
                               className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm transition-colors font-medium"
                             >
                               <CheckCircle size={16} />
-                              <span>✅ APPROVE & SEND ALERTS</span>
+                              <span>APPROVE & DISPATCH EMERGENCY SERVICES</span>
                             </button>
 
                             <button
@@ -1068,7 +1143,7 @@ function App() {
                             className="w-full flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-4 py-4 rounded-lg transition-colors font-bold text-lg"
                           >
                             <CheckCircle size={24} />
-                            <span>✅ APPROVE & SEND ALERTS</span>
+                            <span>APPROVE & DISPATCH EMERGENCY SERVICES</span>
                           </button>
 
                           <button
@@ -1082,8 +1157,12 @@ function App() {
                         </div>
 
                         <div className="bg-yellow-900/30 border border-yellow-500/50 rounded-lg p-3 text-sm">
-                          <p className="text-yellow-300 font-medium mb-1">⚠️ Approval Action:</p>
-                          <p className="text-yellow-200">Clicking APPROVE will instantly send emergency alerts via WhatsApp and push notifications to all users within 1km radius of the incident location.</p>
+                          <p className="text-yellow-300 font-medium mb-1">⚠️ Emergency Dispatch Action:</p>
+                          <p className="text-yellow-200">Clicking APPROVE will instantly:
+                          <br/>• Find fastest routes from nearest Hospital, Fire Brigade & Police to emergency location
+                          <br/>• Send route details via WhatsApp to emergency services
+                          <br/>• Alert all users within 1km radius
+                          <br/>• Dispatch emergency responders with optimal navigation</p>
                         </div>
                       </div>
                     </div>
@@ -1180,6 +1259,17 @@ function App() {
             </div>
           </div>
         )}
+
+        {/* Create Alert Form */}
+        <CreateAlertForm
+          isOpen={showCreateAlert}
+          onClose={() => setShowCreateAlert(false)}
+          onSuccess={(alertId) => {
+            console.log('Alert created successfully:', alertId);
+            alert('🚨 Alert Created Successfully!\n\nAlert ID: ' + alertId + '\n\nThe alert has been saved to Firebase and will be distributed to users in the specified area.');
+            // You could also refresh any active alerts list here
+          }}
+        />
       </div>
     </div>
   );
