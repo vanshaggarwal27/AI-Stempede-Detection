@@ -563,6 +563,9 @@ export const getUserLocation = () => {
           case error.TIMEOUT:
             errorMessage = 'Location request timed out';
             break;
+          default:
+            errorMessage = 'Unknown location error';
+            break;
         }
 
         resolve({
