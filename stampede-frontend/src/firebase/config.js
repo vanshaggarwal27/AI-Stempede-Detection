@@ -205,7 +205,7 @@ export const listenToSOSReports = (callback) => {
       },
       (error) => {
         console.error('❌ Firebase listener error:', error);
-        console.error('❌ Error code:', error.code);
+        console.error('�� Error code:', error.code);
         console.error('❌ Error message:', error.message);
 
         // Check if it's a permission error
@@ -446,30 +446,54 @@ const findNearestEmergencyServices = async (lat, lng) => {
   }
 };
 
-// Generate route information for emergency services
+// Generate route information for emergency services with real data
 const generateEmergencyRoutes = async (sosLocation, emergencyServices) => {
   try {
-    console.log('🗺️ Generating emergency service routes...');
+    console.log('🗺️ Generating emergency service routes with real data...');
 
     const routes = [];
 
     for (const service of emergencyServices) {
       for (const location of service.locations) {
+        // Create Google Maps route URL from emergency service to SOS location
         const routeUrl = `https://www.google.com/maps/dir/${location.lat},${location.lng}/${sosLocation.lat},${sosLocation.lng}`;
+
+        // Create OpenStreetMap route URL as alternative
+        const osmRouteUrl = `https://www.openstreetmap.org/directions?from=${location.lat}%2C${location.lng}&to=${sosLocation.lat}%2C${sosLocation.lng}&route=`;
 
         routes.push({
           serviceName: location.name,
           serviceType: service.name,
+          serviceId: location.id,
           icon: service.icon,
           phone: location.phone,
           address: location.address,
           distance: location.distance,
+          distanceKm: location.distanceKm,
           eta: location.eta,
+          etaMinutes: location.etaMinutes,
+          coordinates: {
+            lat: location.lat,
+            lng: location.lng
+          },
           routeUrl: routeUrl,
-          directionsText: `📍 From: ${location.name}\n📍 To: Emergency Location\n⏱️ ETA: ${location.eta}\n📏 Distance: ${location.distance}`
+          osmRouteUrl: osmRouteUrl,
+          directionsText: `📍 From: ${location.name}\n📍 ${location.address}\n📍 To: Emergency Location (${sosLocation.lat}, ${sosLocation.lng})\n⏱️ ETA: ${location.eta}\n📏 Distance: ${location.distance}\n📞 Contact: ${location.phone}`,
+          isRealData: location.id !== `fallback_${service.type}` // Flag to indicate if this is real OSM data
         });
       }
     }
+
+    // Sort routes by ETA (fastest first)
+    routes.sort((a, b) => {
+      if (a.etaMinutes && b.etaMinutes) {
+        return a.etaMinutes - b.etaMinutes;
+      }
+      return 0;
+    });
+
+    console.log(`🚀 Generated ${routes.length} emergency routes`);
+    console.log('📊 Route Summary:', routes.map(r => `${r.icon} ${r.serviceName} - ${r.eta}`));
 
     return routes;
   } catch (error) {
