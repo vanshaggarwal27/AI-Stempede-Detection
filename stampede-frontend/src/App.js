@@ -1157,8 +1157,12 @@ function App() {
                         </div>
 
                         <div className="bg-yellow-900/30 border border-yellow-500/50 rounded-lg p-3 text-sm">
-                          <p className="text-yellow-300 font-medium mb-1">⚠️ Approval Action:</p>
-                          <p className="text-yellow-200">Clicking APPROVE will instantly send emergency alerts via WhatsApp and push notifications to all users within 1km radius of the incident location.</p>
+                          <p className="text-yellow-300 font-medium mb-1">⚠️ Emergency Dispatch Action:</p>
+                          <p className="text-yellow-200">Clicking APPROVE will instantly:
+                          <br/>• Find fastest routes from nearest Hospital, Fire Brigade & Police to emergency location
+                          <br/>• Send route details via WhatsApp to emergency services
+                          <br/>• Alert all users within 1km radius
+                          <br/>• Dispatch emergency responders with optimal navigation</p>
                         </div>
                       </div>
                     </div>
