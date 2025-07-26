@@ -607,12 +607,14 @@ Stay Safe! 🙏`;
       routesGenerated: emergencyRoutes.length,
       message: `Emergency notifications sent successfully!
 
+🗺️ USING REAL OPENSTREETMAP DATA
+
 🚒 Emergency Services Alerted: ${emergencyServiceMessages.length}
 👥 Public Alerts Sent: ${nearbyUsers.length}
 🗺️ Routes Generated: ${emergencyRoutes.length}
 
 Emergency Services Dispatched:
-${emergencyRoutes.map(route => `${route.icon} ${route.serviceName} - ETA: ${route.eta}`).join('\n')}`
+${emergencyRoutes.map(route => `${route.icon} ${route.serviceName} - ETA: ${route.eta} ${route.isRealData ? '(Real OSM Data)' : '(Fallback)'}`).join('\n')}`
     };
 
   } catch (error) {
