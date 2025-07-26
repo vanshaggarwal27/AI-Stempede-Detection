@@ -405,7 +405,7 @@ const findNearestEmergencyServices = async (lat, lng) => {
   } catch (error) {
     console.error('❌ Error finding emergency services:', error);
 
-    // Complete fallback with emergency numbers
+    // Complete fallback with user's numbers
     return [
       {
         type: 'hospital',
@@ -413,7 +413,7 @@ const findNearestEmergencyServices = async (lat, lng) => {
         icon: '🏥',
         locations: [{
           name: 'Emergency Medical Services',
-          phone: '+91-11-108',
+          phone: '+91-7819834452',
           address: 'Call for medical emergency',
           lat: lat, lng: lng, distance: 'Unknown', eta: 'Unknown'
         }]
@@ -424,7 +424,7 @@ const findNearestEmergencyServices = async (lat, lng) => {
         icon: '🚒',
         locations: [{
           name: 'Fire Emergency Services',
-          phone: '+91-11-101',
+          phone: '+91-9996101244',
           address: 'Call for fire emergency',
           lat: lat, lng: lng, distance: 'Unknown', eta: 'Unknown'
         }]
@@ -435,7 +435,7 @@ const findNearestEmergencyServices = async (lat, lng) => {
         icon: '👮',
         locations: [{
           name: 'Police Emergency Services',
-          phone: '+91-11-100',
+          phone: '+91-8168006394',
           address: 'Call for police assistance',
           lat: lat, lng: lng, distance: 'Unknown', eta: 'Unknown'
         }]
