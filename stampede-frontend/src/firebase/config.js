@@ -676,13 +676,18 @@ Stay Safe! 🙏`;
       message: `Emergency notifications sent successfully!
 
 🗺️ USING REAL OPENSTREETMAP DATA
+📱 REAL SMS SENT VIA TWILIO
 
 🚒 Emergency Services Alerted: ${emergencyServiceMessages.length}
 👥 Public Alerts Sent: ${nearbyUsers.length}
 🗺️ Routes Generated: ${emergencyRoutes.length}
+📲 SMS Success Rate: ${smsResults.filter(r => r.success).length}/${smsResults.length}
 
 Emergency Services Dispatched:
-${emergencyRoutes.map(route => `${route.icon} ${route.serviceName} - ETA: ${route.eta} ${route.isRealData ? '(Real OSM Data)' : '(Fallback)'}`).join('\n')}`
+${emergencyRoutes.map(route => `${route.icon} ${route.serviceName} - ETA: ${route.eta} ${route.isRealData ? '(Real OSM Data)' : '(Fallback)'}`).join('\n')}
+
+SMS Status:
+${smsResults.map(r => `${r.success ? '✅' : '❌'} ${r.phone} - ${r.success ? 'Sent' : r.error}`).join('\n')}`
     };
 
   } catch (error) {
