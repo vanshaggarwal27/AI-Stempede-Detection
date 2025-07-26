@@ -204,7 +204,7 @@ export const listenToSOSReports = (callback) => {
         callback(pendingReports);
       },
       (error) => {
-        console.error('��� Firebase listener error:', error);
+        console.error('❌ Firebase listener error:', error);
         console.error('�� Error code:', error.code);
         console.error('❌ Error message:', error.message);
 
@@ -380,16 +380,16 @@ const findNearestEmergencyServices = async (lat, lng) => {
       } catch (error) {
         console.error(`❌ Failed to find ${service.name}:`, error);
 
-        // Fallback to emergency numbers if API fails
+        // Fallback to user's numbers if API fails
         emergencyServices.push({
           ...service,
           locations: [{
             id: `fallback_${service.type}`,
             name: `Emergency ${service.name}`,
             address: 'Contact emergency services',
-            phone: service.type === 'hospital' ? '+91-11-108' :
-                   service.type === 'fire_station' ? '+91-11-101' :
-                   '+91-11-100',
+            phone: service.type === 'hospital' ? '+91-7819834452' :
+                   service.type === 'fire_station' ? '+91-9996101244' :
+                   '+91-8168006394',
             lat: lat,
             lng: lng,
             distance: 'Unknown',
