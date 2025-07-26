@@ -249,75 +249,200 @@ export const updateSOSStatus = async (reportId, status, adminNotes = '') => {
   }
 };
 
-// Find nearest emergency services using Google Places API
+// Calculate distance between two coordinates using Haversine formula
+const calculateDistance = (lat1, lng1, lat2, lng2) => {
+  const R = 6371; // Earth's radius in kilometers
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng/2) * Math.sin(dLng/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c; // Distance in kilometers
+};
+
+// Calculate estimated travel time (assuming average speed in emergency situations)
+const calculateETA = (distanceKm) => {
+  const avgSpeedKmh = 40; // Average emergency vehicle speed in urban areas
+  const timeHours = distanceKm / avgSpeedKmh;
+  const timeMinutes = Math.round(timeHours * 60);
+  return timeMinutes;
+};
+
+// Find nearest emergency services using OpenStreetMap Overpass API
 const findNearestEmergencyServices = async (lat, lng) => {
   try {
-    console.log('🔍 Finding nearest emergency services...');
+    console.log('🔍 Finding nearest emergency services using OpenStreetMap...');
+    console.log(`📍 Emergency location: ${lat}, ${lng}`);
 
-    // Emergency service types to search for
+    // Emergency service types with their OpenStreetMap amenity tags
     const serviceTypes = [
-      { type: 'hospital', name: 'Hospital', icon: '🏥' },
-      { type: 'fire_station', name: 'Fire Brigade', icon: '🚒' },
-      { type: 'police', name: 'Police Station', icon: '👮' }
+      {
+        type: 'hospital',
+        name: 'Hospital',
+        icon: '🏥',
+        osmQuery: `[out:json][timeout:25];(node["amenity"="hospital"](around:10000,${lat},${lng});way["amenity"="hospital"](around:10000,${lat},${lng});relation["amenity"="hospital"](around:10000,${lat},${lng}););out center;`
+      },
+      {
+        type: 'fire_station',
+        name: 'Fire Brigade',
+        icon: '🚒',
+        osmQuery: `[out:json][timeout:25];(node["amenity"="fire_station"](around:10000,${lat},${lng});way["amenity"="fire_station"](around:10000,${lat},${lng});relation["amenity"="fire_station"](around:10000,${lat},${lng}););out center;`
+      },
+      {
+        type: 'police',
+        name: 'Police Station',
+        icon: '👮',
+        osmQuery: `[out:json][timeout:25];(node["amenity"="police"](around:10000,${lat},${lng});way["amenity"="police"](around:10000,${lat},${lng});relation["amenity"="police"](around:10000,${lat},${lng}););out center;`
+      }
     ];
 
     const emergencyServices = [];
 
     for (const service of serviceTypes) {
       try {
-        // Using a free geocoding service to simulate finding emergency services
-        // In production, you would use Google Places API
-        const simulatedServices = {
-          hospital: [
-            {
-              name: 'City General Hospital',
-              address: 'MG Road, Central District',
-              phone: '+91-11-2345-6789',
-              lat: lat + 0.01,
-              lng: lng + 0.01,
-              distance: '1.2 km',
-              eta: '8 mins'
-            }
-          ],
-          fire_station: [
-            {
-              name: 'Fire Station Central',
-              address: 'Brigade Road, Fire Department',
-              phone: '+91-11-101',
-              lat: lat - 0.008,
-              lng: lng + 0.012,
-              distance: '0.9 km',
-              eta: '6 mins'
-            }
-          ],
-          police: [
-            {
-              name: 'Central Police Station',
-              address: 'Law & Order Complex',
-              phone: '+91-11-100',
-              lat: lat + 0.005,
-              lng: lng - 0.007,
-              distance: '0.7 km',
-              eta: '5 mins'
-            }
-          ]
-        };
+        console.log(`🔍 Searching for ${service.name}...`);
 
-        if (simulatedServices[service.type]) {
+        const response = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(service.osmQuery)}`);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log(`📊 Found ${data.elements.length} ${service.name} locations`);
+
+        const locations = data.elements
+          .map(element => {
+            // Get coordinates - handle nodes, ways, and relations
+            let elementLat, elementLng;
+            if (element.type === 'node') {
+              elementLat = element.lat;
+              elementLng = element.lon;
+            } else if (element.center) {
+              elementLat = element.center.lat;
+              elementLng = element.center.lon;
+            } else {
+              return null; // Skip if no coordinates available
+            }
+
+            // Calculate distance from emergency location
+            const distance = calculateDistance(lat, lng, elementLat, elementLng);
+            const eta = calculateETA(distance);
+
+            // Get name from tags
+            const name = element.tags?.name ||
+                        element.tags?.['name:en'] ||
+                        `${service.name} (${element.id})`;
+
+            // Generate address from available tags
+            const address = [
+              element.tags?.['addr:street'],
+              element.tags?.['addr:city'] || element.tags?.['addr:town'],
+              element.tags?.['addr:state'],
+              element.tags?.['addr:country']
+            ].filter(Boolean).join(', ') || 'Address not available';
+
+            // Generate emergency contact number (in real implementation, this would come from a database)
+            const phone = element.tags?.phone ||
+                         element.tags?.['contact:phone'] ||
+                         (service.type === 'hospital' ? '+91-11-108' :
+                          service.type === 'fire_station' ? '+91-11-101' :
+                          service.type === 'police' ? '+91-11-100' : '+91-11-112');
+
+            return {
+              id: element.id,
+              name: name,
+              address: address,
+              phone: phone,
+              lat: elementLat,
+              lng: elementLng,
+              distance: `${distance.toFixed(1)} km`,
+              distanceKm: distance,
+              eta: `${eta} mins`,
+              etaMinutes: eta,
+              tags: element.tags || {}
+            };
+          })
+          .filter(location => location !== null) // Remove invalid locations
+          .sort((a, b) => a.distanceKm - b.distanceKm) // Sort by distance
+          .slice(0, 3); // Take closest 3
+
+        console.log(`✅ Processed ${locations.length} ${service.name} locations`);
+
+        if (locations.length > 0) {
           emergencyServices.push({
             ...service,
-            locations: simulatedServices[service.type]
+            locations: locations
           });
+        } else {
+          console.warn(`⚠️ No ${service.name} found within 10km radius`);
         }
+
       } catch (error) {
-        console.warn(`Failed to find ${service.name}:`, error);
+        console.error(`❌ Failed to find ${service.name}:`, error);
+
+        // Fallback to emergency numbers if API fails
+        emergencyServices.push({
+          ...service,
+          locations: [{
+            id: `fallback_${service.type}`,
+            name: `Emergency ${service.name}`,
+            address: 'Contact emergency services',
+            phone: service.type === 'hospital' ? '+91-11-108' :
+                   service.type === 'fire_station' ? '+91-11-101' :
+                   '+91-11-100',
+            lat: lat,
+            lng: lng,
+            distance: 'Unknown',
+            eta: 'Unknown'
+          }]
+        });
       }
     }
 
+    console.log(`🚒 Total emergency services found: ${emergencyServices.reduce((sum, service) => sum + service.locations.length, 0)}`);
     return emergencyServices;
+
   } catch (error) {
     console.error('❌ Error finding emergency services:', error);
-    return [];
+
+    // Complete fallback with emergency numbers
+    return [
+      {
+        type: 'hospital',
+        name: 'Hospital',
+        icon: '🏥',
+        locations: [{
+          name: 'Emergency Medical Services',
+          phone: '+91-11-108',
+          address: 'Call for medical emergency',
+          lat: lat, lng: lng, distance: 'Unknown', eta: 'Unknown'
+        }]
+      },
+      {
+        type: 'fire_station',
+        name: 'Fire Brigade',
+        icon: '🚒',
+        locations: [{
+          name: 'Fire Emergency Services',
+          phone: '+91-11-101',
+          address: 'Call for fire emergency',
+          lat: lat, lng: lng, distance: 'Unknown', eta: 'Unknown'
+        }]
+      },
+      {
+        type: 'police',
+        name: 'Police Station',
+        icon: '👮',
+        locations: [{
+          name: 'Police Emergency Services',
+          phone: '+91-11-100',
+          address: 'Call for police assistance',
+          lat: lat, lng: lng, distance: 'Unknown', eta: 'Unknown'
+        }]
+      }
+    ];
   }
 };
 
@@ -397,7 +522,7 @@ Coordinates: ${whatsappData.coordinates.lat}, ${whatsappData.coordinates.lng}
 🚨 EMERGENCY TYPE: ${whatsappData.message}
 ⏰ Reported: ${new Date().toLocaleString()}
 
-🗺️ FASTEST ROUTE TO EMERGENCY:
+����� FASTEST ROUTE TO EMERGENCY:
 ${route.directionsText}
 
 📱 ROUTE LINK: ${route.routeUrl}
