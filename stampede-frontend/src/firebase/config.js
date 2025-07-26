@@ -658,11 +658,12 @@ Stay Safe! 🙏`;
     // Store enhanced notification log in Firestore
     await addDoc(collection(db, 'notificationLogs'), {
       reportId: sosReport.id || 'unknown',
-      type: 'enhanced_emergency_dispatch',
+      type: 'enhanced_emergency_dispatch_sms',
       emergencyServices: emergencyServiceMessages || [],
       publicRecipients: nearbyUsers || [],
       publicMessage: publicWhatsappMessage || '',
       emergencyRoutes: emergencyRoutes || [],
+      smsResults: smsResults || [],
       sentAt: serverTimestamp(),
       status: 'sent'
     });
