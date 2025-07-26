@@ -624,11 +624,36 @@ ${emergencyRoutes.map(route => `${route.icon} ${route.serviceName} (ETA: ${route
 
 Stay Safe! 🙏`;
 
-    // Log notification details
-    console.log('📤 Emergency Service Messages:', emergencyServiceMessages);
-    console.log('📤 Public WhatsApp message:', publicWhatsappMessage);
-    console.log('👥 Sending to nearby users:', nearbyUsers);
-    console.log('🚒 Sending to emergency services:', emergencyRoutes.length);
+    // Actually send SMS messages via Twilio
+    console.log('📤 Sending REAL SMS messages via Twilio...');
+
+    const smsResults = [];
+
+    // Send to emergency services
+    for (const serviceMsg of emergencyServiceMessages) {
+      console.log(`📱 Sending emergency SMS to ${serviceMsg.phone}...`);
+      const result = await sendTwilioSMS(serviceMsg.phone, serviceMsg.message);
+      smsResults.push({
+        type: 'emergency_service',
+        phone: serviceMsg.phone,
+        recipient: serviceMsg.recipient,
+        ...result
+      });
+    }
+
+    // Send to nearby users
+    for (const user of nearbyUsers) {
+      console.log(`📱 Sending public alert SMS to ${user.phone}...`);
+      const result = await sendTwilioSMS(user.phone, publicWhatsappMessage);
+      smsResults.push({
+        type: 'public_user',
+        phone: user.phone,
+        recipient: user.name,
+        ...result
+      });
+    }
+
+    console.log('📊 SMS Results:', smsResults);
 
     // Store enhanced notification log in Firestore
     await addDoc(collection(db, 'notificationLogs'), {
