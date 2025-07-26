@@ -500,7 +500,51 @@ const generateEmergencyRoutes = async (sosLocation, emergencyServices) => {
   }
 };
 
-// Enhanced WhatsApp notification function with emergency service routes
+// Twilio SMS sending function
+const sendTwilioSMS = async (to, message) => {
+  try {
+    // Note: In production, these should be environment variables on backend
+    const TWILIO_ACCOUNT_SID = process.env.REACT_APP_TWILIO_ACCOUNT_SID;
+    const TWILIO_AUTH_TOKEN = process.env.REACT_APP_TWILIO_AUTH_TOKEN;
+    const TWILIO_PHONE_NUMBER = process.env.REACT_APP_TWILIO_PHONE_NUMBER;
+
+    if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE_NUMBER) {
+      console.log('⚠️ Twilio credentials not configured - simulating SMS send');
+      console.log(`📱 SIMULATED SMS TO: ${to}`);
+      console.log(`📄 MESSAGE: ${message.substring(0, 100)}...`);
+      return { success: true, simulated: true };
+    }
+
+    // For security, this should be done on backend in production
+    const response = await fetch('https://api.twilio.com/2010-04-01/Accounts/' + TWILIO_ACCOUNT_SID + '/Messages.json', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Basic ' + btoa(TWILIO_ACCOUNT_SID + ':' + TWILIO_AUTH_TOKEN),
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        'To': to,
+        'From': TWILIO_PHONE_NUMBER,
+        'Body': message
+      })
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      console.log('✅ SMS sent successfully:', result.sid);
+      return { success: true, messageId: result.sid };
+    } else {
+      const error = await response.json();
+      console.error('❌ SMS failed:', error);
+      return { success: false, error: error.message };
+    }
+  } catch (error) {
+    console.error('❌ Twilio SMS error:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+// Enhanced SMS notification function with emergency service routes
 export const sendWhatsAppNotifications = async (sosReport, approvalData) => {
   try {
     console.log('📱 Sending enhanced WhatsApp notifications for approved SOS report...');
