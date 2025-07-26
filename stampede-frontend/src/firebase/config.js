@@ -204,7 +204,7 @@ export const listenToSOSReports = (callback) => {
         callback(pendingReports);
       },
       (error) => {
-        console.error('❌ Firebase listener error:', error);
+        console.error('��� Firebase listener error:', error);
         console.error('�� Error code:', error.code);
         console.error('❌ Error message:', error.message);
 
@@ -343,12 +343,10 @@ const findNearestEmergencyServices = async (lat, lng) => {
               element.tags?.['addr:country']
             ].filter(Boolean).join(', ') || 'Address not available';
 
-            // Generate emergency contact number (in real implementation, this would come from a database)
-            const phone = element.tags?.phone ||
-                         element.tags?.['contact:phone'] ||
-                         (service.type === 'hospital' ? '+91-11-108' :
-                          service.type === 'fire_station' ? '+91-11-101' :
-                          service.type === 'police' ? '+91-11-100' : '+91-11-112');
+            // Use user's specified numbers for emergency services
+            const phone = service.type === 'hospital' ? '+91-7819834452' :
+                         service.type === 'fire_station' ? '+91-9996101244' :
+                         service.type === 'police' ? '+91-8168006394' : '+91-7819834452';
 
             return {
               id: element.id,
