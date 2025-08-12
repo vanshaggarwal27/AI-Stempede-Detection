@@ -499,26 +499,17 @@ function App() {
     if (activeTab !== 'sos-alerts') return;
 
     try {
-      setSOSLoading(true);
       console.log('🔥 Starting SOS reports Firebase connection...');
 
       const connectionTest = await testFirestoreConnection();
       if (!connectionTest.success) {
         console.error('❌ Firebase connection test failed:', connectionTest.error);
-        setSOSLoading(false);
         return;
       }
 
       const unsubscribe = listenToSOSReports((reports) => {
-        if (!reports) {
+        if (!reports || reports.length === 0) {
           setSOSReports([]);
-          setSOSLoading(false);
-          return;
-        }
-
-        if (reports.length === 0) {
-          setSOSReports([]);
-          setSOSLoading(false);
           return;
         }
 
@@ -532,41 +523,30 @@ function App() {
           },
           incident: {
             videoUrl: report.videoUrl || '',
-            videoThumbnail: report.videoThumbnail || '',
-            videoDuration: report.videoDuration || 0,
             message: report.message || 'Emergency situation reported',
             location: {
               latitude: report.location?.latitude || 28.7041,
               longitude: report.location?.longitude || 77.1025,
               address: report.location?.latitude && report.location?.longitude
                 ? `Emergency Location: ${report.location.latitude.toFixed(4)}, ${report.location.longitude.toFixed(4)}`
-                : 'Location not available',
-              accuracy: report.location?.accuracy || 0
+                : 'Location not available'
             },
-            timestamp: report.createdAt?.toDate() || new Date(),
-            deviceInfo: {
-              platform: report.deviceInfo?.platform || 'unknown',
-              version: report.deviceInfo?.version || 'unknown',
-              model: report.deviceInfo?.model || 'unknown'
-            }
+            timestamp: report.createdAt?.toDate() || new Date()
           },
           status: 'pending',
           metadata: {
             priority: 'high',
-            category: 'emergency',
-            firebaseDocId: report.id
+            category: 'emergency'
           }
         }));
 
         setSOSReports(transformedReports);
-        setSOSLoading(false);
       });
 
       return unsubscribe;
 
     } catch (error) {
       console.error('❌ Error setting up Firebase listener:', error);
-      setSOSLoading(false);
       setSOSReports([]);
     }
   }, [activeTab]);
