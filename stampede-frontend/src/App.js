@@ -28,12 +28,7 @@ function App() {
   // SOS Alerts Management State
   const [activeTab, setActiveTab] = useState('monitoring');
   const [sosReports, setSOSReports] = useState([]);
-  const [selectedSOSReport, setSelectedSOSReport] = useState(null);
-  const [sosLoading, setSOSLoading] = useState(false);
-  const [sosProcessing, setSOSProcessing] = useState({});
-  const [showVideoModal, setShowVideoModal] = useState(false);
   const [showCreateAlert, setShowCreateAlert] = useState(false);
-  const [activeAlerts, setActiveAlerts] = useState([]);
 
   // Configuration for alert thresholds
   const HIGH_DENSITY_THRESHOLD = 1;
