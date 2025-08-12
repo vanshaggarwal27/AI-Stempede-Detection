@@ -116,7 +116,7 @@ function App() {
       rotateY: () => Math.random() * 360,
       scale: [0.5, 1.5],
       opacity: [0.1, 0.8],
-      duration: () => anime.random(3000, 8000),
+      duration: () => Math.random() * 5000 + 3000,
       loop: true,
       direction: 'alternate',
       easing: 'easeInOutSine',
