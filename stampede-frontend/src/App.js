@@ -109,11 +109,11 @@ function App() {
     // Animate particles in 3D space
     anime({
       targets: particleRefs.current,
-      translateX: () => anime.random(-200, 200),
-      translateY: () => anime.random(-200, 200),
-      translateZ: () => anime.random(-100, 100),
-      rotateX: () => anime.random(0, 360),
-      rotateY: () => anime.random(0, 360),
+      translateX: () => Math.random() * 400 - 200,
+      translateY: () => Math.random() * 400 - 200,
+      translateZ: () => Math.random() * 200 - 100,
+      rotateX: () => Math.random() * 360,
+      rotateY: () => Math.random() * 360,
       scale: [0.5, 1.5],
       opacity: [0.1, 0.8],
       duration: () => anime.random(3000, 8000),
