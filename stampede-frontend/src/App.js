@@ -328,8 +328,8 @@ function App() {
           height: 6px;
           background: radial-gradient(circle, #00ff00 0%, transparent 70%);
           border-radius: 50%;
-          left: ${Math.random() * window.innerWidth}px;
-          top: ${Math.random() * window.innerHeight}px;
+          left: ${anime.random(0, window.innerWidth)}px;
+          top: ${anime.random(0, window.innerHeight)}px;
           pointer-events: none;
           z-index: 1000;
           box-shadow: 0 0 15px #00ff00;
