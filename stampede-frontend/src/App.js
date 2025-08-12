@@ -45,7 +45,7 @@ function App() {
   useEffect(() => {
     // Initial page load 3D entrance animation
     if (appRef.current) {
-      animate({
+      anime({
         targets: appRef.current,
         opacity: [0, 1],
         scale: [0.8, 1],
@@ -58,7 +58,7 @@ function App() {
 
     // Header dramatic entrance with 3D flip
     if (headerRef.current) {
-      animate({
+      anime({
         targets: headerRef.current,
         translateY: [-200, 0],
         rotateX: [90, 0],
@@ -73,7 +73,7 @@ function App() {
     setTimeout(() => {
       const cards = document.querySelectorAll('.animate-card');
       cards.forEach((card, index) => {
-        animate({
+        anime({
           targets: card,
           translateX: [200, 0],
           rotateY: [45, 0],
@@ -181,7 +181,7 @@ function App() {
   // Enhanced 3D card hover effects
   const animate3DCardHover = (element, isHovering) => {
     if (element) {
-      animate({
+      anime({
         targets: element,
         rotateX: isHovering ? -10 : 0,
         rotateY: isHovering ? 10 : 0,
@@ -241,7 +241,7 @@ function App() {
     const element = document.querySelector('.people-count-number');
     if (element) {
       // Number counting animation
-      animate({
+      anime({
         targets: { count: oldCount },
         count: newCount,
         duration: 1500,
@@ -261,7 +261,7 @@ function App() {
             ripple.className = 'absolute inset-0 border-4 border-cyan-400 rounded-full opacity-60';
             container.appendChild(ripple);
 
-            animate({
+            anime({
               targets: ripple,
               scale: [0, 4],
               opacity: [0.6, 0],
@@ -280,7 +280,7 @@ function App() {
   const animateTabSwitch = (direction) => {
     const content = document.querySelector('.tab-content');
     if (content) {
-      animate({
+      anime({
         targets: content,
         translateX: direction === 'left' ? [-100, 0] : [100, 0],
         rotateY: [direction === 'left' ? -30 : 30, 0],
@@ -336,7 +336,7 @@ function App() {
         `;
         document.body.appendChild(firework);
 
-        animate({
+        anime({
           targets: firework,
           scale: [0, 2, 0],
           opacity: [1, 1, 0],
