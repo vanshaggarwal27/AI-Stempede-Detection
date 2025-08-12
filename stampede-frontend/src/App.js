@@ -338,7 +338,7 @@ function App() {
     if (webcamEnabled) {
       requestAnimationFrame(detect);
     }
-  }, [model, webcamEnabled, recentActivities, detectedPeople]);
+  }, [model, webcamEnabled, recentActivities, detectedPeople, sendAlert]);
 
   // Function to send alert to backend
   const sendAlert = async (message, crowdDensity) => {
