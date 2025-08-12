@@ -341,7 +341,7 @@ function App() {
   }, [model, webcamEnabled, recentActivities, detectedPeople, sendAlert]);
 
   // Function to send alert to backend
-  const sendAlert = async (message, crowdDensity) => {
+  const sendAlert = useCallback(async (message, crowdDensity) => {
     const currentTime = Date.now();
     const timeSinceLastAlert = currentTime - lastAlertTimeRef.current;
 
@@ -378,7 +378,7 @@ function App() {
       console.error('Network error sending alert:', error);
       setAlertStatus('error');
     }
-  };
+  }, [BACKEND_URL, ALERT_COOLDOWN_SECONDS]);
 
   // Function to start/stop webcam and detection
   const toggleWebcam = () => {
