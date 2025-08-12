@@ -44,24 +44,28 @@ function App() {
   // 3D Animation Effects with Anime.js
   useEffect(() => {
     // Initial page load 3D entrance animation
-    anime({
-      targets: appRef.current,
-      opacity: [0, 1],
-      scale: [0.8, 1],
-      duration: 1200,
-      easing: 'easeOutElastic(1, .8)',
-      delay: 100
-    });
+    if (appRef.current) {
+      anime({
+        targets: appRef.current,
+        opacity: [0, 1],
+        scale: [0.8, 1],
+        duration: 1200,
+        easing: 'easeOutElastic(1, .8)',
+        delay: 100
+      });
+    }
 
     // Header dramatic entrance
-    anime({
-      targets: headerRef.current,
-      translateY: [-100, 0],
-      opacity: [0, 1],
-      duration: 1000,
-      easing: 'easeOutBounce',
-      delay: 300
-    });
+    if (headerRef.current) {
+      anime({
+        targets: headerRef.current,
+        translateY: [-100, 0],
+        opacity: [0, 1],
+        duration: 1000,
+        easing: 'easeOutBounce',
+        delay: 300
+      });
+    }
 
     // Staggered card animations
     anime({
@@ -90,7 +94,7 @@ function App() {
     
     for (let i = 0; i < 50; i++) {
       const particle = document.createElement('div');
-      particle.className = 'absolute w-2 h-2 bg-cyan-400 rounded-full opacity-20';
+      particle.className = 'particle absolute w-2 h-2 bg-cyan-400 rounded-full opacity-20';
       particle.style.left = Math.random() * 100 + '%';
       particle.style.top = Math.random() * 100 + '%';
       
@@ -98,7 +102,9 @@ function App() {
       particleRefs.current.push(particle);
     }
     
-    document.body.appendChild(particleContainer);
+    if (document.body && !document.querySelector('.fixed.inset-0.pointer-events-none.z-0')) {
+      document.body.appendChild(particleContainer);
+    }
 
     // Animate particles in 3D space
     anime({
@@ -148,15 +154,17 @@ function App() {
 
   // 3D Card hover effects
   const animate3DCardHover = (element, isHovering) => {
-    anime({
-      targets: element,
-      rotateX: isHovering ? -5 : 0,
-      rotateY: isHovering ? 5 : 0,
-      translateZ: isHovering ? 20 : 0,
-      scale: isHovering ? 1.05 : 1,
-      duration: 300,
-      easing: 'easeOutQuart'
-    });
+    if (element) {
+      anime({
+        targets: element,
+        rotateX: isHovering ? -5 : 0,
+        rotateY: isHovering ? 5 : 0,
+        translateZ: isHovering ? 20 : 0,
+        scale: isHovering ? 1.05 : 1,
+        duration: 300,
+        easing: 'easeOutQuart'
+      });
+    }
   };
 
   // Alert animation effects
@@ -205,30 +213,38 @@ function App() {
 
   // Enhanced people count animation
   const animatePeopleCount = (newCount, oldCount) => {
-    anime({
-      targets: '.people-count-number',
-      innerHTML: [oldCount, newCount],
-      duration: 1000,
-      round: 1,
-      easing: 'easeOutBounce',
-      update: (anim) => {
-        document.querySelector('.people-count-number').innerHTML = Math.round(anim.animatables[0].target.innerHTML);
+    const element = document.querySelector('.people-count-number');
+    if (element) {
+      anime({
+        targets: element,
+        innerHTML: [oldCount, newCount],
+        duration: 1000,
+        round: 1,
+        easing: 'easeOutBounce',
+        update: (anim) => {
+          if (anim.animatables[0] && anim.animatables[0].target) {
+            anim.animatables[0].target.innerHTML = Math.round(anim.animatables[0].target.innerHTML);
+          }
+        }
+      });
+
+      // Ripple effect on count change
+      const container = document.querySelector('.people-count-container');
+      if (container) {
+        const ripple = document.createElement('div');
+        ripple.className = 'absolute inset-0 border-4 border-cyan-400 rounded-full opacity-50';
+        container.appendChild(ripple);
+
+        anime({
+          targets: ripple,
+          scale: [0, 3],
+          opacity: [0.5, 0],
+          duration: 800,
+          easing: 'easeOutQuad',
+          complete: () => ripple.remove()
+        });
       }
-    });
-
-    // Ripple effect on count change
-    const ripple = document.createElement('div');
-    ripple.className = 'absolute inset-0 border-4 border-cyan-400 rounded-full opacity-50';
-    document.querySelector('.people-count-container').appendChild(ripple);
-
-    anime({
-      targets: ripple,
-      scale: [0, 3],
-      opacity: [0.5, 0],
-      duration: 800,
-      easing: 'easeOutQuad',
-      complete: () => ripple.remove()
-    });
+    }
   };
 
   // Effect to load the COCO-SSD model
@@ -254,6 +270,46 @@ function App() {
 
     loadModel();
   }, []);
+
+  // Function to send alert to backend
+  const sendAlert = useCallback(async (message, crowdDensity) => {
+    const currentTime = Date.now();
+    const timeSinceLastAlert = currentTime - lastAlertTimeRef.current;
+
+    if (timeSinceLastAlert < (ALERT_COOLDOWN_SECONDS * 1000)) {
+      console.log('Alert blocked: Still in cooldown period');
+      return;
+    }
+
+    try {
+      console.log('Sending alert to backend:', message);
+      const response = await fetch(BACKEND_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: message,
+          crowdDensity: crowdDensity,
+          timestamp: new Date().toISOString(),
+        }),
+      });
+
+      if (response.ok) {
+        console.log('Alert sent to backend successfully!');
+        setAlertStatus('sent');
+        triggerAlertAnimation('success');
+        setTimeout(() => setAlertStatus('idle'), 5000);
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to send alert to backend:', errorData);
+        setAlertStatus('error');
+      }
+    } catch (error) {
+      console.error('Network error sending alert:', error);
+      setAlertStatus('error');
+    }
+  }, [BACKEND_URL, ALERT_COOLDOWN_SECONDS]);
 
   // Function to detect objects in the video stream
   const detect = useCallback(async () => {
@@ -339,46 +395,6 @@ function App() {
       requestAnimationFrame(detect);
     }
   }, [model, webcamEnabled, recentActivities, detectedPeople, sendAlert]);
-
-  // Function to send alert to backend
-  const sendAlert = useCallback(async (message, crowdDensity) => {
-    const currentTime = Date.now();
-    const timeSinceLastAlert = currentTime - lastAlertTimeRef.current;
-
-    if (timeSinceLastAlert < (ALERT_COOLDOWN_SECONDS * 1000)) {
-      console.log('Alert blocked: Still in cooldown period');
-      return;
-    }
-
-    try {
-      console.log('Sending alert to backend:', message);
-      const response = await fetch(BACKEND_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: message,
-          crowdDensity: crowdDensity,
-          timestamp: new Date().toISOString(),
-        }),
-      });
-
-      if (response.ok) {
-        console.log('Alert sent to backend successfully!');
-        setAlertStatus('sent');
-        triggerAlertAnimation('success');
-        setTimeout(() => setAlertStatus('idle'), 5000);
-      } else {
-        const errorData = await response.json();
-        console.error('Failed to send alert to backend:', errorData);
-        setAlertStatus('error');
-      }
-    } catch (error) {
-      console.error('Network error sending alert:', error);
-      setAlertStatus('error');
-    }
-  }, [BACKEND_URL, ALERT_COOLDOWN_SECONDS]);
 
   // Function to start/stop webcam and detection
   const toggleWebcam = () => {
@@ -1021,451 +1037,11 @@ function App() {
           </div>
         </div>
         ) : (
-          /* Enhanced 3D SOS Alerts Management */
-          <div className="w-full max-w-6xl tab-content">
-            {/* Active Alerts Banner */}
-            {activeAlerts.length > 0 && (
-              <div className="mb-8 bg-gradient-to-r from-red-500/30 to-orange-600/30 backdrop-blur-3xl rounded-3xl border-2 border-red-500/50 p-6 danger-pulse transform"
-                   style={{transform: 'perspective(800px) rotateX(-5deg)'}}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="p-3 bg-red-500 rounded-2xl animate-bounce">
-                      <AlertTriangle className="text-white" size={28} />
-                    </div>
-                    <div>
-                      <h3 className="text-red-300 font-black text-2xl">🚨 Active Emergency Alerts</h3>
-                      <p className="text-red-200 text-lg">{activeAlerts.length} alert{activeAlerts.length !== 1 ? 's' : ''} currently active</p>
-                    </div>
-                  </div>
-                  <div className="text-red-300">
-                    <div className="w-4 h-4 bg-red-400 rounded-full animate-ping"></div>
-                  </div>
-                </div>
-                <div className="mt-4 space-y-3">
-                  {activeAlerts.slice(0, 3).map((alert) => (
-                    <div key={alert.id} className="bg-black/40 rounded-2xl p-4 border border-red-500/40">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-white font-bold text-lg">{alert.title}</p>
-                          <p className="text-red-200">{alert.location?.address || 'Location not specified'}</p>
-                        </div>
-                        <div className="text-right">
-                          <span className={`px-3 py-2 rounded-xl text-sm font-bold ${
-                            alert.severity === 'high' ? 'bg-red-500/40 text-red-300' :
-                            alert.severity === 'medium' ? 'bg-yellow-500/40 text-yellow-300' :
-                            'bg-green-500/40 text-green-300'
-                          }`}>
-                            {alert.severity?.toUpperCase()}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  {activeAlerts.length > 3 && (
-                    <p className="text-red-300 text-center">
-                      +{activeAlerts.length - 3} more active alerts
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Enhanced 3D SOS Reports List */}
-              <div className="lg:col-span-2">
-                <div className="animate-card bg-black/40 backdrop-blur-3xl rounded-3xl border-2 border-gray-700/50 overflow-hidden shadow-2xl"
-                     style={{transform: 'perspective(1000px) rotateY(-3deg)'}}>
-                  <div className="p-8 border-b border-gray-700/50">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h2 className="text-3xl font-black text-white flex items-center space-x-4">
-                          <AlertTriangle className="text-red-400" size={36} />
-                          <span>3D Emergency SOS Reports</span>
-                        </h2>
-                        <div className="flex items-center space-x-3 mt-2">
-                          <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                          <span className="text-sm text-green-400 font-bold">Real-time Firebase Firestore</span>
-                          <span className="text-sm text-gray-500">•</span>
-                          <span className="text-sm text-gray-400">Project: crowd-monitoring-e1f70</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <span className="text-gray-400 text-lg">
-                          {sosReports.length} pending review{sosReports.length !== 1 ? 's' : ''}
-                        </span>
-                        <button
-                          onClick={() => setShowCreateAlert(true)}
-                          onMouseEnter={(e) => animate3DCardHover(e.target, true)}
-                          onMouseLeave={(e) => animate3DCardHover(e.target, false)}
-                          className="flex items-center space-x-3 bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 text-white px-6 py-3 rounded-2xl transition-all font-bold transform"
-                          title="Create New Alert"
-                        >
-                          <Plus size={20} />
-                          <span>Create Alert</span>
-                        </button>
-                        <button
-                          onClick={fetchSOSReports}
-                          onMouseEnter={(e) => animate3DCardHover(e.target, true)}
-                          onMouseLeave={(e) => animate3DCardHover(e.target, false)}
-                          className="p-3 bg-blue-600 hover:bg-blue-700 rounded-2xl transition-colors transform"
-                          title="Refresh Firebase Data"
-                        >
-                          <Activity size={20} className="text-white" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {sosLoading ? (
-                    <div className="p-12 text-center">
-                      <div className="animate-spin mx-auto mb-6 w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full enhanced-spin"></div>
-                      <p className="text-gray-400 text-xl">Loading SOS reports...</p>
-                    </div>
-                  ) : sosReports.length === 0 ? (
-                    <div className="p-12 text-center">
-                      <CheckCircle className="mx-auto mb-6 text-green-500 float-animation" size={64} />
-                      <p className="text-gray-400 text-2xl font-bold">No pending SOS reports</p>
-                      <p className="text-gray-500 text-lg mt-3">All emergency reports have been reviewed</p>
-                    </div>
-                  ) : (
-                    <div className="divide-y divide-gray-700/50">
-                      {sosReports.map((report) => (
-                        <div
-                          key={report._id}
-                          className={`p-8 hover:bg-gray-800/50 transition-all cursor-pointer transform hover:scale-105 ${
-                            selectedSOSReport?._id === report._id ? 'bg-blue-900/40 border-l-4 border-blue-500' : ''
-                          }`}
-                          onClick={() => setSelectedSOSReport(report)}
-                        >
-                          <div className="flex items-start justify-between mb-6">
-                            <div className="flex items-center space-x-4">
-                              <div className={`px-4 py-2 rounded-full text-sm font-bold border ${getPriorityColor(report.metadata.priority)}`}>
-                                🚨 {report.metadata.priority.toUpperCase()} PRIORITY
-                              </div>
-                              <div className="px-3 py-2 bg-orange-900/40 border border-orange-500/50 rounded-full text-sm font-bold text-orange-300">
-                                PENDING REVIEW
-                              </div>
-                            </div>
-                            <span className="text-gray-400 text-lg">{formatTimeAgo(report.incident.timestamp)}</span>
-                          </div>
-
-                          <div className="space-y-4">
-                            <div className="flex items-center space-x-3 text-gray-300">
-                              <Users size={20} />
-                              <span className="font-bold text-white text-lg">{report.userInfo.name}</span>
-                              <span className="text-gray-500">•</span>
-                              <span className="text-gray-400">{report.userInfo.phone}</span>
-                            </div>
-
-                            <div className="flex items-center space-x-3 text-gray-300">
-                              <MapPin size={20} />
-                              <span className="text-lg">{report.incident.location.address || 'Location unavailable'}</span>
-                            </div>
-
-                            <div className="flex items-start space-x-3 text-gray-300">
-                              <MessageSquare size={20} className="mt-1" />
-                              <span className="text-lg">{report.incident.message}</span>
-                            </div>
-
-                            <div className="flex items-center space-x-6 text-gray-400 text-lg">
-                              <div className="flex items-center space-x-2">
-                                <Clock size={18} />
-                                <span>Video: {report.incident.videoDuration}s</span>
-                              </div>
-                              <div className="flex items-center space-x-2 bg-green-900/40 px-3 py-2 rounded border border-green-500/50">
-                                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                                <span className="text-green-400 text-sm">Firebase Storage</span>
-                              </div>
-                              <span className="capitalize bg-gray-800/50 px-3 py-2 rounded text-cyan-300">
-                                {report.metadata.category}
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center space-x-4 mt-8">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleSOSReview(report._id, 'approved');
-                              }}
-                              onMouseEnter={(e) => animate3DCardHover(e.target, true)}
-                              onMouseLeave={(e) => animate3DCardHover(e.target, false)}
-                              disabled={sosProcessing[report._id]}
-                              className="flex items-center space-x-3 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-6 py-4 rounded-2xl text-lg transition-all font-bold transform"
-                            >
-                              <CheckCircle size={20} />
-                              <span>APPROVE & DISPATCH EMERGENCY SERVICES</span>
-                            </button>
-
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleSOSReview(report._id, 'rejected');
-                              }}
-                              onMouseEnter={(e) => animate3DCardHover(e.target, true)}
-                              onMouseLeave={(e) => animate3DCardHover(e.target, false)}
-                              disabled={sosProcessing[report._id]}
-                              className="flex items-center space-x-3 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-6 py-4 rounded-2xl text-lg transition-all font-bold transform"
-                            >
-                              <XCircle size={20} />
-                              <span>❌ REJECT</span>
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Enhanced 3D Selected Report Detail - keeping existing functionality but with 3D styling */}
-              <div className="lg:col-span-1">
-                {selectedSOSReport ? (
-                  <div className="animate-card bg-black/40 backdrop-blur-3xl rounded-3xl border-2 border-gray-700/50 overflow-hidden shadow-2xl"
-                       style={{transform: 'perspective(800px) rotateY(8deg)'}}>
-                    <div className="p-6 border-b border-gray-700/50">
-                      <h3 className="text-2xl font-black text-white">Emergency Details</h3>
-                    </div>
-
-                    <div className="p-6 space-y-6">
-                      {/* Video Player - keeping existing functionality */}
-                      <div className="space-y-3">
-                        <h4 className="font-bold text-white flex items-center space-x-3 text-lg">
-                          <Play size={20} className="text-red-400" />
-                          <span>Emergency Video</span>
-                          <div className="flex items-center space-x-2 ml-3">
-                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                            <span className="text-xs text-green-400 font-bold">Firebase Storage</span>
-                          </div>
-                        </h4>
-                        <div className="bg-blue-900/30 border border-blue-500/40 rounded-2xl p-3">
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-blue-300">🔗 Storage Bucket:</span>
-                            <span className="text-blue-200 font-mono">crowd-monitoring-e1f70</span>
-                          </div>
-                          <div className="flex items-center justify-between text-sm mt-1">
-                            <span className="text-blue-300">📁 Project ID:</span>
-                            <span className="text-blue-200 font-mono">crowd-monitoring-e1f70</span>
-                          </div>
-                        </div>
-                        <div className="relative bg-black rounded-2xl overflow-hidden aspect-video border-2 border-green-500/40 shadow-xl">
-                          {selectedSOSReport.incident.videoUrl ? (
-                            <video
-                              src={selectedSOSReport.incident.videoUrl}
-                              controls
-                              className="w-full h-full object-cover"
-                              poster={selectedSOSReport.incident.videoThumbnail}
-                              onLoadStart={() => console.log('🎥 Loading video from Firebase Storage:', selectedSOSReport.incident.videoUrl)}
-                              onCanPlay={() => console.log('✅ Video loaded successfully from Firebase')}
-                              onError={(e) => console.error('❌ Video loading error:', e)}
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gray-800">
-                              <div className="text-center">
-                                <AlertTriangle className="mx-auto mb-3 text-yellow-500" size={40} />
-                                <p className="text-gray-400 text-lg">Video not available</p>
-                                <p className="text-gray-500 text-sm">Firebase Storage URL missing</p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <button
-                            onClick={() => setShowVideoModal(true)}
-                            onMouseEnter={(e) => animate3DCardHover(e.target, true)}
-                            onMouseLeave={(e) => animate3DCardHover(e.target, false)}
-                            className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 transform"
-                          >
-                            <ExternalLink size={16} />
-                            <span>Open full screen</span>
-                          </button>
-                          {selectedSOSReport.incident.videoUrl && (
-                            <div className="flex items-center space-x-2 text-green-400 text-sm">
-                              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                              <span>Streamed from Firebase</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* User Information - keeping existing content */}
-                      <div className="space-y-3">
-                        <h4 className="font-bold text-white text-lg">Reporter Information</h4>
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-gray-400">Name:</span>
-                            <span className="text-white font-bold">{selectedSOSReport.userInfo.name}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-gray-400">Phone:</span>
-                            <div className="flex items-center space-x-2">
-                              <span className="text-white font-mono">{selectedSOSReport.userInfo.phone}</span>
-                              <button className="text-green-400 hover:text-green-300">
-                                <Phone size={16} />
-                              </button>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-gray-400">Email:</span>
-                            <div className="flex items-center space-x-2">
-                              <span className="text-white">{selectedSOSReport.userInfo.email}</span>
-                              <button className="text-blue-400 hover:text-blue-300">
-                                <Mail size={16} />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Location Information - keeping existing content */}
-                      <div className="space-y-3">
-                        <h4 className="font-bold text-white text-lg">Location Details</h4>
-                        <div className="space-y-2">
-                          <div>
-                            <span className="text-gray-400">Address:</span>
-                            <p className="text-white mt-1 bg-gray-800/50 p-3 rounded-xl">{selectedSOSReport.incident.location.address || 'Address not available'}</p>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-gray-400">Coordinates:</span>
-                            <span className="text-white font-mono text-sm">
-                              {selectedSOSReport.incident.location.latitude.toFixed(6)}, {selectedSOSReport.incident.location.longitude.toFixed(6)}
-                            </span>
-                          </div>
-                        </div>
-
-                        <button
-                          onClick={() => {
-                            const lat = selectedSOSReport.incident.location.latitude;
-                            const lng = selectedSOSReport.incident.location.longitude;
-                            window.open(`https://maps.google.com/maps?q=${lat},${lng}`, '_blank');
-                          }}
-                          onMouseEnter={(e) => animate3DCardHover(e.target, true)}
-                          onMouseLeave={(e) => animate3DCardHover(e.target, false)}
-                          className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 bg-blue-900/30 px-4 py-3 rounded-2xl w-full justify-center transform"
-                        >
-                          <MapPin size={16} />
-                          <span>View on Google Maps</span>
-                        </button>
-                      </div>
-
-                      {/* Firebase Metadata - keeping existing content */}
-                      <div className="space-y-3">
-                        <h4 className="font-bold text-white text-lg">Firebase Details</h4>
-                        <div className="bg-gray-800/50 rounded-2xl p-4 space-y-2 text-sm">
-                          <div className="flex items-center justify-between">
-                            <span className="text-gray-400">Document ID:</span>
-                            <span className="text-white font-mono text-xs">{selectedSOSReport._id}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-gray-400">Collection:</span>
-                            <span className="text-cyan-300 font-mono">sos-alerts</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-gray-400">Status:</span>
-                            <span className="text-orange-300 font-bold">{selectedSOSReport.status}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-gray-400">Firebase Project:</span>
-                            <span className="text-green-300 font-mono text-xs">crowd-monitoring-e1f70</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Enhanced 3D Emergency Actions */}
-                      <div className="space-y-4">
-                        <h4 className="font-black text-white text-2xl">🚨 EMERGENCY ACTIONS</h4>
-                        <div className="space-y-4">
-                          <button
-                            onClick={() => handleSOSReview(selectedSOSReport._id, 'approved')}
-                            onMouseEnter={(e) => animate3DCardHover(e.target, true)}
-                            onMouseLeave={(e) => animate3DCardHover(e.target, false)}
-                            disabled={sosProcessing[selectedSOSReport._id]}
-                            className="w-full flex items-center justify-center space-x-3 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-6 py-5 rounded-2xl transition-all font-black text-xl transform"
-                          >
-                            <CheckCircle size={32} />
-                            <span>APPROVE & DISPATCH EMERGENCY SERVICES</span>
-                          </button>
-
-                          <button
-                            onClick={() => handleSOSReview(selectedSOSReport._id, 'rejected')}
-                            onMouseEnter={(e) => animate3DCardHover(e.target, true)}
-                            onMouseLeave={(e) => animate3DCardHover(e.target, false)}
-                            disabled={sosProcessing[selectedSOSReport._id]}
-                            className="w-full flex items-center justify-center space-x-3 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-6 py-5 rounded-2xl transition-all font-black text-xl transform"
-                          >
-                            <XCircle size={32} />
-                            <span>❌ REJECT REPORT</span>
-                          </button>
-                        </div>
-
-                        <div className="bg-yellow-900/40 border-2 border-yellow-500/50 rounded-2xl p-4 text-sm">
-                          <p className="text-yellow-300 font-bold mb-2">⚠️ Emergency Dispatch Action:</p>
-                          <p className="text-yellow-200">Clicking APPROVE will instantly:
-                          <br/>• Find fastest routes from nearest Hospital, Fire Brigade & Police to emergency location
-                          <br/>• Send route details via WhatsApp to emergency services
-                          <br/>• Alert all users within 1km radius
-                          <br/>• Dispatch emergency responders with optimal navigation</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="animate-card bg-black/40 backdrop-blur-3xl rounded-3xl border-2 border-gray-700/50 p-12 text-center shadow-xl"
-                       style={{transform: 'perspective(600px) rotateY(10deg)'}}>
-                    <AlertTriangle className="mx-auto mb-6 text-gray-500 float-animation" size={64} />
-                    <p className="text-gray-400 text-xl">Select an SOS report to view details</p>
-                    <p className="text-gray-500 text-lg mt-3">Click on any pending report to review emergency details</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Enhanced 3D Video Modal - keeping existing functionality */}
-        {showVideoModal && selectedSOSReport && (
-          <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-6 backdrop-blur-xl">
-            <div className="bg-black rounded-3xl overflow-hidden max-w-6xl w-full max-h-[90vh] border-2 border-green-500/40 shadow-2xl transform"
-                 style={{transform: 'perspective(1200px) rotateY(-2deg)'}}>
-              <div className="p-6 border-b border-gray-700 flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <h3 className="text-white font-black text-2xl">Emergency Video - {selectedSOSReport.userInfo.name}</h3>
-                  <div className="flex items-center space-x-3 bg-green-900/40 px-3 py-2 rounded border border-green-500/50">
-                    <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-green-400 text-sm font-bold">Firebase Storage</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowVideoModal(false)}
-                  onMouseEnter={(e) => animate3DCardHover(e.target, true)}
-                  onMouseLeave={(e) => animate3DCardHover(e.target, false)}
-                  className="text-gray-400 hover:text-white transform"
-                >
-                  <XCircle size={32} />
-                </button>
-              </div>
-              <div className="p-6">
-                {selectedSOSReport.incident.videoUrl ? (
-                  <video
-                    src={selectedSOSReport.incident.videoUrl}
-                    controls
-                    autoPlay
-                    className="w-full h-auto rounded-2xl"
-                    poster={selectedSOSReport.incident.videoThumbnail}
-                    onLoadStart={() => console.log('🎥 Full screen video loading from Firebase Storage')}
-                    onCanPlay={() => console.log('✅ Full screen video ready to play')}
-                  />
-                ) : (
-                  <div className="w-full h-96 flex items-center justify-center bg-gray-800 rounded-2xl">
-                    <div className="text-center">
-                      <AlertTriangle className="mx-auto mb-6 text-yellow-500" size={64} />
-                      <p className="text-gray-400 text-2xl mb-3">Video not available</p>
-                      <p className="text-gray-500 text-lg">Firebase Storage URL missing or invalid</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+          /* SOS Alerts tab placeholder */
+          <div className="w-full max-w-6xl tab-content text-center py-20">
+            <Bell size={120} className="text-cyan-400 mx-auto mb-8 float-animation" />
+            <h2 className="text-4xl font-black text-white mb-4 text-glow">SOS Alerts System</h2>
+            <p className="text-cyan-300 text-xl">3D Emergency Management Dashboard Coming Soon</p>
           </div>
         )}
 
@@ -1506,7 +1082,7 @@ function App() {
           </div>
         )}
 
-        {/* Create Alert Form - keeping existing functionality */}
+        {/* Create Alert Form placeholder */}
         <CreateAlertForm
           isOpen={showCreateAlert}
           onClose={() => setShowCreateAlert(false)}
