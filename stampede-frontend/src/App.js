@@ -129,15 +129,15 @@ function App() {
     // Animate particles in 3D space with physics
     animate({
       targets: particleRefs.current,
-      translateX: () => Math.random() * 400 - 200,
-      translateY: () => Math.random() * 400 - 200,
-      translateZ: () => Math.random() * 200 - 100,
-      rotateX: () => Math.random() * 360,
-      rotateY: () => Math.random() * 360,
-      rotateZ: () => Math.random() * 360,
-      scale: () => Math.random() * 1.5 + 0.5,
-      opacity: () => Math.random() * 0.8 + 0.2,
-      duration: () => Math.random() * 8000 + 3000,
+      translateX: () => anime.random(-200, 200),
+      translateY: () => anime.random(-200, 200),
+      translateZ: () => anime.random(-100, 100),
+      rotateX: () => anime.random(0, 360),
+      rotateY: () => anime.random(0, 360),
+      rotateZ: () => anime.random(0, 360),
+      scale: () => anime.random(0.5, 2),
+      opacity: () => anime.random(0.2, 1),
+      duration: () => anime.random(3000, 11000),
       loop: true,
       direction: 'alternate',
       easing: 'easeInOutSine',
@@ -570,7 +570,7 @@ function App() {
       return unsubscribe;
 
     } catch (error) {
-      console.error('��� Error setting up Firebase listener:', error);
+      console.error('❌ Error setting up Firebase listener:', error);
       setSOSLoading(false);
       setSOSReports([]);
     }
