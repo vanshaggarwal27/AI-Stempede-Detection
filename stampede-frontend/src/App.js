@@ -15,8 +15,6 @@ function App() {
   const alertCooldownRef = useRef(false);
   const appRef = useRef(null);
   const headerRef = useRef(null);
-  const cardRefs = useRef([]);
-  const floating3DRefs = useRef([]);
   const particleRefs = useRef([]);
 
   const [model, setModel] = useState(null);
