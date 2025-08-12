@@ -141,7 +141,7 @@ function App() {
       loop: true,
       direction: 'alternate',
       easing: 'easeInOutSine',
-      delay: (el, i) => i * 50
+      delay: anime.stagger(50)
     });
   };
 
@@ -570,7 +570,7 @@ function App() {
       return unsubscribe;
 
     } catch (error) {
-      console.error('❌ Error setting up Firebase listener:', error);
+      console.error('��� Error setting up Firebase listener:', error);
       setSOSLoading(false);
       setSOSReports([]);
     }
