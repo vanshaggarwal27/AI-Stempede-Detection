@@ -1,21 +1,48 @@
 import React from 'react';
-import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <header className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 flex flex-col items-center justify-center text-white">
-        <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: 'white',
+      fontFamily: 'Arial, sans-serif'
+    }}>
+      <div style={{
+        textAlign: 'center',
+        padding: '40px',
+        background: 'rgba(0,0,0,0.3)',
+        borderRadius: '20px',
+        backdropFilter: 'blur(10px)'
+      }}>
+        <h1 style={{
+          fontSize: '3rem',
+          marginBottom: '20px',
+          background: 'linear-gradient(45deg, #00ffff, #ff00ff)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent'
+        }}>
           STAMPEDE GUARD 3D
         </h1>
-        <p className="text-xl text-cyan-300">
+        <p style={{ fontSize: '1.2rem', color: '#00ffff' }}>
           AI-Powered Crowd Monitoring System
         </p>
-        <div className="mt-8 p-6 bg-black/40 backdrop-blur-xl rounded-2xl border border-cyan-400/30">
-          <p className="text-green-400 font-bold">✅ System Online</p>
-          <p className="text-gray-300 text-sm mt-2">Ready for crowd detection</p>
+        <div style={{
+          marginTop: '30px',
+          padding: '20px',
+          background: 'rgba(0,0,0,0.5)',
+          borderRadius: '10px',
+          border: '1px solid #00ffff'
+        }}>
+          <p style={{ color: '#00ff00', fontWeight: 'bold' }}>✅ System Online</p>
+          <p style={{ color: '#ccc', fontSize: '0.9rem', marginTop: '10px' }}>
+            Ready for crowd detection and emergency response
+          </p>
         </div>
-      </header>
+      </div>
     </div>
   );
 }
