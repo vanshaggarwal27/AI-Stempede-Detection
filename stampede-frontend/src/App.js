@@ -5,7 +5,7 @@ import * as cocoSsd from '@tensorflow-models/coco-ssd';
 import * as tf from '@tensorflow/tfjs';
 import anime from 'animejs';
 import { Camera, Loader2, AlertTriangle, CheckCircle, WifiOff, XCircle, Users, EyeOff, Activity, Shield, Zap, Bell } from 'lucide-react';
-import { listenToSOSReports, updateSOSStatus, sendWhatsAppNotifications, testFirestoreConnection, listenToActiveAlerts } from './firebase/config';
+import { listenToSOSReports, testFirestoreConnection } from './firebase/config';
 import CreateAlertForm from './components/CreateAlertForm';
 
 function App() {
