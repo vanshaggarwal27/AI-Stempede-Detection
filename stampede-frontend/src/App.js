@@ -45,7 +45,7 @@ function App() {
   useEffect(() => {
     // Initial page load 3D entrance animation
     if (appRef.current) {
-      anime({
+      animate({
         targets: appRef.current,
         opacity: [0, 1],
         scale: [0.8, 1],
@@ -57,7 +57,7 @@ function App() {
 
     // Header dramatic entrance
     if (headerRef.current) {
-      anime({
+      animate({
         targets: headerRef.current,
         translateY: [-100, 0],
         opacity: [0, 1],
@@ -155,7 +155,7 @@ function App() {
   // 3D Card hover effects
   const animate3DCardHover = (element, isHovering) => {
     if (element) {
-      anime({
+      animate({
         targets: element,
         rotateX: isHovering ? -5 : 0,
         rotateY: isHovering ? 5 : 0,
@@ -215,7 +215,7 @@ function App() {
   const animatePeopleCount = (newCount, oldCount) => {
     const element = document.querySelector('.people-count-number');
     if (element) {
-      anime({
+      animate({
         targets: element,
         innerHTML: [oldCount, newCount],
         duration: 1000,
@@ -235,7 +235,7 @@ function App() {
         ripple.className = 'absolute inset-0 border-4 border-cyan-400 rounded-full opacity-50';
         container.appendChild(ripple);
 
-        anime({
+        animate({
           targets: ripple,
           scale: [0, 3],
           opacity: [0.5, 0],
