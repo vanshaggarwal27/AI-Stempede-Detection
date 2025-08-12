@@ -120,7 +120,7 @@ function App() {
       loop: true,
       direction: 'alternate',
       easing: 'easeInOutSine',
-      delay: anime.stagger(50)
+      delay: (el, i) => i * 50
     });
   };
 
