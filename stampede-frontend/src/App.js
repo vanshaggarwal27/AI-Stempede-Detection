@@ -80,7 +80,7 @@ function App() {
           translateZ: [100, 0],
           opacity: [0, 1],
           duration: 1000,
-          delay: index * 150 + 600,
+          delay: anime.stagger(150, {start: 600}),
           easing: 'easeOutQuart'
         });
       });
