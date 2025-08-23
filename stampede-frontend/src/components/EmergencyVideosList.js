@@ -204,9 +204,9 @@ const EmergencyVideosList = () => {
       ) : (
         <div className="grid gap-6">
           {emergencyReports.map((report) => (
-            <div 
-              key={report.id} 
-              className="bg-black/40 backdrop-blur-md rounded-xl border border-red-500/30 p-6 shadow-xl hover:border-red-400/50 transition-colors"
+            <div
+              key={report.id}
+              className="bg-white/90 backdrop-blur-md rounded-xl border border-red-200 p-6 shadow-xl hover:border-red-300 transition-colors"
             >
               <div className="grid lg:grid-cols-3 gap-6">
                 {/* Video Player */}
