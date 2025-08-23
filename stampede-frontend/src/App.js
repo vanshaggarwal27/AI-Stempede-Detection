@@ -290,9 +290,9 @@ function App() {
   };
 
   const getStatusColor = () => {
-    if (detectedPeople >= CRITICAL_DENSITY_THRESHOLD) return "from-red-500 to-red-700";
-    if (detectedPeople >= HIGH_DENSITY_THRESHOLD) return "from-yellow-500 to-orange-500";
-    return "from-green-400 to-blue-500";
+    if (detectedPeople >= CRITICAL_DENSITY_THRESHOLD) return "from-red-500 via-red-600 to-red-700";
+    if (detectedPeople >= HIGH_DENSITY_THRESHOLD) return "from-yellow-400 via-yellow-500 to-orange-500";
+    return "from-green-400 via-green-500 to-blue-500";
   };
 
   return (
@@ -348,35 +348,22 @@ function App() {
               </button>
             </div>
 
-            {/* Status Indicator */}
-            <div className="flex items-center space-x-4 bg-black/30 backdrop-blur-md rounded-lg px-4 py-2 border border-gray-600">
-              <div className="flex items-center space-x-2">
-                <div className={`w-3 h-3 rounded-full ${firebaseConnected ? 'bg-green-400' : 'bg-red-400'} animate-pulse`}></div>
-                <span className="text-white text-sm font-medium">Firebase</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className={`w-3 h-3 rounded-full ${webcamEnabled ? 'bg-green-400' : 'bg-red-400'} animate-pulse`}></div>
-                <span className="text-white text-sm font-medium">
-                  {webcamEnabled ? 'MONITORING' : 'STANDBY'}
-                </span>
-              </div>
-            </div>
 
             {/* Control Button */}
             {activeTab === 'monitoring' && (
               <button
                 onClick={toggleWebcam}
-                className={`p-3 rounded-xl backdrop-blur-md transition-all duration-300 ${
+                className={`p-4 rounded-2xl backdrop-blur-md transition-all duration-500 transform hover:scale-110 shadow-lg ${
                   webcamEnabled
-                    ? 'bg-red-600/80 border border-red-400 hover:bg-red-600'
-                    : 'bg-green-600/80 border border-green-400 hover:bg-green-600'
+                    ? 'bg-gradient-to-r from-red-500 to-red-600 border-2 border-red-300 hover:from-red-600 hover:to-red-700'
+                    : 'bg-gradient-to-r from-green-500 to-green-600 border-2 border-green-300 hover:from-green-600 hover:to-green-700'
                 }`}
                 title={webcamEnabled ? "Disable Monitoring" : "Enable Monitoring"}
               >
                 {webcamEnabled ? (
-                  <EyeOff size={24} className="text-white" />
+                  <EyeOff size={24} className="text-white drop-shadow-md" />
                 ) : (
-                  <Camera size={24} className="text-white" />
+                  <Camera size={24} className="text-white drop-shadow-md" />
                 )}
               </button>
             )}
@@ -390,26 +377,26 @@ function App() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
               {/* CCTV Feed */}
-              <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-600 overflow-hidden shadow-xl">
-                <div className="bg-gradient-to-r from-green-600/30 to-blue-600/30 p-4 border-b border-gray-600">
+              <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-yellow-200 overflow-hidden shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-105">
+                <div className="bg-gradient-to-r from-green-400/20 to-blue-400/20 p-4 border-b border-yellow-200">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <Camera className="text-green-400" size={20} />
-                      <span className="text-white font-bold">CCTV Feed</span>
+                      <Camera className="text-green-600" size={20} />
+                      <span className="text-gray-800 font-bold">CCTV Feed</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 bg-green-500 rounded-full animate-ping"></div>
-                      <span className="text-green-300 text-xs">LIVE</span>
+                      <span className="text-green-600 text-xs font-semibold">LIVE</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="relative aspect-video bg-black">
+                <div className="relative aspect-video bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg overflow-hidden">
                   {!webcamEnabled ? (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-800/60">
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-yellow-50/80">
                       <Camera size={48} className="text-gray-400 mb-3" />
-                      <p className="text-white font-bold">CCTV Standby</p>
-                      <p className="text-gray-400 text-xs text-center">Activate monitoring system</p>
+                      <p className="text-gray-800 font-bold">CCTV Standby</p>
+                      <p className="text-gray-600 text-xs text-center">Activate monitoring system</p>
                     </div>
                   ) : (
                     <div className="relative w-full h-full">
@@ -450,102 +437,102 @@ function App() {
                           transform: 'scaleX(-1)'
                         }}
                       />
-                      <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md rounded p-2">
-                        <div className="text-green-400 text-xs font-bold">CCTV-01</div>
-                        <div className="text-white text-xs">{new Date().toLocaleTimeString()}</div>
+                      <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-md rounded-lg p-2 shadow-lg">
+                        <div className="text-green-600 text-xs font-bold">CCTV-01</div>
+                        <div className="text-gray-700 text-xs">{new Date().toLocaleTimeString()}</div>
                       </div>
                     </div>
                   )}
                 </div>
 
                 {/* CCTV Heatmap Placeholder */}
-                <div className="p-4 border-t border-gray-600">
+                <div className="p-4 border-t border-yellow-200">
                   <div className="flex items-center space-x-2 mb-2">
-                    <div className="w-3 h-3 bg-orange-400 rounded-full"></div>
-                    <span className="text-white text-sm font-bold">Crowd Heatmap</span>
+                    <div className="w-3 h-3 bg-orange-400 rounded-full animate-pulse"></div>
+                    <span className="text-gray-800 text-sm font-bold">Crowd Heatmap</span>
                   </div>
-                  <div className="bg-gray-800/50 rounded-lg p-4 text-center">
-                    <div className="text-gray-400 text-xs mb-2">🔥 Density Analysis</div>
+                  <div className="bg-yellow-50 rounded-lg p-4 text-center border border-yellow-100">
+                    <div className="text-gray-600 text-xs mb-2">🔥 Density Analysis</div>
                     <div className="text-gray-500 text-xs">Heatmap will appear here when ML model processes the feed</div>
                   </div>
                 </div>
               </div>
 
               {/* Drone Feed */}
-              <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-600 overflow-hidden shadow-xl">
-                <div className="bg-gradient-to-r from-purple-600/30 to-pink-600/30 p-4 border-b border-gray-600">
+              <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-yellow-200 overflow-hidden shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-105">
+                <div className="bg-gradient-to-r from-purple-400/20 to-pink-400/20 p-4 border-b border-yellow-200">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <Activity className="text-purple-400" size={20} />
-                      <span className="text-white font-bold">Drone Feed</span>
+                      <Activity className="text-purple-600" size={20} />
+                      <span className="text-gray-800 font-bold">Drone Feed</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 bg-purple-500 rounded-full animate-ping"></div>
-                      <span className="text-purple-300 text-xs">AERIAL</span>
+                      <span className="text-purple-600 text-xs font-semibold">AERIAL</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="relative aspect-video bg-black">
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-800/60">
+                <div className="relative aspect-video bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg overflow-hidden">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-yellow-50/80">
                     <Activity size={48} className="text-gray-400 mb-3" />
-                    <p className="text-white font-bold">Drone Standby</p>
-                    <p className="text-gray-400 text-xs text-center">Waiting for aerial connection</p>
+                    <p className="text-gray-800 font-bold">Drone Standby</p>
+                    <p className="text-gray-600 text-xs text-center">Waiting for aerial connection</p>
                   </div>
-                  <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md rounded p-2">
-                    <div className="text-purple-400 text-xs font-bold">DRONE-01</div>
-                    <div className="text-white text-xs">Offline</div>
+                  <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-md rounded-lg p-2 shadow-lg">
+                    <div className="text-purple-600 text-xs font-bold">DRONE-01</div>
+                    <div className="text-gray-700 text-xs">Offline</div>
                   </div>
                 </div>
 
                 {/* Drone Heatmap Placeholder */}
-                <div className="p-4 border-t border-gray-600">
+                <div className="p-4 border-t border-yellow-200">
                   <div className="flex items-center space-x-2 mb-2">
-                    <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
-                    <span className="text-white text-sm font-bold">Aerial Heatmap</span>
+                    <div className="w-3 h-3 bg-purple-400 rounded-full animate-pulse"></div>
+                    <span className="text-gray-800 text-sm font-bold">Aerial Heatmap</span>
                   </div>
-                  <div className="bg-gray-800/50 rounded-lg p-4 text-center">
-                    <div className="text-gray-400 text-xs mb-2">🚁 Overhead Analysis</div>
+                  <div className="bg-yellow-50 rounded-lg p-4 text-center border border-yellow-100">
+                    <div className="text-gray-600 text-xs mb-2">🚁 Overhead Analysis</div>
                     <div className="text-gray-500 text-xs">Aerial density mapping will appear when drone is active</div>
                   </div>
                 </div>
               </div>
 
               {/* Satellite Feed */}
-              <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-600 overflow-hidden shadow-xl">
-                <div className="bg-gradient-to-r from-cyan-600/30 to-teal-600/30 p-4 border-b border-gray-600">
+              <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-yellow-200 overflow-hidden shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-105">
+                <div className="bg-gradient-to-r from-cyan-400/20 to-teal-400/20 p-4 border-b border-yellow-200">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <Shield className="text-cyan-400" size={20} />
-                      <span className="text-white font-bold">Satellite Feed</span>
+                      <Shield className="text-cyan-600" size={20} />
+                      <span className="text-gray-800 font-bold">Satellite Feed</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 bg-cyan-500 rounded-full animate-ping"></div>
-                      <span className="text-cyan-300 text-xs">ORBIT</span>
+                      <span className="text-cyan-600 text-xs font-semibold">ORBIT</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="relative aspect-video bg-black">
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-800/60">
+                <div className="relative aspect-video bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg overflow-hidden">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-yellow-50/80">
                     <Shield size={48} className="text-gray-400 mb-3" />
-                    <p className="text-white font-bold">Satellite Standby</p>
-                    <p className="text-gray-400 text-xs text-center">Connecting to orbital feed</p>
+                    <p className="text-gray-800 font-bold">Satellite Standby</p>
+                    <p className="text-gray-600 text-xs text-center">Connecting to orbital feed</p>
                   </div>
-                  <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md rounded p-2">
-                    <div className="text-cyan-400 text-xs font-bold">SAT-01</div>
-                    <div className="text-white text-xs">Syncing...</div>
+                  <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-md rounded-lg p-2 shadow-lg">
+                    <div className="text-cyan-600 text-xs font-bold">SAT-01</div>
+                    <div className="text-gray-700 text-xs">Syncing...</div>
                   </div>
                 </div>
 
                 {/* Satellite Heatmap Placeholder */}
-                <div className="p-4 border-t border-gray-600">
+                <div className="p-4 border-t border-yellow-200">
                   <div className="flex items-center space-x-2 mb-2">
-                    <div className="w-3 h-3 bg-cyan-400 rounded-full"></div>
-                    <span className="text-white text-sm font-bold">Global Heatmap</span>
+                    <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
+                    <span className="text-gray-800 text-sm font-bold">Global Heatmap</span>
                   </div>
-                  <div className="bg-gray-800/50 rounded-lg p-4 text-center">
-                    <div className="text-gray-400 text-xs mb-2">🛰️ Wide Area Analysis</div>
+                  <div className="bg-yellow-50 rounded-lg p-4 text-center border border-yellow-100">
+                    <div className="text-gray-600 text-xs mb-2">🛰️ Wide Area Analysis</div>
                     <div className="text-gray-500 text-xs">Regional crowd patterns from satellite imagery</div>
                   </div>
                 </div>
@@ -555,13 +542,13 @@ function App() {
             {/* Analytics Grid Below Feeds */}
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               {/* People Count Display */}
-              <div className={`bg-gradient-to-r ${getStatusColor()} rounded-xl p-6 text-center shadow-xl`}>
+              <div className={`bg-gradient-to-br ${getStatusColor()} rounded-2xl p-6 text-center shadow-xl transition-all duration-300 hover:scale-105 transform`}>
                 <Users className="text-white/90 mx-auto mb-4" size={32} />
                 <p className="text-white/90 text-sm font-bold mb-2">People Detected</p>
-                <p className="text-white text-3xl font-black mb-3">
+                <p className="text-white text-3xl font-black mb-3 drop-shadow-md">
                   {detectedPeople}
                 </p>
-                <div className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs ${
+                <div className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs backdrop-blur-sm ${
                   detectedPeople >= CRITICAL_DENSITY_THRESHOLD
                     ? 'bg-red-500/40 border border-red-300/50'
                     : detectedPeople >= HIGH_DENSITY_THRESHOLD
@@ -576,38 +563,38 @@ function App() {
               </div>
 
               {/* System Status */}
-              <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-600 p-6 shadow-xl">
-                <h3 className="text-white font-bold text-sm mb-4 flex items-center">
-                  <Shield className="text-blue-400 mr-2" size={16} />
+              <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-yellow-200 p-6 shadow-xl transition-all duration-300 hover:shadow-2xl">
+                <h3 className="text-gray-800 font-bold text-sm mb-4 flex items-center">
+                  <Shield className="text-blue-600 mr-2" size={16} />
                   System Status
                 </h3>
 
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300 text-xs">AI Model</span>
-                    <div className="flex items-center space-x-1">
-                      <div className={`w-2 h-2 rounded-full ${model ? 'bg-green-400' : 'bg-red-400'} animate-pulse`}></div>
-                      <span className={`text-xs font-medium ${model ? 'text-green-400' : 'text-red-400'}`}>
+                    <span className="text-gray-600 text-xs font-medium">AI Model</span>
+                    <div className="flex items-center space-x-2">
+                      <div className={`w-2 h-2 rounded-full ${model ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
+                      <span className={`text-xs font-semibold ${model ? 'text-green-600' : 'text-red-600'}`}>
                         {model ? 'Online' : 'Offline'}
                       </span>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300 text-xs">Firebase</span>
-                    <div className="flex items-center space-x-1">
-                      <div className={`w-2 h-2 rounded-full ${firebaseConnected ? 'bg-green-400' : 'bg-red-400'} animate-pulse`}></div>
-                      <span className={`text-xs font-medium ${firebaseConnected ? 'text-green-400' : 'text-red-400'}`}>
+                    <span className="text-gray-600 text-xs font-medium">Firebase</span>
+                    <div className="flex items-center space-x-2">
+                      <div className={`w-2 h-2 rounded-full ${firebaseConnected ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
+                      <span className={`text-xs font-semibold ${firebaseConnected ? 'text-green-600' : 'text-red-600'}`}>
                         {firebaseConnected ? 'Connected' : 'Disconnected'}
                       </span>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300 text-xs">Monitoring</span>
-                    <div className="flex items-center space-x-1">
-                      <div className={`w-2 h-2 rounded-full ${webcamEnabled ? 'bg-green-400' : 'bg-gray-400'} animate-pulse`}></div>
-                      <span className={`text-xs font-medium ${webcamEnabled ? 'text-green-400' : 'text-gray-400'}`}>
+                    <span className="text-gray-600 text-xs font-medium">Monitoring</span>
+                    <div className="flex items-center space-x-2">
+                      <div className={`w-2 h-2 rounded-full ${webcamEnabled ? 'bg-green-500' : 'bg-gray-400'} animate-pulse`}></div>
+                      <span className={`text-xs font-semibold ${webcamEnabled ? 'text-green-600' : 'text-gray-500'}`}>
                         {webcamEnabled ? 'Active' : 'Standby'}
                       </span>
                     </div>
@@ -616,70 +603,70 @@ function App() {
               </div>
 
               {/* Feed Status */}
-              <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-600 p-6 shadow-xl">
-                <h3 className="text-white font-bold text-sm mb-4 flex items-center">
-                  <Activity className="text-green-400 mr-2" size={16} />
+              <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-yellow-200 p-6 shadow-xl transition-all duration-300 hover:shadow-2xl">
+                <h3 className="text-gray-800 font-bold text-sm mb-4 flex items-center">
+                  <Activity className="text-green-600 mr-2" size={16} />
                   Feed Status
                 </h3>
 
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300 text-xs">CCTV</span>
-                    <div className="flex items-center space-x-1">
-                      <div className={`w-2 h-2 rounded-full ${webcamEnabled ? 'bg-green-400' : 'bg-gray-400'}`}></div>
-                      <span className={`text-xs ${webcamEnabled ? 'text-green-400' : 'text-gray-400'}`}>
+                    <span className="text-gray-600 text-xs font-medium">CCTV</span>
+                    <div className="flex items-center space-x-2">
+                      <div className={`w-2 h-2 rounded-full ${webcamEnabled ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                      <span className={`text-xs font-semibold ${webcamEnabled ? 'text-green-600' : 'text-gray-500'}`}>
                         {webcamEnabled ? 'LIVE' : 'OFF'}
                       </span>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300 text-xs">Drone</span>
-                    <div className="flex items-center space-x-1">
+                    <span className="text-gray-600 text-xs font-medium">Drone</span>
+                    <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                      <span className="text-xs text-gray-400">OFF</span>
+                      <span className="text-xs font-semibold text-gray-500">OFF</span>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300 text-xs">Satellite</span>
-                    <div className="flex items-center space-x-1">
+                    <span className="text-gray-600 text-xs font-medium">Satellite</span>
+                    <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                      <span className="text-xs text-gray-400">OFF</span>
+                      <span className="text-xs font-semibold text-gray-500">OFF</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Activity Log */}
-              <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-600 p-6 shadow-xl">
-                <h3 className="text-white font-bold text-sm mb-4 flex items-center">
-                  <Activity className="text-blue-400 mr-2" size={16} />
+              <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-yellow-200 p-6 shadow-xl transition-all duration-300 hover:shadow-2xl">
+                <h3 className="text-gray-800 font-bold text-sm mb-4 flex items-center">
+                  <Activity className="text-blue-600 mr-2" size={16} />
                   Recent Activity
                 </h3>
 
-                <div className="max-h-24 overflow-y-auto custom-scrollbar space-y-1">
+                <div className="max-h-24 overflow-y-auto custom-scrollbar space-y-2">
                   {recentActivities.length > 0 ? (
                     recentActivities.slice(0, 3).map((activity, index) => (
                       <div
                         key={index}
-                        className="flex justify-between items-center p-2 bg-gray-800/40 rounded text-xs"
+                        className="flex justify-between items-center p-2 bg-yellow-50 rounded-lg border border-yellow-100 text-xs"
                       >
-                        <span className="text-gray-400">{activity.timestamp.slice(-8)}</span>
-                        <span className={`font-medium px-2 py-1 rounded ${
+                        <span className="text-gray-600 font-medium">{activity.timestamp.slice(-8)}</span>
+                        <span className={`font-semibold px-2 py-1 rounded-md ${
                           activity.count >= CRITICAL_DENSITY_THRESHOLD
-                            ? 'bg-red-500/30 text-red-300'
+                            ? 'bg-red-100 text-red-700 border border-red-200'
                             : activity.count >= HIGH_DENSITY_THRESHOLD
-                            ? 'bg-yellow-500/30 text-yellow-300'
-                            : 'bg-green-500/30 text-green-300'
+                            ? 'bg-yellow-100 text-yellow-700 border border-yellow-200'
+                            : 'bg-green-100 text-green-700 border border-green-200'
                         }`}>
                           {activity.count}
                         </span>
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-2">
-                      <p className="text-gray-500 text-xs">No activity</p>
+                    <div className="text-center py-4">
+                      <p className="text-gray-500 text-xs">No activity recorded</p>
                     </div>
                   )}
                 </div>
@@ -694,23 +681,23 @@ function App() {
               <VideoCounter />
 
               {/* System Info */}
-              <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-600 p-4 shadow-xl">
+              <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-yellow-200 p-4 shadow-xl transition-all duration-300 hover:shadow-2xl">
                 <div className="flex items-center space-x-2 mb-3">
-                  <Shield className="text-blue-400" size={20} />
-                  <h3 className="text-white font-bold text-sm">AI Analysis</h3>
+                  <Shield className="text-blue-600" size={20} />
+                  <h3 className="text-gray-800 font-bold text-sm">AI Analysis</h3>
                 </div>
                 <div className="space-y-2 text-xs">
                   <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span className="text-gray-300">Gemini AI Active</span>
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-gray-600 font-medium">Gemini AI Active</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                    <span className="text-gray-300">Real-time Processing</span>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <span className="text-gray-600 font-medium">Real-time Processing</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                    <span className="text-gray-300">Emergency Detection</span>
+                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                    <span className="text-gray-600 font-medium">Emergency Detection</span>
                   </div>
                 </div>
               </div>
@@ -725,36 +712,36 @@ function App() {
 
         {/* Alert Messages */}
         {alertStatus === 'error' && (
-          <div className="fixed bottom-6 right-6 bg-red-600/90 backdrop-blur-md border border-red-500 rounded-lg p-4 shadow-xl">
+          <div className="fixed bottom-6 right-6 bg-white/95 backdrop-blur-md border-2 border-red-300 rounded-2xl p-4 shadow-2xl animate-bounce">
             <div className="flex items-center space-x-3">
-              <XCircle size={24} className="text-red-200" />
+              <XCircle size={24} className="text-red-600" />
               <div>
-                <p className="text-red-100 font-bold">System Error</p>
-                <p className="text-red-200 text-sm">Check console for details</p>
+                <p className="text-red-700 font-bold">System Error</p>
+                <p className="text-red-600 text-sm">Check console for details</p>
               </div>
             </div>
           </div>
         )}
 
         {alertStatus === 'no-webcam' && (
-          <div className="fixed bottom-6 right-6 bg-yellow-600/90 backdrop-blur-md border border-yellow-500 rounded-lg p-4 shadow-xl">
+          <div className="fixed bottom-6 right-6 bg-white/95 backdrop-blur-md border-2 border-yellow-300 rounded-2xl p-4 shadow-2xl animate-bounce">
             <div className="flex items-center space-x-3">
-              <WifiOff size={24} className="text-yellow-200" />
+              <WifiOff size={24} className="text-yellow-600" />
               <div>
-                <p className="text-yellow-100 font-bold">Camera Access Required</p>
-                <p className="text-yellow-200 text-sm">Grant webcam permissions</p>
+                <p className="text-yellow-700 font-bold">Camera Access Required</p>
+                <p className="text-yellow-600 text-sm">Grant webcam permissions</p>
               </div>
             </div>
           </div>
         )}
 
         {alertStatus === 'sent' && (
-          <div className="fixed bottom-6 right-6 bg-green-600/90 backdrop-blur-md border border-green-500 rounded-lg p-4 shadow-xl">
+          <div className="fixed bottom-6 right-6 bg-white/95 backdrop-blur-md border-2 border-green-300 rounded-2xl p-4 shadow-2xl animate-bounce">
             <div className="flex items-center space-x-3">
-              <CheckCircle size={24} className="text-green-200" />
+              <CheckCircle size={24} className="text-green-600" />
               <div>
-                <p className="text-green-100 font-bold">Alert Sent Successfully!</p>
-                <p className="text-green-200 text-sm">Emergency services notified</p>
+                <p className="text-green-700 font-bold">Alert Sent Successfully!</p>
+                <p className="text-green-600 text-sm">Emergency services notified</p>
               </div>
             </div>
           </div>
