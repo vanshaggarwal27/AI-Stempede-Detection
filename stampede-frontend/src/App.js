@@ -26,12 +26,29 @@ function App() {
   const [activeTab, setActiveTab] = useState('monitoring');
   const [sosReports, setSOSReports] = useState([]);
   const [showCreateAlert, setShowCreateAlert] = useState(false);
+  const [firebaseConnected, setFirebaseConnected] = useState(false);
 
   // Configuration for alert thresholds
   const HIGH_DENSITY_THRESHOLD = 1;
   const CRITICAL_DENSITY_THRESHOLD = 3;
   const ALERT_COOLDOWN_SECONDS = 10;
   const BACKEND_URL = 'http://localhost:5000/api/alert/stampede';
+
+  // Effect to test Firebase connection
+  useEffect(() => {
+    const testFirebase = async () => {
+      try {
+        const result = await testFirestoreConnection();
+        setFirebaseConnected(result.success);
+        console.log('Firebase connection:', result.success ? 'SUCCESS' : 'FAILED');
+      } catch (error) {
+        console.error('Firebase connection test failed:', error);
+        setFirebaseConnected(false);
+      }
+    };
+
+    testFirebase();
+  }, []);
 
   // Effect to load the COCO-SSD model
   useEffect(() => {
@@ -331,11 +348,17 @@ function App() {
             </div>
 
             {/* Status Indicator */}
-            <div className="flex items-center space-x-3 bg-black/30 backdrop-blur-md rounded-lg px-4 py-2 border border-gray-600">
-              <div className={`w-3 h-3 rounded-full ${webcamEnabled ? 'bg-green-400' : 'bg-red-400'} animate-pulse`}></div>
-              <span className="text-white font-medium">
-                {webcamEnabled ? 'SYSTEM ACTIVE' : 'STANDBY MODE'}
-              </span>
+            <div className="flex items-center space-x-4 bg-black/30 backdrop-blur-md rounded-lg px-4 py-2 border border-gray-600">
+              <div className="flex items-center space-x-2">
+                <div className={`w-3 h-3 rounded-full ${firebaseConnected ? 'bg-green-400' : 'bg-red-400'} animate-pulse`}></div>
+                <span className="text-white text-sm font-medium">Firebase</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className={`w-3 h-3 rounded-full ${webcamEnabled ? 'bg-green-400' : 'bg-red-400'} animate-pulse`}></div>
+                <span className="text-white text-sm font-medium">
+                  {webcamEnabled ? 'MONITORING' : 'STANDBY'}
+                </span>
+              </div>
             </div>
 
             {/* Control Button */}
