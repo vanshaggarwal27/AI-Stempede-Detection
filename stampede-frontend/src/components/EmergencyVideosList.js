@@ -52,7 +52,7 @@ const EmergencyVideosList = () => {
       setAllReports(sortedAll);
       setIsLoading(false);
 
-      console.log(`📊 Emergency Reports: ${sortedEmergencies.length}/${sortedAll.length} videos`);
+      console.log(`�� Emergency Reports: ${sortedEmergencies.length}/${sortedAll.length} videos`);
     });
 
     return () => unsubscribe();
@@ -132,11 +132,11 @@ const EmergencyVideosList = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-600 p-6 shadow-xl">
+      <div className="bg-white/90 backdrop-blur-md rounded-xl border border-yellow-200 p-6 shadow-xl">
         <div className="text-center py-8">
-          <RefreshCw className="text-blue-400 mx-auto mb-4 animate-spin" size={48} />
-          <p className="text-white text-lg font-bold mb-2">Loading Emergency Videos</p>
-          <p className="text-gray-400">Connecting to Firebase...</p>
+          <RefreshCw className="text-yellow-500 mx-auto mb-4 animate-spin" size={48} />
+          <p className="text-gray-800 text-lg font-bold mb-2">Loading Emergency Videos</p>
+          <p className="text-gray-600">Connecting to Firebase...</p>
         </div>
       </div>
     );
