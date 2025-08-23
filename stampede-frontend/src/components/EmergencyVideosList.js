@@ -234,19 +234,19 @@ const EmergencyVideosList = () => {
                   {/* Header */}
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="text-white font-bold text-lg mb-1">
+                      <h3 className="text-gray-800 font-bold text-lg mb-1">
                         Emergency Report #{report.id.slice(-6)}
                       </h3>
-                      <p className="text-gray-400 text-sm flex items-center">
+                      <p className="text-gray-600 text-sm flex items-center">
                         <Clock size={14} className="mr-1" />
                         {formatTimestamp(report.createdAt)}
                       </p>
                     </div>
-                    
+
                     {report.geminiAnalysis?.primary_service && (
-                      <div className="flex items-center space-x-2 bg-red-600/20 border border-red-500/30 rounded-lg px-3 py-2">
+                      <div className="flex items-center space-x-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
                         <span className="text-lg">{getServiceIcon(report.geminiAnalysis.primary_service)}</span>
-                        <span className="text-red-300 font-bold text-sm">{report.geminiAnalysis.primary_service}</span>
+                        <span className="text-red-600 font-bold text-sm">{report.geminiAnalysis.primary_service}</span>
                       </div>
                     )}
                   </div>
