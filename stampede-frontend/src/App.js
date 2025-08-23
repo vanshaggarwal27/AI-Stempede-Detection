@@ -384,58 +384,41 @@ function App() {
 
         {/* Main Content Area */}
         {activeTab === 'monitoring' ? (
-          <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Video Feed */}
-            <div className="lg:col-span-2">
+          <div className="w-full max-w-7xl space-y-8">
+            {/* Three Monitoring Feeds Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+              {/* CCTV Feed */}
               <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-600 overflow-hidden shadow-xl">
-                {/* Video Header */}
-                <div className="bg-gradient-to-r from-blue-600/30 to-purple-600/30 p-4 border-b border-gray-600">
+                <div className="bg-gradient-to-r from-green-600/30 to-blue-600/30 p-4 border-b border-gray-600">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <Activity className="text-blue-400" size={24} />
-                      <span className="text-white font-bold text-lg">Live Feed</span>
+                      <Camera className="text-green-400" size={20} />
+                      <span className="text-white font-bold">CCTV Feed</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
-                      <span className="text-red-300 text-sm font-medium">RECORDING</span>
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-ping"></div>
+                      <span className="text-green-300 text-xs">LIVE</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Video Content */}
                 <div className="relative aspect-video bg-black">
-                  {/* Loading overlay */}
-                  {loadingModel && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/90 backdrop-blur-md z-20">
-                      <div className="text-center">
-                        <Loader2 className="animate-spin text-blue-400 mx-auto mb-4" size={48} />
-                        <p className="text-xl font-bold text-white mb-2">Loading AI Model</p>
-                        <p className="text-blue-300">Please wait...</p>
-                      </div>
+                  {!webcamEnabled ? (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-800/60">
+                      <Camera size={48} className="text-gray-400 mb-3" />
+                      <p className="text-white font-bold">CCTV Standby</p>
+                      <p className="text-gray-400 text-xs text-center">Activate monitoring system</p>
                     </div>
-                  )}
-
-                  {/* Webcam off overlay */}
-                  {!webcamEnabled && !loadingModel && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-800/60 backdrop-blur-md">
-                      <Camera size={64} className="text-gray-400 mb-4" />
-                      <p className="text-xl font-bold text-white mb-2">Monitoring Standby</p>
-                      <p className="text-blue-300 text-center max-w-md">
-                        Activate the camera system to begin crowd detection
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Webcam and Canvas Container */}
-                  {webcamEnabled && !loadingModel && (
+                  ) : (
                     <div className="relative w-full h-full">
                       <Webcam
                         ref={webcamRef}
                         muted={true}
                         videoConstraints={{
                           facingMode: 'user',
-                          width: { ideal: 1280 },
-                          height: { ideal: 720 }
+                          width: { ideal: 640 },
+                          height: { ideal: 480 }
                         }}
                         style={{
                           position: 'absolute',
@@ -455,7 +438,6 @@ function App() {
                           console.error('Webcam access denied or error:', error);
                           setWebcamEnabled(false);
                           setAlertStatus('error');
-                          alert("Error accessing webcam. Please ensure you've granted camera permissions.");
                         }}
                       />
                       <canvas
@@ -467,42 +449,126 @@ function App() {
                           transform: 'scaleX(-1)'
                         }}
                       />
-                      
-                      {/* HUD Overlay */}
-                      <div className="absolute top-4 left-4 right-4 flex justify-between items-start pointer-events-none">
-                        <div className="bg-black/60 backdrop-blur-md rounded-lg p-3 border border-blue-400/40">
-                          <div className="text-blue-400 text-sm font-bold">AI DETECTION</div>
-                          <div className="text-white text-xs">TensorFlow.js COCO-SSD</div>
-                        </div>
-                        <div className="bg-black/60 backdrop-blur-md rounded-lg p-3 border border-blue-400/40">
-                          <div className="text-blue-400 text-sm font-bold">TIMESTAMP</div>
-                          <div className="text-white text-xs">{new Date().toLocaleTimeString()}</div>
-                        </div>
+                      <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md rounded p-2">
+                        <div className="text-green-400 text-xs font-bold">CCTV-01</div>
+                        <div className="text-white text-xs">{new Date().toLocaleTimeString()}</div>
                       </div>
                     </div>
                   )}
                 </div>
+
+                {/* CCTV Heatmap Placeholder */}
+                <div className="p-4 border-t border-gray-600">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <div className="w-3 h-3 bg-orange-400 rounded-full"></div>
+                    <span className="text-white text-sm font-bold">Crowd Heatmap</span>
+                  </div>
+                  <div className="bg-gray-800/50 rounded-lg p-4 text-center">
+                    <div className="text-gray-400 text-xs mb-2">🔥 Density Analysis</div>
+                    <div className="text-gray-500 text-xs">Heatmap will appear here when ML model processes the feed</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Drone Feed */}
+              <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-600 overflow-hidden shadow-xl">
+                <div className="bg-gradient-to-r from-purple-600/30 to-pink-600/30 p-4 border-b border-gray-600">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <Activity className="text-purple-400" size={20} />
+                      <span className="text-white font-bold">Drone Feed</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full animate-ping"></div>
+                      <span className="text-purple-300 text-xs">AERIAL</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="relative aspect-video bg-black">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-800/60">
+                    <Activity size={48} className="text-gray-400 mb-3" />
+                    <p className="text-white font-bold">Drone Standby</p>
+                    <p className="text-gray-400 text-xs text-center">Waiting for aerial connection</p>
+                  </div>
+                  <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md rounded p-2">
+                    <div className="text-purple-400 text-xs font-bold">DRONE-01</div>
+                    <div className="text-white text-xs">Offline</div>
+                  </div>
+                </div>
+
+                {/* Drone Heatmap Placeholder */}
+                <div className="p-4 border-t border-gray-600">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
+                    <span className="text-white text-sm font-bold">Aerial Heatmap</span>
+                  </div>
+                  <div className="bg-gray-800/50 rounded-lg p-4 text-center">
+                    <div className="text-gray-400 text-xs mb-2">🚁 Overhead Analysis</div>
+                    <div className="text-gray-500 text-xs">Aerial density mapping will appear when drone is active</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Satellite Feed */}
+              <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-600 overflow-hidden shadow-xl">
+                <div className="bg-gradient-to-r from-cyan-600/30 to-teal-600/30 p-4 border-b border-gray-600">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <Shield className="text-cyan-400" size={20} />
+                      <span className="text-white font-bold">Satellite Feed</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-cyan-500 rounded-full animate-ping"></div>
+                      <span className="text-cyan-300 text-xs">ORBIT</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="relative aspect-video bg-black">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-800/60">
+                    <Shield size={48} className="text-gray-400 mb-3" />
+                    <p className="text-white font-bold">Satellite Standby</p>
+                    <p className="text-gray-400 text-xs text-center">Connecting to orbital feed</p>
+                  </div>
+                  <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md rounded p-2">
+                    <div className="text-cyan-400 text-xs font-bold">SAT-01</div>
+                    <div className="text-white text-xs">Syncing...</div>
+                  </div>
+                </div>
+
+                {/* Satellite Heatmap Placeholder */}
+                <div className="p-4 border-t border-gray-600">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <div className="w-3 h-3 bg-cyan-400 rounded-full"></div>
+                    <span className="text-white text-sm font-bold">Global Heatmap</span>
+                  </div>
+                  <div className="bg-gray-800/50 rounded-lg p-4 text-center">
+                    <div className="text-gray-400 text-xs mb-2">🛰️ Wide Area Analysis</div>
+                    <div className="text-gray-500 text-xs">Regional crowd patterns from satellite imagery</div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Sidebar */}
-            <div className="space-y-6">
+            {/* Analytics Grid Below Feeds */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               {/* People Count Display */}
               <div className={`bg-gradient-to-r ${getStatusColor()} rounded-xl p-6 text-center shadow-xl`}>
-                <Users className="text-white/90 mx-auto mb-4" size={48} />
-                <p className="text-white/90 text-lg font-bold mb-2">People Detected</p>
-                <p className="text-white text-5xl font-black mb-4">
+                <Users className="text-white/90 mx-auto mb-4" size={32} />
+                <p className="text-white/90 text-sm font-bold mb-2">People Detected</p>
+                <p className="text-white text-3xl font-black mb-3">
                   {detectedPeople}
                 </p>
-                <div className={`inline-flex items-center space-x-2 px-4 py-2 rounded-full ${
-                  detectedPeople >= CRITICAL_DENSITY_THRESHOLD 
-                    ? 'bg-red-500/40 border border-red-300/50' 
-                    : detectedPeople >= HIGH_DENSITY_THRESHOLD 
+                <div className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs ${
+                  detectedPeople >= CRITICAL_DENSITY_THRESHOLD
+                    ? 'bg-red-500/40 border border-red-300/50'
+                    : detectedPeople >= HIGH_DENSITY_THRESHOLD
                     ? 'bg-yellow-500/40 border border-yellow-300/50'
                     : 'bg-green-500/40 border border-green-300/50'
                 }`}>
-                  {detectedPeople >= CRITICAL_DENSITY_THRESHOLD && <AlertTriangle size={16} className="text-white" />}
-                  <span className="text-white font-bold text-sm">
+                  {detectedPeople >= CRITICAL_DENSITY_THRESHOLD && <AlertTriangle size={12} className="text-white" />}
+                  <span className="text-white font-bold">
                     {getCurrentStatusText()}
                   </span>
                 </div>
@@ -510,39 +576,75 @@ function App() {
 
               {/* System Status */}
               <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-600 p-6 shadow-xl">
-                <h3 className="text-white font-bold text-lg mb-4 flex items-center">
-                  <Shield className="text-blue-400 mr-3" size={24} />
+                <h3 className="text-white font-bold text-sm mb-4 flex items-center">
+                  <Shield className="text-blue-400 mr-2" size={16} />
                   System Status
                 </h3>
-                
-                <div className="space-y-3">
+
+                <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300">AI Model</span>
-                    <div className="flex items-center space-x-2">
+                    <span className="text-gray-300 text-xs">AI Model</span>
+                    <div className="flex items-center space-x-1">
                       <div className={`w-2 h-2 rounded-full ${model ? 'bg-green-400' : 'bg-red-400'} animate-pulse`}></div>
-                      <span className={`text-sm font-medium ${model ? 'text-green-400' : 'text-red-400'}`}>
+                      <span className={`text-xs font-medium ${model ? 'text-green-400' : 'text-red-400'}`}>
                         {model ? 'Online' : 'Offline'}
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300">Camera Feed</span>
-                    <div className="flex items-center space-x-2">
+                    <span className="text-gray-300 text-xs">Firebase</span>
+                    <div className="flex items-center space-x-1">
+                      <div className={`w-2 h-2 rounded-full ${firebaseConnected ? 'bg-green-400' : 'bg-red-400'} animate-pulse`}></div>
+                      <span className={`text-xs font-medium ${firebaseConnected ? 'text-green-400' : 'text-red-400'}`}>
+                        {firebaseConnected ? 'Connected' : 'Disconnected'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300 text-xs">Monitoring</span>
+                    <div className="flex items-center space-x-1">
                       <div className={`w-2 h-2 rounded-full ${webcamEnabled ? 'bg-green-400' : 'bg-gray-400'} animate-pulse`}></div>
-                      <span className={`text-sm font-medium ${webcamEnabled ? 'text-green-400' : 'text-gray-400'}`}>
+                      <span className={`text-xs font-medium ${webcamEnabled ? 'text-green-400' : 'text-gray-400'}`}>
                         {webcamEnabled ? 'Active' : 'Standby'}
                       </span>
                     </div>
                   </div>
-                  
+                </div>
+              </div>
+
+              {/* Feed Status */}
+              <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-600 p-6 shadow-xl">
+                <h3 className="text-white font-bold text-sm mb-4 flex items-center">
+                  <Activity className="text-green-400 mr-2" size={16} />
+                  Feed Status
+                </h3>
+
+                <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300">Alert System</span>
-                    <div className="flex items-center space-x-2">
-                      <div className={`w-2 h-2 rounded-full ${alertCooldown ? 'bg-yellow-400' : 'bg-green-400'} animate-pulse`}></div>
-                      <span className={`text-sm font-medium ${alertCooldown ? 'text-yellow-400' : 'text-green-400'}`}>
-                        {alertCooldown ? 'Cooldown' : 'Ready'}
+                    <span className="text-gray-300 text-xs">CCTV</span>
+                    <div className="flex items-center space-x-1">
+                      <div className={`w-2 h-2 rounded-full ${webcamEnabled ? 'bg-green-400' : 'bg-gray-400'}`}></div>
+                      <span className={`text-xs ${webcamEnabled ? 'text-green-400' : 'text-gray-400'}`}>
+                        {webcamEnabled ? 'LIVE' : 'OFF'}
                       </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300 text-xs">Drone</span>
+                    <div className="flex items-center space-x-1">
+                      <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                      <span className="text-xs text-gray-400">OFF</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300 text-xs">Satellite</span>
+                    <div className="flex items-center space-x-1">
+                      <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                      <span className="text-xs text-gray-400">OFF</span>
                     </div>
                   </div>
                 </div>
@@ -550,35 +652,33 @@ function App() {
 
               {/* Activity Log */}
               <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-600 p-6 shadow-xl">
-                <h3 className="text-white font-bold text-lg mb-4 flex items-center">
-                  <Activity className="text-blue-400 mr-3" size={24} />
-                  Activity Log
+                <h3 className="text-white font-bold text-sm mb-4 flex items-center">
+                  <Activity className="text-blue-400 mr-2" size={16} />
+                  Recent Activity
                 </h3>
-                
-                <div className="max-h-64 overflow-y-auto custom-scrollbar space-y-2">
+
+                <div className="max-h-24 overflow-y-auto custom-scrollbar space-y-1">
                   {recentActivities.length > 0 ? (
-                    recentActivities.map((activity, index) => (
-                      <div 
-                        key={index} 
-                        className="flex justify-between items-center p-3 bg-gray-800/40 rounded-lg border border-gray-700/40"
+                    recentActivities.slice(0, 3).map((activity, index) => (
+                      <div
+                        key={index}
+                        className="flex justify-between items-center p-2 bg-gray-800/40 rounded text-xs"
                       >
-                        <span className="text-gray-400 text-xs">{activity.timestamp}</span>
-                        <span className={`font-medium text-sm px-2 py-1 rounded ${
-                          activity.count >= CRITICAL_DENSITY_THRESHOLD 
+                        <span className="text-gray-400">{activity.timestamp.slice(-8)}</span>
+                        <span className={`font-medium px-2 py-1 rounded ${
+                          activity.count >= CRITICAL_DENSITY_THRESHOLD
                             ? 'bg-red-500/30 text-red-300'
-                            : activity.count >= HIGH_DENSITY_THRESHOLD 
+                            : activity.count >= HIGH_DENSITY_THRESHOLD
                             ? 'bg-yellow-500/30 text-yellow-300'
                             : 'bg-green-500/30 text-green-300'
                         }`}>
-                          {activity.count} detected
+                          {activity.count}
                         </span>
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-8">
-                      <Users className="text-gray-600 mx-auto mb-3" size={32} />
-                      <p className="text-gray-500 text-sm">No activity recorded</p>
-                      <p className="text-gray-600 text-xs">Enable monitoring to start</p>
+                    <div className="text-center py-2">
+                      <p className="text-gray-500 text-xs">No activity</p>
                     </div>
                   )}
                 </div>
