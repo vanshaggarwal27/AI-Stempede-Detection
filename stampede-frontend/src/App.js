@@ -1,10 +1,8 @@
-// App.jsx - Full 3D Animated Stampede Detection System
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import Webcam from 'react-webcam';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
 import * as tf from '@tensorflow/tfjs';
-import anime from 'animejs';
-import { Camera, Loader2, AlertTriangle, CheckCircle, WifiOff, XCircle, Users, EyeOff, Activity, Shield, Zap, Bell } from 'lucide-react';
+import { Camera, Loader2, AlertTriangle, CheckCircle, WifiOff, XCircle, Users, EyeOff, Activity, Shield, Bell } from 'lucide-react';
 import { listenToSOSReports, testFirestoreConnection } from './firebase/config';
 import CreateAlertForm from './components/CreateAlertForm';
 
@@ -13,9 +11,6 @@ function App() {
   const canvasRef = useRef(null);
   const lastAlertTimeRef = useRef(0);
   const alertCooldownRef = useRef(false);
-  const appRef = useRef(null);
-  const headerRef = useRef(null);
-  const particleRefs = useRef([]);
 
   const [model, setModel] = useState(null);
   const [loadingModel, setLoadingModel] = useState(true);
@@ -36,257 +31,6 @@ function App() {
   const ALERT_COOLDOWN_SECONDS = 10;
   const BACKEND_URL = 'http://localhost:5000/api/alert/stampede';
 
-  // 3D Animation Effects with Anime.js
-  useEffect(() => {
-    // Initial page load 3D entrance animation
-    if (appRef.current) {
-      anime({
-        targets: appRef.current,
-        opacity: [0, 1],
-        scale: [0.8, 1],
-        rotateY: [180, 0],
-        duration: 1500,
-        easing: 'easeOutElastic(1, .8)',
-        delay: 100
-      });
-    }
-
-    // Header dramatic entrance with 3D flip
-    if (headerRef.current) {
-      anime({
-        targets: headerRef.current,
-        translateY: [-200, 0],
-        rotateX: [90, 0],
-        opacity: [0, 1],
-        duration: 1200,
-        easing: 'easeOutBounce',
-        delay: 400
-      });
-    }
-
-    // Staggered card animations with 3D depth
-    setTimeout(() => {
-      const cards = document.querySelectorAll('.animate-card');
-      cards.forEach((card, index) => {
-        anime({
-          targets: card,
-          translateX: [200, 0],
-          rotateY: [45, 0],
-          translateZ: [100, 0],
-          opacity: [0, 1],
-          duration: 1000,
-          delay: anime.stagger(150, {start: 600}),
-          easing: 'easeOutQuart'
-        });
-      });
-    }, 100);
-
-    // Create floating 3D particle system
-    createFloatingParticles();
-    
-    // Start continuous 3D effects
-    startContinuous3DEffects();
-
-  }, []);
-
-  // Create floating 3D particles with physics
-  const createFloatingParticles = () => {
-    const particleContainer = document.createElement('div');
-    particleContainer.className = 'fixed inset-0 pointer-events-none z-0';
-    particleContainer.style.overflow = 'hidden';
-    particleContainer.id = 'particle-container';
-    
-    // Remove existing container if it exists
-    const existing = document.getElementById('particle-container');
-    if (existing) existing.remove();
-    
-    for (let i = 0; i < 100; i++) {
-      const particle = document.createElement('div');
-      particle.className = 'particle absolute';
-      particle.style.cssText = `
-        width: ${Math.random() * 4 + 2}px;
-        height: ${Math.random() * 4 + 2}px;
-        background: radial-gradient(circle, rgba(0,255,255,0.8) 0%, transparent 70%);
-        border-radius: 50%;
-        left: ${Math.random() * 100}%;
-        top: ${Math.random() * 100}%;
-        box-shadow: 0 0 10px rgba(0,255,255,0.5), 0 0 20px rgba(0,255,255,0.3);
-      `;
-      
-      particleContainer.appendChild(particle);
-      particleRefs.current.push(particle);
-    }
-    
-    if (document.body) {
-      document.body.appendChild(particleContainer);
-    }
-
-    // Animate particles in 3D space with physics
-    animate({
-      targets: particleRefs.current,
-      translateX: () => anime.random(-200, 200),
-      translateY: () => anime.random(-200, 200),
-      translateZ: () => anime.random(-100, 100),
-      rotateX: () => anime.random(0, 360),
-      rotateY: () => anime.random(0, 360),
-      rotateZ: () => anime.random(0, 360),
-      scale: () => anime.random(0.5, 2),
-      opacity: () => anime.random(0.2, 1),
-      duration: () => anime.random(3000, 11000),
-      loop: true,
-      direction: 'alternate',
-      easing: 'easeInOutSine',
-      delay: anime.stagger(50)
-    });
-  };
-
-  // Continuous 3D effects and animations
-  const startContinuous3DEffects = () => {
-    // Floating logo with complex 3D motion
-    animate({
-      targets: '.logo-3d',
-      translateY: [-15, 15],
-      rotateZ: [-3, 3],
-      rotateX: [-2, 2],
-      scale: [1, 1.05],
-      duration: 4000,
-      loop: true,
-      direction: 'alternate',
-      easing: 'easeInOutSine'
-    });
-
-    // Dynamic background gradient morphing
-    const bgElement = document.querySelector('.gradient-bg');
-    if (bgElement) {
-      const gradients = [
-        'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 75%, #f5576c 100%)',
-        'linear-gradient(135deg, #4facfe 0%, #00f2fe 25%, #667eea 50%, #764ba2 100%)',
-        'linear-gradient(135deg, #a8edea 0%, #fed6e3 25%, #f093fb 50%, #764ba2 100%)',
-        'linear-gradient(135deg, #ff9a9e 0%, #fecfef 25%, #fecfef 50%, #667eea 100%)'
-      ];
-      
-      let currentGradient = 0;
-      setInterval(() => {
-        currentGradient = (currentGradient + 1) % gradients.length;
-        bgElement.style.background = gradients[currentGradient];
-      }, 5000);
-    }
-  };
-
-  // Enhanced 3D card hover effects
-  const animate3DCardHover = (element, isHovering) => {
-    if (element) {
-      anime({
-        targets: element,
-        rotateX: isHovering ? -10 : 0,
-        rotateY: isHovering ? 10 : 0,
-        translateZ: isHovering ? 30 : 0,
-        scale: isHovering ? 1.08 : 1,
-        duration: 400,
-        easing: 'easeOutQuart'
-      });
-    }
-  };
-
-  // Spectacular alert animation effects
-  const triggerAlertAnimation = (severity) => {
-    const colors = {
-      warning: '#f59e0b',
-      critical: '#ef4444',
-      success: '#10b981'
-    };
-
-    // Full-screen flash effect with ripples
-    const flash = document.createElement('div');
-    flash.className = 'fixed inset-0 pointer-events-none z-50';
-    flash.style.background = `radial-gradient(circle, ${colors[severity]}30 0%, transparent 70%)`;
-    document.body.appendChild(flash);
-
-    animate({
-      targets: flash,
-      opacity: [0, 1, 0],
-      scale: [0.5, 1.2, 1],
-      duration: 800,
-      easing: 'easeOutQuart',
-      complete: () => flash.remove()
-    });
-
-    // Status card dramatic 3D transformation
-    animate({
-      targets: '.status-card',
-      scale: [1, 1.15, 1],
-      rotateX: [0, 15, 0],
-      rotateY: [0, -5, 0],
-      translateZ: [0, 50, 0],
-      duration: 1000,
-      easing: 'easeOutElastic(1, .6)'
-    });
-
-    // Screen shake effect
-    animate({
-      targets: appRef.current,
-      translateX: [0, -5, 5, -5, 5, 0],
-      duration: 600,
-      easing: 'easeOutQuart'
-    });
-  };
-
-  // Enhanced people count animation with spectacular effects
-  const animatePeopleCount = (newCount, oldCount) => {
-    const element = document.querySelector('.people-count-number');
-    if (element) {
-      // Number counting animation
-      anime({
-        targets: { count: oldCount },
-        count: newCount,
-        duration: 1500,
-        round: 1,
-        easing: 'easeOutBounce',
-        update: (anim) => {
-          element.innerHTML = Math.round(anim.animatables[0].target.count);
-        }
-      });
-
-      // Spectacular ripple effects
-      const container = document.querySelector('.people-count-container');
-      if (container) {
-        for (let i = 0; i < 3; i++) {
-          setTimeout(() => {
-            const ripple = document.createElement('div');
-            ripple.className = 'absolute inset-0 border-4 border-cyan-400 rounded-full opacity-60';
-            container.appendChild(ripple);
-
-            anime({
-              targets: ripple,
-              scale: [0, 4],
-              opacity: [0.6, 0],
-              rotateZ: [0, 180],
-              duration: 1200,
-              easing: 'easeOutQuart',
-              complete: () => ripple.remove()
-            });
-          }, i * 200);
-        }
-      }
-    }
-  };
-
-  // Enhanced tab switching with 3D cube rotation
-  const animateTabSwitch = (direction) => {
-    const content = document.querySelector('.tab-content');
-    if (content) {
-      anime({
-        targets: content,
-        translateX: direction === 'left' ? [-100, 0] : [100, 0],
-        rotateY: [direction === 'left' ? -30 : 30, 0],
-        opacity: [0, 1],
-        scale: [0.9, 1],
-        duration: 1000,
-        easing: 'easeOutCubic'
-      });
-    }
-  };
-
   // Effect to load the COCO-SSD model
   useEffect(() => {
     const loadModel = async () => {
@@ -298,10 +42,6 @@ function App() {
         setModel(loadedModel);
         setLoadingModel(false);
         console.log('COCO-SSD model loaded successfully!');
-        
-        // Success animation with fireworks effect
-        triggerAlertAnimation('success');
-        createFireworksEffect();
       } catch (error) {
         console.error('Failed to load COCO-SSD model:', error);
         setLoadingModel(false);
@@ -311,37 +51,6 @@ function App() {
 
     loadModel();
   }, []);
-
-  // Fireworks effect for successful model loading
-  const createFireworksEffect = () => {
-    for (let i = 0; i < 20; i++) {
-      setTimeout(() => {
-        const firework = document.createElement('div');
-        firework.style.cssText = `
-          position: fixed;
-          width: 6px;
-          height: 6px;
-          background: radial-gradient(circle, #00ff00 0%, transparent 70%);
-          border-radius: 50%;
-          left: ${anime.random(0, window.innerWidth)}px;
-          top: ${anime.random(0, window.innerHeight)}px;
-          pointer-events: none;
-          z-index: 1000;
-          box-shadow: 0 0 15px #00ff00;
-        `;
-        document.body.appendChild(firework);
-
-        anime({
-          targets: firework,
-          scale: [0, 2, 0],
-          opacity: [1, 1, 0],
-          duration: 1000,
-          easing: 'easeOutQuart',
-          complete: () => firework.remove()
-        });
-      }, i * 100);
-    }
-  };
 
   // Function to send alert to backend
   const sendAlert = useCallback(async (message, crowdDensity) => {
@@ -370,7 +79,6 @@ function App() {
       if (response.ok) {
         console.log('Alert sent to backend successfully!');
         setAlertStatus('sent');
-        triggerAlertAnimation('success');
         setTimeout(() => setAlertStatus('idle'), 5000);
       } else {
         const errorData = await response.json();
@@ -383,7 +91,7 @@ function App() {
     }
   }, [BACKEND_URL, ALERT_COOLDOWN_SECONDS]);
 
-  // Enhanced object detection with 3D visualization
+  // Object detection function
   const detect = useCallback(async () => {
     if (webcamRef.current && webcamRef.current.video && webcamRef.current.video.readyState === 4 && model) {
       const video = webcamRef.current.video;
@@ -398,15 +106,9 @@ function App() {
       const predictions = await model.detect(video);
       const people = predictions.filter(prediction => prediction.class === 'person');
       const currentPeopleCount = people.length;
-      const oldCount = detectedPeople;
       setDetectedPeople(currentPeopleCount);
 
-      // Animate count change with spectacular effects
-      if (currentPeopleCount !== oldCount) {
-        animatePeopleCount(currentPeopleCount, oldCount);
-      }
-
-      // Add to recent activities with animation
+      // Add to recent activities
       if (recentActivities.length === 0 || recentActivities[0].count !== currentPeopleCount) {
         setRecentActivities(prevActivities => [
           { timestamp: new Date().toLocaleTimeString(), count: currentPeopleCount },
@@ -414,35 +116,25 @@ function App() {
         ]);
       }
 
-      // Enhanced canvas drawing with 3D effects
+      // Draw detection boxes on canvas
       const ctx = canvasRef.current.getContext('2d');
       ctx.clearRect(0, 0, videoWidth, videoHeight);
-      ctx.font = 'bold 18px Arial';
+      ctx.font = 'bold 16px Arial';
       ctx.strokeStyle = '#00ffff';
-      ctx.lineWidth = 4;
+      ctx.lineWidth = 3;
       ctx.fillStyle = '#00ffff';
-      ctx.shadowColor = '#00ffff';
-      ctx.shadowBlur = 15;
 
       people.forEach((prediction, index) => {
         const [x, y, width, height] = prediction.bbox;
-        
-        // Animated detection box with pulsing effect
-        const pulseIntensity = Math.sin(Date.now() * 0.01 + index) * 0.5 + 0.5;
-        ctx.globalAlpha = 0.8 + pulseIntensity * 0.2;
-        
         ctx.beginPath();
         ctx.rect(x, y, width, height);
         ctx.stroke();
         
-        // Person label with enhanced styling
         const label = `Person ${index + 1} (${Math.round(prediction.score * 100)}%)`;
         ctx.fillText(label, x, y > 30 ? y - 10 : y + height + 25);
-        
-        ctx.globalAlpha = 1;
       });
 
-      // Alert condition checking with enhanced animations
+      // Alert condition checking
       const currentTime = Date.now();
       const timeSinceLastAlert = currentTime - lastAlertTimeRef.current;
       const cooldownActive = alertCooldownRef.current || timeSinceLastAlert < (ALERT_COOLDOWN_SECONDS * 1000);
@@ -452,7 +144,6 @@ function App() {
         lastAlertTimeRef.current = currentTime;
 
         setAlertStatus('alerting');
-        triggerAlertAnimation('critical');
         sendAlert(`Critical stampede risk! ${currentPeopleCount} people detected.`, currentPeopleCount);
         setAlertCooldown(true);
 
@@ -462,7 +153,6 @@ function App() {
         }, ALERT_COOLDOWN_SECONDS * 1000);
       } else if (currentPeopleCount >= HIGH_DENSITY_THRESHOLD) {
         setAlertStatus('warning');
-        triggerAlertAnimation('warning');
       } else {
         setAlertStatus('idle');
       }
@@ -477,21 +167,11 @@ function App() {
     if (webcamEnabled) {
       requestAnimationFrame(detect);
     }
-  }, [model, webcamEnabled, recentActivities, detectedPeople, sendAlert]);
+  }, [model, webcamEnabled, recentActivities, sendAlert]);
 
-  // Enhanced webcam toggle with 3D button animation
+  // Toggle webcam function
   const toggleWebcam = () => {
     setWebcamEnabled(prev => !prev);
-    
-    // Spectacular 3D button animation
-    animate({
-      targets: '.webcam-toggle',
-      rotateY: [0, 720],
-      scale: [1, 1.3, 1],
-      translateZ: [0, 50, 0],
-      duration: 1200,
-      easing: 'easeOutElastic(1, .6)'
-    });
   };
 
   // SOS Reports Management Functions
@@ -499,11 +179,11 @@ function App() {
     if (activeTab !== 'sos-alerts') return;
 
     try {
-      console.log('🔥 Starting SOS reports Firebase connection...');
+      console.log('Starting SOS reports Firebase connection...');
 
       const connectionTest = await testFirestoreConnection();
       if (!connectionTest.success) {
-        console.error('❌ Firebase connection test failed:', connectionTest.error);
+        console.error('Firebase connection test failed:', connectionTest.error);
         return;
       }
 
@@ -546,7 +226,7 @@ function App() {
       return unsubscribe;
 
     } catch (error) {
-      console.error('❌ Error setting up Firebase listener:', error);
+      console.error('Error setting up Firebase listener:', error);
       setSOSReports([]);
     }
   }, [activeTab]);
@@ -571,9 +251,6 @@ function App() {
     const setupListener = async () => {
       if (activeTab === 'sos-alerts') {
         unsubscribe = await fetchSOSReports();
-        animateTabSwitch('right');
-      } else {
-        animateTabSwitch('left');
       }
     };
 
@@ -594,211 +271,139 @@ function App() {
   };
 
   const getStatusColor = () => {
-    if (detectedPeople >= CRITICAL_DENSITY_THRESHOLD) return "from-red-500 via-red-600 to-red-700";
-    if (detectedPeople >= HIGH_DENSITY_THRESHOLD) return "from-yellow-500 via-orange-500 to-red-500";
-    return "from-green-400 via-blue-500 to-purple-600";
-  };
-
-  const getGlowEffect = () => {
-    if (detectedPeople >= CRITICAL_DENSITY_THRESHOLD) return "shadow-red-500/50 shadow-2xl";
-    if (detectedPeople >= HIGH_DENSITY_THRESHOLD) return "shadow-yellow-500/50 shadow-xl";
-    return "shadow-blue-500/30 shadow-lg";
+    if (detectedPeople >= CRITICAL_DENSITY_THRESHOLD) return "from-red-500 to-red-700";
+    if (detectedPeople >= HIGH_DENSITY_THRESHOLD) return "from-yellow-500 to-orange-500";
+    return "from-green-400 to-blue-500";
   };
 
   return (
-    <div 
-      ref={appRef} 
-      className="min-h-screen gradient-bg relative overflow-hidden"
-      style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 75%, #f5576c 100%)',
-        perspective: '1000px',
-        transformStyle: 'preserve-3d'
-      }}
-    >
-      {/* Advanced 3D Background Elements */}
-      <div className="absolute inset-0 opacity-20" style={{transform: 'translateZ(-100px)'}}>
-        <div className="absolute top-10 left-10 w-96 h-96 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse morphing-blob"></div>
-        <div className="absolute top-40 right-10 w-80 h-80 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-700 morphing-blob"></div>
-        <div className="absolute bottom-40 left-1/2 w-72 h-72 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000 morphing-blob"></div>
-        <div className="absolute bottom-10 right-1/4 w-64 h-64 bg-gradient-to-r from-green-400 to-teal-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse morphing-blob"></div>
-      </div>
-
-      {/* Holographic Grid Overlay */}
-      <div 
-        className="absolute inset-0 opacity-10 hologram-lines"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(0,255,255,0.3) 1px, transparent 1px), 
-            linear-gradient(90deg, rgba(0,255,255,0.3) 1px, transparent 1px),
-            radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 1px, transparent 1px)
-          `,
-          backgroundSize: '60px 60px, 60px 60px, 30px 30px',
-          transform: 'rotateX(45deg) rotateY(15deg) scale(1.2)'
-        }}
-      />
-
-      <div className="relative z-10 flex flex-col items-center p-6 min-h-screen tab-content">
-        {/* Futuristic 3D Header */}
-        <header 
-          ref={headerRef} 
-          className="w-full max-w-6xl flex items-center justify-between py-6 px-8 mb-8" 
-          style={{transform: 'translateZ(30px)'}}
-        >
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
+      <div className="flex flex-col items-center p-6 min-h-screen">
+        {/* Header */}
+        <header className="w-full max-w-6xl flex items-center justify-between py-6 px-8 mb-8">
           <div className="flex items-center space-x-4">
-            <div 
-              className="logo-3d p-4 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-3xl shadow-2xl shadow-cyan-400/50 relative quantum-glow" 
-              style={{transform: 'rotateY(10deg)'}}
-            >
-              <Shield size={40} className="text-white" />
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-3xl blur-xl opacity-60 animate-pulse"></div>
+            <div className="p-4 bg-blue-600 rounded-xl shadow-lg">
+              <Shield size={32} className="text-white" />
             </div>
-            <div className="transform" style={{transform: 'rotateY(-5deg)'}}>
-              <h1 className="text-5xl font-black bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent text-3d text-glow">
-                STAMPEDE GUARD 3D
+            <div>
+              <h1 className="text-4xl font-bold text-white">
+                STAMPEDE GUARD
               </h1>
-              <p className="text-cyan-300 text-sm font-medium mt-1 text-glow">
-                Advanced AI-Powered 3D Crowd Monitoring & Emergency Response System
+              <p className="text-blue-300 text-sm font-medium mt-1">
+                AI-Powered Crowd Monitoring & Emergency Response System
               </p>
             </div>
           </div>
 
           <div className="flex items-center space-x-6">
-            {/* 3D Tab Navigation */}
-            <div 
-              className="flex items-center space-x-2 bg-black/40 backdrop-blur-3xl rounded-3xl p-3 border border-gray-700/50 shadow-2xl cyberpunk-border" 
-              style={{transform: 'rotateY(-10deg)'}}
-            >
+            {/* Tab Navigation */}
+            <div className="flex items-center space-x-2 bg-black/30 backdrop-blur-md rounded-xl p-2 border border-gray-600">
               <button
                 onClick={() => setActiveTab('monitoring')}
-                onMouseEnter={(e) => animate3DCardHover(e.target, true)}
-                onMouseLeave={(e) => animate3DCardHover(e.target, false)}
-                className={`flex items-center space-x-3 px-6 py-3 rounded-2xl transition-all duration-500 transform hover-lift ${
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 ${
                   activeTab === 'monitoring'
-                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-2xl energy-field'
-                    : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : 'text-gray-300 hover:text-white hover:bg-gray-700'
                 }`}
               >
-                <Activity size={24} />
-                <span className="font-bold">Live Monitor 3D</span>
+                <Activity size={20} />
+                <span className="font-medium">Live Monitor</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('sos-alerts')}
-                onMouseEnter={(e) => animate3DCardHover(e.target, true)}
-                onMouseLeave={(e) => animate3DCardHover(e.target, false)}
-                className={`relative flex items-center space-x-3 px-6 py-3 rounded-2xl transition-all duration-500 transform hover-lift ${
+                className={`relative flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 ${
                   activeTab === 'sos-alerts'
-                    ? 'bg-gradient-to-r from-red-500 to-orange-600 text-white shadow-2xl energy-field'
-                    : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
+                    ? 'bg-red-600 text-white shadow-lg'
+                    : 'text-gray-300 hover:text-white hover:bg-gray-700'
                 }`}
               >
-                <Bell size={24} />
-                <span className="font-bold">SOS Alerts</span>
+                <Bell size={20} />
+                <span className="font-medium">SOS Alerts</span>
                 {sosReports.length > 0 && (
-                  <span className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 text-white text-sm rounded-full flex items-center justify-center animate-bounce pulse-orb">
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
                     {sosReports.length}
                   </span>
                 )}
               </button>
             </div>
 
-            {/* 3D Status Indicator */}
-            <div 
-              className="flex items-center space-x-3 bg-black/30 backdrop-blur-xl rounded-2xl px-4 py-3 border border-cyan-400/30 glass-morphism" 
-              style={{transform: 'rotateY(5deg)'}}
-            >
-              <div className={`w-4 h-4 rounded-full ${webcamEnabled ? 'bg-green-400' : 'bg-red-400'} shadow-lg animate-pulse energy-field`}></div>
-              <span className="text-white font-bold text-lg text-3d">
+            {/* Status Indicator */}
+            <div className="flex items-center space-x-3 bg-black/30 backdrop-blur-md rounded-lg px-4 py-2 border border-gray-600">
+              <div className={`w-3 h-3 rounded-full ${webcamEnabled ? 'bg-green-400' : 'bg-red-400'} animate-pulse`}></div>
+              <span className="text-white font-medium">
                 {webcamEnabled ? 'SYSTEM ACTIVE' : 'STANDBY MODE'}
               </span>
             </div>
 
-            {/* 3D Control Button */}
+            {/* Control Button */}
             {activeTab === 'monitoring' && (
               <button
                 onClick={toggleWebcam}
-                onMouseEnter={(e) => animate3DCardHover(e.target, true)}
-                onMouseLeave={(e) => animate3DCardHover(e.target, false)}
-                className={`webcam-toggle relative p-5 rounded-3xl backdrop-blur-3xl transition-all duration-500 transform hover:scale-110 hover-lift ${
+                className={`p-3 rounded-xl backdrop-blur-md transition-all duration-300 ${
                   webcamEnabled
-                    ? 'bg-red-500/30 border-2 border-red-400/50 shadow-2xl shadow-red-500/40 energy-field'
-                    : 'bg-green-500/30 border-2 border-green-400/50 shadow-2xl shadow-green-500/40 energy-field'
+                    ? 'bg-red-600/80 border border-red-400 hover:bg-red-600'
+                    : 'bg-green-600/80 border border-green-400 hover:bg-green-600'
                 }`}
-                title={webcamEnabled ? "Disable 3D Monitoring" : "Enable 3D Monitoring"}
-                style={{transform: 'rotateY(-15deg) rotateX(5deg)'}}
+                title={webcamEnabled ? "Disable Monitoring" : "Enable Monitoring"}
               >
                 {webcamEnabled ? (
-                  <EyeOff size={32} className="text-red-300" />
+                  <EyeOff size={24} className="text-white" />
                 ) : (
-                  <Camera size={32} className="text-green-300" />
+                  <Camera size={24} className="text-white" />
                 )}
-                <span className="absolute -top-3 -right-3 w-8 h-8 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full flex items-center justify-center shadow-lg pulse-orb">
-                  <Zap size={16} className="text-white" />
-                </span>
               </button>
             )}
           </div>
         </header>
 
-        {/* Main 3D Content Area */}
+        {/* Main Content Area */}
         {activeTab === 'monitoring' ? (
           <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main 3D Video Feed */}
+            {/* Main Video Feed */}
             <div className="lg:col-span-2">
-              <div 
-                className="animate-card bg-black/40 backdrop-blur-3xl rounded-3xl border-2 border-cyan-400/30 overflow-hidden shadow-2xl shadow-cyan-500/20 neon-border quantum-glow"
-                style={{transform: 'perspective(1000px) rotateY(-5deg)'}}
-              >
+              <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-600 overflow-hidden shadow-xl">
                 {/* Video Header */}
-                <div className="bg-gradient-to-r from-cyan-500/30 to-blue-600/30 p-6 border-b border-cyan-400/20 holographic">
+                <div className="bg-gradient-to-r from-blue-600/30 to-purple-600/30 p-4 border-b border-gray-600">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <Activity className="text-cyan-400" size={32} />
-                      <span className="text-white font-bold text-2xl text-3d">3D Live Feed</span>
-                    </div>
                     <div className="flex items-center space-x-3">
-                      <div className="w-3 h-3 bg-red-500 rounded-full animate-ping"></div>
-                      <span className="text-red-300 text-lg font-bold">RECORDING</span>
+                      <Activity className="text-blue-400" size={24} />
+                      <span className="text-white font-bold text-lg">Live Feed</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
+                      <span className="text-red-300 text-sm font-medium">RECORDING</span>
                     </div>
                   </div>
                 </div>
 
-                {/* 3D Video Content */}
-                <div className="relative aspect-video bg-black video-container">
-                  {/* Enhanced Loading overlay */}
+                {/* Video Content */}
+                <div className="relative aspect-video bg-black">
+                  {/* Loading overlay */}
                   {loadingModel && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/90 backdrop-blur-xl z-20">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/90 backdrop-blur-md z-20">
                       <div className="text-center">
-                        <div className="relative mb-8">
-                          <Loader2 className="animate-spin text-cyan-400 mx-auto enhanced-spin" size={80} />
-                          <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full blur-2xl opacity-60 animate-pulse"></div>
-                        </div>
-                        <p className="text-3xl font-black text-white mb-4 text-glow">Initializing 3D AI Model</p>
-                        <p className="text-cyan-300 text-lg">Advanced neural networks loading...</p>
-                        <div className="mt-6 w-80 h-3 bg-gray-700 rounded-full mx-auto overflow-hidden">
-                          <div className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-pulse"></div>
-                        </div>
+                        <Loader2 className="animate-spin text-blue-400 mx-auto mb-4" size={48} />
+                        <p className="text-xl font-bold text-white mb-2">Loading AI Model</p>
+                        <p className="text-blue-300">Please wait...</p>
                       </div>
                     </div>
                   )}
 
-                  {/* Enhanced Webcam off overlay */}
+                  {/* Webcam off overlay */}
                   {!webcamEnabled && !loadingModel && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-800/60 to-blue-900/60 backdrop-blur-xl">
-                      <div className="relative">
-                        <Camera size={120} className="text-gray-400 mb-8 float-animation" />
-                        <div className="absolute inset-0 bg-gradient-to-r from-gray-400 to-blue-400 rounded-full blur-2xl opacity-40 animate-pulse"></div>
-                      </div>
-                      <p className="text-3xl font-black text-white mb-4 text-glow">3D Monitoring Standby</p>
-                      <p className="text-blue-300 text-center max-w-md text-lg">
-                        Activate the 3D camera system to begin advanced crowd detection
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-800/60 backdrop-blur-md">
+                      <Camera size={64} className="text-gray-400 mb-4" />
+                      <p className="text-xl font-bold text-white mb-2">Monitoring Standby</p>
+                      <p className="text-blue-300 text-center max-w-md">
+                        Activate the camera system to begin crowd detection
                       </p>
                     </div>
                   )}
 
-                  {/* Enhanced Webcam and Canvas Container */}
+                  {/* Webcam and Canvas Container */}
                   {webcamEnabled && !loadingModel && (
-                    <div className="relative w-full h-full" style={{transform: 'rotateY(2deg)'}}>
+                    <div className="relative w-full h-full">
                       <Webcam
                         ref={webcamRef}
                         muted={true}
@@ -814,8 +419,7 @@ function App() {
                           width: '100%',
                           height: '100%',
                           objectFit: 'cover',
-                          transform: 'scaleX(-1)',
-                          filter: 'brightness(1.1) contrast(1.2) saturate(1.3)'
+                          transform: 'scaleX(-1)'
                         }}
                         onUserMedia={() => {
                           if (webcamEnabled && model) {
@@ -835,20 +439,19 @@ function App() {
                         style={{
                           width: '100%',
                           height: '100%',
-                          transform: 'scaleX(-1)',
-                          filter: 'drop-shadow(0 0 10px cyan)'
+                          transform: 'scaleX(-1)'
                         }}
                       />
                       
-                      {/* Enhanced HUD Overlay */}
-                      <div className="absolute top-6 left-6 right-6 flex justify-between items-start pointer-events-none">
-                        <div className="bg-black/60 backdrop-blur-xl rounded-2xl p-4 border border-cyan-400/40 shadow-xl glass-morphism">
-                          <div className="text-cyan-400 text-lg font-bold">3D AI DETECTION</div>
-                          <div className="text-white text-sm">TensorFlow.js COCO-SSD Enhanced</div>
+                      {/* HUD Overlay */}
+                      <div className="absolute top-4 left-4 right-4 flex justify-between items-start pointer-events-none">
+                        <div className="bg-black/60 backdrop-blur-md rounded-lg p-3 border border-blue-400/40">
+                          <div className="text-blue-400 text-sm font-bold">AI DETECTION</div>
+                          <div className="text-white text-xs">TensorFlow.js COCO-SSD</div>
                         </div>
-                        <div className="bg-black/60 backdrop-blur-xl rounded-2xl p-4 border border-cyan-400/40 shadow-xl glass-morphism">
-                          <div className="text-cyan-400 text-lg font-bold">TIMESTAMP</div>
-                          <div className="text-white text-sm">{new Date().toLocaleTimeString()}</div>
+                        <div className="bg-black/60 backdrop-blur-md rounded-lg p-3 border border-blue-400/40">
+                          <div className="text-blue-400 text-sm font-bold">TIMESTAMP</div>
+                          <div className="text-white text-xs">{new Date().toLocaleTimeString()}</div>
                         </div>
                       </div>
                     </div>
@@ -857,80 +460,62 @@ function App() {
               </div>
             </div>
 
-            {/* Enhanced 3D Sidebar */}
-            <div className="space-y-8">
-              {/* Enhanced 3D People Count Display */}
-              <div 
-                className={`animate-card status-card people-count-container relative bg-gradient-to-r ${getStatusColor()} rounded-3xl p-8 text-center overflow-hidden ${getGlowEffect()} transform card-3d`}
-                style={{transform: 'perspective(800px) rotateY(10deg) rotateX(-5deg)'}}
-              >
-                <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
-                <div className="relative z-10">
-                  <Users className="text-white/90 mx-auto mb-6" size={64} />
-                  <p className="text-white/90 text-2xl font-bold mb-4 text-3d">People Detected</p>
-                  <p className="people-count-number text-white text-8xl font-black mb-6 tracking-tight text-3d text-glow">
-                    {detectedPeople}
-                  </p>
-                  <div className={`inline-flex items-center space-x-3 px-6 py-3 rounded-full ${
-                    detectedPeople >= CRITICAL_DENSITY_THRESHOLD 
-                      ? 'bg-red-500/40 border-2 border-red-300/50' 
-                      : detectedPeople >= HIGH_DENSITY_THRESHOLD 
-                      ? 'bg-yellow-500/40 border-2 border-yellow-300/50'
-                      : 'bg-green-500/40 border-2 border-green-300/50'
-                  }`}>
-                    {detectedPeople >= CRITICAL_DENSITY_THRESHOLD && <AlertTriangle size={20} className="text-white animate-bounce" />}
-                    <span className="text-white font-black text-lg text-3d">
-                      {getCurrentStatusText()}
-                    </span>
-                  </div>
+            {/* Sidebar */}
+            <div className="space-y-6">
+              {/* People Count Display */}
+              <div className={`bg-gradient-to-r ${getStatusColor()} rounded-xl p-6 text-center shadow-xl`}>
+                <Users className="text-white/90 mx-auto mb-4" size={48} />
+                <p className="text-white/90 text-lg font-bold mb-2">People Detected</p>
+                <p className="text-white text-5xl font-black mb-4">
+                  {detectedPeople}
+                </p>
+                <div className={`inline-flex items-center space-x-2 px-4 py-2 rounded-full ${
+                  detectedPeople >= CRITICAL_DENSITY_THRESHOLD 
+                    ? 'bg-red-500/40 border border-red-300/50' 
+                    : detectedPeople >= HIGH_DENSITY_THRESHOLD 
+                    ? 'bg-yellow-500/40 border border-yellow-300/50'
+                    : 'bg-green-500/40 border border-green-300/50'
+                }`}>
+                  {detectedPeople >= CRITICAL_DENSITY_THRESHOLD && <AlertTriangle size={16} className="text-white" />}
+                  <span className="text-white font-bold text-sm">
+                    {getCurrentStatusText()}
+                  </span>
                 </div>
-                
-                {/* Enhanced animated rings */}
-                {detectedPeople >= CRITICAL_DENSITY_THRESHOLD && (
-                  <>
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 border-4 border-red-300/40 rounded-full animate-ping"></div>
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-52 h-52 border-4 border-red-300/30 rounded-full animate-ping delay-150"></div>
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 border-4 border-red-300/20 rounded-full animate-ping delay-300"></div>
-                  </>
-                )}
               </div>
 
-              {/* Enhanced 3D System Status */}
-              <div 
-                className="animate-card bg-black/40 backdrop-blur-3xl rounded-3xl border border-gray-700/50 p-8 shadow-xl glass-morphism"
-                style={{transform: 'perspective(600px) rotateY(-8deg)'}}
-              >
-                <h3 className="text-white font-black text-2xl mb-6 flex items-center">
-                  <Shield className="text-cyan-400 mr-4" size={32} />
-                  3D System Status
+              {/* System Status */}
+              <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-600 p-6 shadow-xl">
+                <h3 className="text-white font-bold text-lg mb-4 flex items-center">
+                  <Shield className="text-blue-400 mr-3" size={24} />
+                  System Status
                 </h3>
                 
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300 text-lg">AI Model</span>
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-3 h-3 rounded-full ${model ? 'bg-green-400 shadow-lg shadow-green-400/50' : 'bg-red-400 shadow-lg shadow-red-400/50'} animate-pulse`}></div>
-                      <span className={`text-lg font-bold ${model ? 'text-green-400' : 'text-red-400'}`}>
+                    <span className="text-gray-300">AI Model</span>
+                    <div className="flex items-center space-x-2">
+                      <div className={`w-2 h-2 rounded-full ${model ? 'bg-green-400' : 'bg-red-400'} animate-pulse`}></div>
+                      <span className={`text-sm font-medium ${model ? 'text-green-400' : 'text-red-400'}`}>
                         {model ? 'Online' : 'Offline'}
                       </span>
                     </div>
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300 text-lg">3D Camera Feed</span>
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-3 h-3 rounded-full ${webcamEnabled ? 'bg-green-400 shadow-lg shadow-green-400/50' : 'bg-gray-400'} animate-pulse`}></div>
-                      <span className={`text-lg font-bold ${webcamEnabled ? 'text-green-400' : 'text-gray-400'}`}>
+                    <span className="text-gray-300">Camera Feed</span>
+                    <div className="flex items-center space-x-2">
+                      <div className={`w-2 h-2 rounded-full ${webcamEnabled ? 'bg-green-400' : 'bg-gray-400'} animate-pulse`}></div>
+                      <span className={`text-sm font-medium ${webcamEnabled ? 'text-green-400' : 'text-gray-400'}`}>
                         {webcamEnabled ? 'Active' : 'Standby'}
                       </span>
                     </div>
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300 text-lg">Alert System</span>
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-3 h-3 rounded-full ${alertCooldown ? 'bg-yellow-400 shadow-lg shadow-yellow-400/50' : 'bg-green-400 shadow-lg shadow-green-400/50'} animate-pulse`}></div>
-                      <span className={`text-lg font-bold ${alertCooldown ? 'text-yellow-400' : 'text-green-400'}`}>
+                    <span className="text-gray-300">Alert System</span>
+                    <div className="flex items-center space-x-2">
+                      <div className={`w-2 h-2 rounded-full ${alertCooldown ? 'bg-yellow-400' : 'bg-green-400'} animate-pulse`}></div>
+                      <span className={`text-sm font-medium ${alertCooldown ? 'text-yellow-400' : 'text-green-400'}`}>
                         {alertCooldown ? 'Cooldown' : 'Ready'}
                       </span>
                     </div>
@@ -938,40 +523,37 @@ function App() {
                 </div>
               </div>
 
-              {/* Enhanced 3D Activity Log */}
-              <div 
-                className="animate-card bg-black/40 backdrop-blur-3xl rounded-3xl border border-gray-700/50 p-8 shadow-xl glass-morphism"
-                style={{transform: 'perspective(600px) rotateY(5deg)'}}
-              >
-                <h3 className="text-white font-black text-2xl mb-6 flex items-center">
-                  <Activity className="text-cyan-400 mr-4" size={32} />
-                  3D Activity Log
+              {/* Activity Log */}
+              <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-600 p-6 shadow-xl">
+                <h3 className="text-white font-bold text-lg mb-4 flex items-center">
+                  <Activity className="text-blue-400 mr-3" size={24} />
+                  Activity Log
                 </h3>
                 
-                <div className="max-h-72 overflow-y-auto custom-scrollbar space-y-3">
+                <div className="max-h-64 overflow-y-auto custom-scrollbar space-y-2">
                   {recentActivities.length > 0 ? (
                     recentActivities.map((activity, index) => (
                       <div 
                         key={index} 
-                        className="flex justify-between items-center p-4 bg-gray-800/40 rounded-2xl border border-gray-700/40 shadow-lg transform hover:scale-105 transition-all duration-300 hover-lift"
+                        className="flex justify-between items-center p-3 bg-gray-800/40 rounded-lg border border-gray-700/40"
                       >
-                        <span className="text-gray-400 text-sm font-mono">{activity.timestamp}</span>
-                        <span className={`font-bold text-lg px-3 py-2 rounded-xl ${
+                        <span className="text-gray-400 text-xs">{activity.timestamp}</span>
+                        <span className={`font-medium text-sm px-2 py-1 rounded ${
                           activity.count >= CRITICAL_DENSITY_THRESHOLD 
-                            ? 'bg-red-500/30 text-red-300 border border-red-500/40 shadow-red-500/30'
+                            ? 'bg-red-500/30 text-red-300'
                             : activity.count >= HIGH_DENSITY_THRESHOLD 
-                            ? 'bg-yellow-500/30 text-yellow-300 border border-yellow-500/40 shadow-yellow-500/30'
-                            : 'bg-green-500/30 text-green-300 border border-green-500/40 shadow-green-500/30'
-                        } shadow-lg`}>
+                            ? 'bg-yellow-500/30 text-yellow-300'
+                            : 'bg-green-500/30 text-green-300'
+                        }`}>
                           {activity.count} detected
                         </span>
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-12">
-                      <Users className="text-gray-600 mx-auto mb-4 float-animation" size={64} />
-                      <p className="text-gray-500 text-lg">No activity recorded</p>
-                      <p className="text-gray-600 text-sm">Enable 3D monitoring to start</p>
+                    <div className="text-center py-8">
+                      <Users className="text-gray-600 mx-auto mb-3" size={32} />
+                      <p className="text-gray-500 text-sm">No activity recorded</p>
+                      <p className="text-gray-600 text-xs">Enable monitoring to start</p>
                     </div>
                   )}
                 </div>
@@ -980,55 +562,52 @@ function App() {
           </div>
         ) : (
           /* SOS Alerts System */
-          <div className="w-full max-w-6xl tab-content">
-            <div className="text-center py-20">
-              <div className="relative mb-8">
-                <Bell size={120} className="text-cyan-400 mx-auto float-animation" />
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-red-400 rounded-full blur-2xl opacity-40 animate-pulse"></div>
-              </div>
-              <h2 className="text-5xl font-black text-white mb-6 text-3d text-glow">SOS Emergency System</h2>
-              <p className="text-cyan-300 text-xl mb-8">3D Emergency Management Dashboard</p>
-              <div className="bg-black/40 backdrop-blur-3xl rounded-3xl border border-red-500/50 p-8 glass-morphism quantum-glow">
-                <p className="text-red-300 font-bold text-lg mb-4">🚨 Emergency Response Center</p>
-                <p className="text-gray-300">Real-time SOS alert monitoring and emergency dispatch system</p>
-                <p className="text-gray-400 text-sm mt-4">Firebase integration active • WhatsApp notifications enabled</p>
+          <div className="w-full max-w-6xl">
+            <div className="text-center py-16">
+              <Bell size={64} className="text-blue-400 mx-auto mb-6" />
+              <h2 className="text-3xl font-bold text-white mb-4">SOS Emergency System</h2>
+              <p className="text-blue-300 text-lg mb-6">Emergency Management Dashboard</p>
+              <div className="bg-black/40 backdrop-blur-md rounded-xl border border-red-500/50 p-6 max-w-md mx-auto">
+                <p className="text-red-300 font-bold mb-3">🚨 Emergency Response Center</p>
+                <p className="text-gray-300 text-sm">Real-time SOS alert monitoring and emergency dispatch system</p>
+                <p className="text-gray-400 text-xs mt-3">Firebase integration active • WhatsApp notifications enabled</p>
               </div>
             </div>
           </div>
         )}
 
-        {/* Enhanced 3D Alert Messages */}
+        {/* Alert Messages */}
         {alertStatus === 'error' && (
-          <div className="fixed bottom-8 right-8 bg-red-500/30 backdrop-blur-3xl border-2 border-red-400/50 rounded-3xl p-6 shadow-2xl shadow-red-500/40 animate-bounce energy-field">
-            <div className="flex items-center space-x-4">
-              <XCircle size={32} className="text-red-400" />
+          <div className="fixed bottom-6 right-6 bg-red-600/90 backdrop-blur-md border border-red-500 rounded-lg p-4 shadow-xl">
+            <div className="flex items-center space-x-3">
+              <XCircle size={24} className="text-red-200" />
               <div>
-                <p className="text-red-300 font-black text-lg">System Error</p>
-                <p className="text-red-400">Check console for details</p>
+                <p className="text-red-100 font-bold">System Error</p>
+                <p className="text-red-200 text-sm">Check console for details</p>
               </div>
             </div>
           </div>
         )}
 
         {alertStatus === 'no-webcam' && (
-          <div className="fixed bottom-8 right-8 bg-yellow-500/30 backdrop-blur-3xl border-2 border-yellow-400/50 rounded-3xl p-6 shadow-2xl shadow-yellow-500/40 animate-bounce">
-            <div className="flex items-center space-x-4">
-              <WifiOff size={32} className="text-yellow-400" />
+          <div className="fixed bottom-6 right-6 bg-yellow-600/90 backdrop-blur-md border border-yellow-500 rounded-lg p-4 shadow-xl">
+            <div className="flex items-center space-x-3">
+              <WifiOff size={24} className="text-yellow-200" />
               <div>
-                <p className="text-yellow-300 font-black text-lg">Camera Access Required</p>
-                <p className="text-yellow-400">Grant webcam permissions</p>
+                <p className="text-yellow-100 font-bold">Camera Access Required</p>
+                <p className="text-yellow-200 text-sm">Grant webcam permissions</p>
               </div>
             </div>
           </div>
         )}
 
         {alertStatus === 'sent' && (
-          <div className="fixed bottom-8 right-8 bg-green-500/30 backdrop-blur-3xl border-2 border-green-400/50 rounded-3xl p-6 shadow-2xl shadow-green-500/40 animate-bounce">
-            <div className="flex items-center space-x-4">
-              <CheckCircle size={32} className="text-green-400" />
+          <div className="fixed bottom-6 right-6 bg-green-600/90 backdrop-blur-md border border-green-500 rounded-lg p-4 shadow-xl">
+            <div className="flex items-center space-x-3">
+              <CheckCircle size={24} className="text-green-200" />
               <div>
-                <p className="text-green-300 font-black text-lg">Alert Sent Successfully!</p>
-                <p className="text-green-400">Emergency services notified</p>
+                <p className="text-green-100 font-bold">Alert Sent Successfully!</p>
+                <p className="text-green-200 text-sm">Emergency services notified</p>
               </div>
             </div>
           </div>
