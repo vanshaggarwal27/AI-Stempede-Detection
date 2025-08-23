@@ -306,11 +306,12 @@ function App() {
             </div>
             <div>
               <h1 className="text-4xl font-bold text-white">
-                STAMPEDE GUARD
+                SAFE GUARD
               </h1>
               <p className="text-blue-300 text-sm font-medium mt-1">
                 AI-Powered Crowd Monitoring & Emergency Response System
               </p>
+              
             </div>
           </div>
 
