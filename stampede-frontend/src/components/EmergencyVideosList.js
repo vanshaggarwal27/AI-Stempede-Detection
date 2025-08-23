@@ -252,16 +252,16 @@ const EmergencyVideosList = () => {
                   </div>
 
                   {/* AI Analysis */}
-                  <div className="bg-blue-600/10 border border-blue-500/20 rounded-lg p-4">
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                     <div className="flex items-center space-x-2 mb-2">
-                      <Bot className="text-blue-400" size={16} />
-                      <span className="text-blue-400 font-bold text-sm">Gemini AI Analysis</span>
+                      <Bot className="text-yellow-600" size={16} />
+                      <span className="text-yellow-700 font-bold text-sm">Gemini AI Analysis</span>
                     </div>
-                    <p className="text-white text-sm mb-2">"{report.geminiAnalysis?.reason}"</p>
-                    
+                    <p className="text-gray-800 text-sm mb-2">"{report.geminiAnalysis?.reason}"</p>
+
                     <div className="flex items-center space-x-4 text-xs">
-                      <span className="text-green-400">✅ Verified Emergency</span>
-                      <span className="text-blue-400">Service: {report.geminiAnalysis?.primary_service}</span>
+                      <span className="text-green-600">✅ Verified Emergency</span>
+                      <span className="text-yellow-600">Service: {report.geminiAnalysis?.primary_service}</span>
                       <span className={`${getConfidenceColor(report.geminiAnalysis?.confidence).split(' ')[0]}`}>
                         Confidence: {report.geminiAnalysis?.confidence}
                       </span>
