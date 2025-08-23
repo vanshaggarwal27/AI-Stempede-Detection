@@ -123,10 +123,10 @@ const EmergencyVideosList = () => {
 
   const getConfidenceColor = (confidence) => {
     switch (confidence) {
-      case 'High': return 'text-green-400 bg-green-500/20 border-green-500/30';
-      case 'Medium': return 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30';
-      case 'Low': return 'text-orange-400 bg-orange-500/20 border-orange-500/30';
-      default: return 'text-gray-400 bg-gray-500/20 border-gray-500/30';
+      case 'High': return 'text-green-600 bg-green-50 border-green-200';
+      case 'Medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+      case 'Low': return 'text-orange-600 bg-orange-50 border-orange-200';
+      default: return 'text-gray-600 bg-gray-50 border-gray-200';
     }
   };
 
