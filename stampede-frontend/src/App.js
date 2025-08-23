@@ -595,7 +595,7 @@ function App() {
               {/* Feed Status */}
               <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-yellow-200 p-6 shadow-xl transition-all duration-300 hover:shadow-2xl">
                 <h3 className="text-gray-800 font-bold text-sm mb-4 flex items-center">
-                  <Activity className="text-green-600 mr-2" size={16} />
+                  <Activity className="text-yellow-600 mr-2" size={16} />
                   Feed Status
                 </h3>
 
@@ -613,16 +613,16 @@ function App() {
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600 text-xs font-medium">Drone</span>
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                      <span className="text-xs font-semibold text-gray-500">OFF</span>
+                      <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></div>
+                      <span className="text-xs font-semibold text-yellow-600">READY</span>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600 text-xs font-medium">Satellite</span>
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                      <span className="text-xs font-semibold text-gray-500">OFF</span>
+                      <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></div>
+                      <span className="text-xs font-semibold text-yellow-600">READY</span>
                     </div>
                   </div>
                 </div>
@@ -631,7 +631,7 @@ function App() {
               {/* Activity Log */}
               <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-yellow-200 p-6 shadow-xl transition-all duration-300 hover:shadow-2xl">
                 <h3 className="text-gray-800 font-bold text-sm mb-4 flex items-center">
-                  <Activity className="text-blue-600 mr-2" size={16} />
+                  <Activity className="text-yellow-600 mr-2" size={16} />
                   Recent Activity
                 </h3>
 
@@ -702,36 +702,36 @@ function App() {
 
         {/* Alert Messages */}
         {alertStatus === 'error' && (
-          <div className="fixed bottom-6 right-6 bg-white/95 backdrop-blur-md border-2 border-red-300 rounded-2xl p-4 shadow-2xl animate-bounce">
+          <div className="fixed bottom-6 right-6 bg-white/98 backdrop-blur-md border-2 border-red-200 rounded-2xl p-4 shadow-xl animate-bounce">
             <div className="flex items-center space-x-3">
-              <XCircle size={24} className="text-red-600" />
+              <XCircle size={24} className="text-red-500" />
               <div>
-                <p className="text-red-700 font-bold">System Error</p>
-                <p className="text-red-600 text-sm">Check console for details</p>
+                <p className="text-red-600 font-bold">System Error</p>
+                <p className="text-red-500 text-sm">Check console for details</p>
               </div>
             </div>
           </div>
         )}
 
         {alertStatus === 'no-webcam' && (
-          <div className="fixed bottom-6 right-6 bg-white/95 backdrop-blur-md border-2 border-yellow-300 rounded-2xl p-4 shadow-2xl animate-bounce">
+          <div className="fixed bottom-6 right-6 bg-white/98 backdrop-blur-md border-2 border-yellow-200 rounded-2xl p-4 shadow-xl animate-bounce">
             <div className="flex items-center space-x-3">
-              <WifiOff size={24} className="text-yellow-600" />
+              <WifiOff size={24} className="text-yellow-500" />
               <div>
-                <p className="text-yellow-700 font-bold">Camera Access Required</p>
-                <p className="text-yellow-600 text-sm">Grant webcam permissions</p>
+                <p className="text-yellow-600 font-bold">Camera Access Required</p>
+                <p className="text-yellow-500 text-sm">Grant webcam permissions</p>
               </div>
             </div>
           </div>
         )}
 
         {alertStatus === 'sent' && (
-          <div className="fixed bottom-6 right-6 bg-white/95 backdrop-blur-md border-2 border-green-300 rounded-2xl p-4 shadow-2xl animate-bounce">
+          <div className="fixed bottom-6 right-6 bg-white/98 backdrop-blur-md border-2 border-green-200 rounded-2xl p-4 shadow-xl animate-bounce">
             <div className="flex items-center space-x-3">
-              <CheckCircle size={24} className="text-green-600" />
+              <CheckCircle size={24} className="text-green-500" />
               <div>
-                <p className="text-green-700 font-bold">Alert Sent Successfully!</p>
-                <p className="text-green-600 text-sm">Emergency services notified</p>
+                <p className="text-green-600 font-bold">Alert Sent Successfully!</p>
+                <p className="text-green-500 text-sm">Emergency services notified</p>
               </div>
             </div>
           </div>
