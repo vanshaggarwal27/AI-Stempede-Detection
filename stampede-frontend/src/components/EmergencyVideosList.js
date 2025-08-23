@@ -186,17 +186,17 @@ const EmergencyVideosList = () => {
 
       {/* Emergency Videos List */}
       {emergencyReports.length === 0 ? (
-        <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-600 p-8 shadow-xl text-center">
-          <AlertTriangle className="text-gray-500 mx-auto mb-4" size={64} />
-          <h3 className="text-white font-bold text-lg mb-2">No Emergency Videos</h3>
-          <p className="text-gray-400 mb-4">
-            {allReports.length === 0 
+        <div className="bg-white/90 backdrop-blur-md rounded-xl border border-yellow-200 p-8 shadow-xl text-center">
+          <AlertTriangle className="text-gray-400 mx-auto mb-4" size={64} />
+          <h3 className="text-gray-800 font-bold text-lg mb-2">No Emergency Videos</h3>
+          <p className="text-gray-600 mb-4">
+            {allReports.length === 0
               ? 'No SOS videos have been uploaded yet.'
               : `${allReports.length} videos uploaded, but none classified as emergencies by AI.`
             }
           </p>
           {allReports.filter(r => !r.geminiAnalysis).length > 0 && (
-            <p className="text-blue-400 text-sm">
+            <p className="text-yellow-600 text-sm">
               {allReports.filter(r => !r.geminiAnalysis).length} videos pending analysis.
             </p>
           )}
