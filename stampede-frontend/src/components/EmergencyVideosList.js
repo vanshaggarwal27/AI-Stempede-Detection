@@ -1,7 +1,7 @@
 // EmergencyVideosList.js - Display only emergency videos from Gemini analysis
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, Play, MapPin, Clock, Shield, Phone, Bot, RefreshCw } from 'lucide-react';
-import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { AlertTriangle, MapPin, Clock, Shield, Phone, Bot, RefreshCw } from 'lucide-react';
+import { collection, onSnapshot, query } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { analyzeVideoWithGemini, batchAnalyzeVideos } from '../services/geminiAnalysis';
 
@@ -10,7 +10,6 @@ const EmergencyVideosList = () => {
   const [allReports, setAllReports] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
-  const [selectedVideo, setSelectedVideo] = useState(null);
 
   useEffect(() => {
     // Listen to all SOS alerts for real-time updates

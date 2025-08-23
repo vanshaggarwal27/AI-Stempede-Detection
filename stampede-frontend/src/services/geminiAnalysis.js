@@ -1,5 +1,5 @@
 // geminiAnalysis.js - Gemini API Integration for Emergency Video Analysis
-import { doc, updateDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { doc, updateDoc, addDoc, collection, serverTimestamp, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
 // Gemini API configuration
@@ -322,8 +322,10 @@ export const getAnalysisStats = async () => {
   }
 };
 
-export default {
+const geminiService = {
   analyzeVideoWithGemini,
   batchAnalyzeVideos,
   getAnalysisStats
 };
+
+export default geminiService;
