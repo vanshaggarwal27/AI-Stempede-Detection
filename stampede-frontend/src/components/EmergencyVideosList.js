@@ -52,7 +52,7 @@ const EmergencyVideosList = () => {
       setAllReports(sortedAll);
       setIsLoading(false);
 
-      console.log(`�� Emergency Reports: ${sortedEmergencies.length}/${sortedAll.length} videos`);
+      console.log(`📊 Emergency Reports: ${sortedEmergencies.length}/${sortedAll.length} videos`);
     });
 
     return () => unsubscribe();
@@ -145,26 +145,26 @@ const EmergencyVideosList = () => {
   return (
     <div className="space-y-6">
       {/* Header with Controls */}
-      <div className="bg-black/40 backdrop-blur-md rounded-xl border border-red-500/50 p-6 shadow-xl">
+      <div className="bg-white/90 backdrop-blur-md rounded-xl border border-red-200 p-6 shadow-xl">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <AlertTriangle className="text-red-400" size={24} />
+            <AlertTriangle className="text-red-500" size={24} />
             <div>
-              <h2 className="text-white font-bold text-xl">Emergency Videos</h2>
-              <p className="text-red-300 text-sm">AI-Verified Emergency Situations Only</p>
+              <h2 className="text-gray-800 font-bold text-xl">Emergency Videos</h2>
+              <p className="text-red-600 text-sm">AI-Verified Emergency Situations Only</p>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-3">
-            <div className="bg-red-600/20 border border-red-500/30 rounded-lg px-3 py-2">
-              <span className="text-red-400 font-bold text-lg">{emergencyReports.length}</span>
-              <span className="text-red-300 text-xs ml-1">Active</span>
+            <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              <span className="text-red-600 font-bold text-lg">{emergencyReports.length}</span>
+              <span className="text-red-500 text-xs ml-1">Active</span>
             </div>
-            
+
             <button
               onClick={handleAnalyzeAll}
               disabled={analyzing}
-              className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg transition-colors"
+              className="flex items-center space-x-2 bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg transition-colors"
             >
               <Bot size={16} />
               <span>{analyzing ? 'Analyzing...' : 'Analyze All'}</span>
@@ -174,12 +174,12 @@ const EmergencyVideosList = () => {
 
         <div className="flex items-center space-x-4 text-sm">
           <div className="flex items-center space-x-2">
-            <Bot className="text-blue-400" size={16} />
-            <span className="text-gray-300">Powered by Google Gemini AI</span>
+            <Bot className="text-yellow-600" size={16} />
+            <span className="text-gray-600">Powered by Google Gemini AI</span>
           </div>
           <div className="flex items-center space-x-2">
-            <Shield className="text-green-400" size={16} />
-            <span className="text-gray-300">Real-time Analysis</span>
+            <Shield className="text-green-600" size={16} />
+            <span className="text-gray-600">Real-time Analysis</span>
           </div>
         </div>
       </div>
