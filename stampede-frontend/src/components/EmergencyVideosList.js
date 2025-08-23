@@ -298,8 +298,8 @@ const EmergencyVideosList = () => {
                   </div>
 
                   {/* Message */}
-                  <div className="bg-gray-800/40 rounded-lg p-3">
-                    <p className="text-white text-sm">
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                    <p className="text-gray-800 text-sm">
                       <strong>Report:</strong> {report.message || 'No additional message provided'}
                     </p>
                   </div>
@@ -309,7 +309,7 @@ const EmergencyVideosList = () => {
                     <button
                       onClick={() => window.open(`https://maps.google.com/maps?q=${report.location?.latitude},${report.location?.longitude}`, '_blank')}
                       disabled={!report.location?.latitude}
-                      className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-3 py-2 rounded-lg text-sm transition-colors"
+                      className="flex items-center space-x-2 bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-3 py-2 rounded-lg text-sm transition-colors"
                     >
                       <MapPin size={14} />
                       <span>View Location</span>
@@ -318,7 +318,7 @@ const EmergencyVideosList = () => {
                     <button
                       onClick={() => handleAnalyzeSingle(report)}
                       disabled={analyzing || report.geminiAnalysis}
-                      className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-3 py-2 rounded-lg text-sm transition-colors"
+                      className="flex items-center space-x-2 bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-3 py-2 rounded-lg text-sm transition-colors"
                     >
                       <Bot size={14} />
                       <span>{report.geminiAnalysis ? 'Analyzed' : 'Re-analyze'}</span>
@@ -327,7 +327,7 @@ const EmergencyVideosList = () => {
                     <div className="flex-1"></div>
                     
                     <div className="text-right">
-                      <p className="text-gray-500 text-xs">
+                      <p className="text-gray-600 text-xs">
                         Analyzed: {report.geminiAnalysis?.analyzedAt?.toDate().toLocaleString() || 'Processing...'}
                       </p>
                     </div>
