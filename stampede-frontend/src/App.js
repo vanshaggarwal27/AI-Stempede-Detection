@@ -5,6 +5,8 @@ import * as tf from '@tensorflow/tfjs';
 import { Camera, Loader2, AlertTriangle, CheckCircle, WifiOff, XCircle, Users, EyeOff, Activity, Shield, Bell } from 'lucide-react';
 import { listenToSOSReports, testFirestoreConnection } from './firebase/config';
 import CreateAlertForm from './components/CreateAlertForm';
+import VideoCounter from './components/VideoCounter';
+import EmergencyVideosList from './components/EmergencyVideosList';
 
 function App() {
   const webcamRef = useRef(null);
@@ -562,16 +564,37 @@ function App() {
           </div>
         ) : (
           /* SOS Alerts System */
-          <div className="w-full max-w-6xl">
-            <div className="text-center py-16">
-              <Bell size={64} className="text-blue-400 mx-auto mb-6" />
-              <h2 className="text-3xl font-bold text-white mb-4">SOS Emergency System</h2>
-              <p className="text-blue-300 text-lg mb-6">Emergency Management Dashboard</p>
-              <div className="bg-black/40 backdrop-blur-md rounded-xl border border-red-500/50 p-6 max-w-md mx-auto">
-                <p className="text-red-300 font-bold mb-3">🚨 Emergency Response Center</p>
-                <p className="text-gray-300 text-sm">Real-time SOS alert monitoring and emergency dispatch system</p>
-                <p className="text-gray-400 text-xs mt-3">Firebase integration active • WhatsApp notifications enabled</p>
+          <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Sidebar with Video Counter */}
+            <div className="lg:col-span-1 space-y-6">
+              <VideoCounter />
+
+              {/* System Info */}
+              <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-600 p-4 shadow-xl">
+                <div className="flex items-center space-x-2 mb-3">
+                  <Shield className="text-blue-400" size={20} />
+                  <h3 className="text-white font-bold text-sm">AI Analysis</h3>
+                </div>
+                <div className="space-y-2 text-xs">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span className="text-gray-300">Gemini AI Active</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                    <span className="text-gray-300">Real-time Processing</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                    <span className="text-gray-300">Emergency Detection</span>
+                  </div>
+                </div>
               </div>
+            </div>
+
+            {/* Main Content - Emergency Videos */}
+            <div className="lg:col-span-3">
+              <EmergencyVideosList />
             </div>
           </div>
         )}
