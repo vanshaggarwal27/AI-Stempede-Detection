@@ -270,12 +270,12 @@ const EmergencyVideosList = () => {
 
                   {/* Location & Contact */}
                   <div className="grid md:grid-cols-2 gap-4">
-                    <div className="bg-gray-800/40 rounded-lg p-3">
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                       <div className="flex items-center space-x-2 mb-2">
-                        <MapPin className="text-cyan-400" size={16} />
-                        <span className="text-cyan-400 font-bold text-sm">Location</span>
+                        <MapPin className="text-cyan-600" size={16} />
+                        <span className="text-cyan-700 font-bold text-sm">Location</span>
                       </div>
-                      <p className="text-gray-300 text-sm">
+                      <p className="text-gray-700 text-sm">
                         {report.location?.address || 'Location not available'}
                       </p>
                       {report.location?.latitude && report.location?.longitude && (
@@ -285,12 +285,12 @@ const EmergencyVideosList = () => {
                       )}
                     </div>
 
-                    <div className="bg-gray-800/40 rounded-lg p-3">
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                       <div className="flex items-center space-x-2 mb-2">
-                        <Phone className="text-green-400" size={16} />
-                        <span className="text-green-400 font-bold text-sm">Reporter</span>
+                        <Phone className="text-green-600" size={16} />
+                        <span className="text-green-700 font-bold text-sm">Reporter</span>
                       </div>
-                      <p className="text-gray-300 text-sm">
+                      <p className="text-gray-700 text-sm">
                         User {report.userId?.slice(-4) || 'Anonymous'}
                       </p>
                       <p className="text-gray-500 text-xs mt-1">Emergency Contact Available</p>
