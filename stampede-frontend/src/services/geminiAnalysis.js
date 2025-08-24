@@ -146,7 +146,12 @@ const videoToBase64 = async (videoUrl) => {
   } catch (error) {
     console.error('❌ Error converting video to base64:', error);
 
-    // Provide more specific error messages for backend proxy approach
+    // Handle CORS fallback case - preserve the exact error message
+    if (error.message === 'CORS_FALLBACK_NEEDED') {
+      throw error; // Re-throw without modification
+    }
+
+    // Provide more specific error messages for other cases
     if (error.name === 'AbortError') {
       throw new Error('Video download timeout - video took too long to download (>60s)');
     } else if (error.message.includes('Backend proxy error')) {
