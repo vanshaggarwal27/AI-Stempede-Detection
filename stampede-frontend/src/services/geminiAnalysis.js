@@ -24,50 +24,49 @@ Respond ONLY with a single valid JSON object following this exact structure. If 
 }`;
 
 /**
- * Convert video file to base64 for Gemini API
+ * Extract Firebase Storage path from URL
+ */
+const extractStoragePath = (url) => {
+  try {
+    // Firebase Storage URL format: https://firebasestorage.googleapis.com/v0/b/{bucket}/o/{path}?alt=media&token={token}
+    const urlObj = new URL(url);
+    const pathMatch = urlObj.pathname.match(/\/o\/(.+)$/);
+    if (pathMatch) {
+      return decodeURIComponent(pathMatch[1]);
+    }
+    throw new Error('Invalid Firebase Storage URL format');
+  } catch (error) {
+    throw new Error(`Failed to parse Firebase Storage URL: ${error.message}`);
+  }
+};
+
+/**
+ * Convert video file to base64 for Gemini API using Firebase Storage SDK
  */
 const videoToBase64 = async (videoUrl) => {
   try {
     console.log('🎥 Converting video to base64 for Gemini analysis...');
     console.log('📹 Video URL:', videoUrl);
 
-    // Add timeout and proper fetch options
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    // Extract storage path from Firebase URL
+    const storagePath = extractStoragePath(videoUrl);
+    console.log('📁 Storage path:', storagePath);
 
-    const response = await fetch(videoUrl, {
-      method: 'GET',
-      mode: 'cors',
-      headers: {
-        'Accept': 'video/mp4,video/*,*/*',
-        'Origin': window.location.origin
-      },
-      credentials: 'omit',
-      signal: controller.signal
-    });
+    // Get Firebase Storage reference
+    const storage = getStorage();
+    const videoRef = ref(storage, storagePath);
 
-    clearTimeout(timeoutId);
+    console.log('⬇️ Downloading video using Firebase Storage SDK...');
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch video: ${response.status} ${response.statusText}. URL: ${videoUrl}`);
+    // Use Firebase Storage SDK to get bytes - this handles auth and CORS properly
+    const uint8Array = await getBytes(videoRef);
+
+    const sizeMB = (uint8Array.length / 1024 / 1024);
+    console.log(`📦 Video size: ${sizeMB.toFixed(2)} MB`);
+
+    if (sizeMB > 50) { // Limit to 50MB
+      throw new Error(`Video too large: ${sizeMB.toFixed(2)} MB. Maximum allowed: 50 MB`);
     }
-
-    // Check content length
-    const contentLength = response.headers.get('content-length');
-    if (contentLength) {
-      const sizeMB = parseInt(contentLength) / (1024 * 1024);
-      console.log(`📊 Video size: ${sizeMB.toFixed(2)} MB`);
-
-      if (sizeMB > 50) { // Limit to 50MB
-        throw new Error(`Video too large: ${sizeMB.toFixed(2)} MB. Maximum allowed: 50 MB`);
-      }
-    }
-
-    const blob = await response.blob();
-    console.log(`📦 Blob size: ${(blob.size / 1024 / 1024).toFixed(2)} MB`);
-
-    const arrayBuffer = await blob.arrayBuffer();
-    const uint8Array = new Uint8Array(arrayBuffer);
 
     // Convert to base64
     let binary = '';
@@ -76,11 +75,11 @@ const videoToBase64 = async (videoUrl) => {
     });
 
     const base64Video = btoa(binary);
-    const sizeMB = (base64Video.length / 1024 / 1024);
-    console.log(`✅ Video converted to base64 (${sizeMB.toFixed(2)} MB)`);
+    const base64SizeMB = (base64Video.length / 1024 / 1024);
+    console.log(`✅ Video converted to base64 (${base64SizeMB.toFixed(2)} MB)`);
 
-    if (sizeMB > 20) { // Gemini has size limits
-      throw new Error(`Base64 video too large: ${sizeMB.toFixed(2)} MB. Gemini API limit exceeded.`);
+    if (base64SizeMB > 20) { // Gemini has size limits
+      throw new Error(`Base64 video too large: ${base64SizeMB.toFixed(2)} MB. Gemini API limit exceeded.`);
     }
 
     return base64Video;
