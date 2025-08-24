@@ -24,49 +24,56 @@ Respond ONLY with a single valid JSON object following this exact structure. If 
 }`;
 
 /**
- * Extract Firebase Storage path from URL
- */
-const extractStoragePath = (url) => {
-  try {
-    // Firebase Storage URL format: https://firebasestorage.googleapis.com/v0/b/{bucket}/o/{path}?alt=media&token={token}
-    const urlObj = new URL(url);
-    const pathMatch = urlObj.pathname.match(/\/o\/(.+)$/);
-    if (pathMatch) {
-      return decodeURIComponent(pathMatch[1]);
-    }
-    throw new Error('Invalid Firebase Storage URL format');
-  } catch (error) {
-    throw new Error(`Failed to parse Firebase Storage URL: ${error.message}`);
-  }
-};
-
-/**
- * Convert video file to base64 for Gemini API using Firebase Storage SDK
+ * Convert video file to base64 for Gemini API using backend proxy to avoid CORS
  */
 const videoToBase64 = async (videoUrl) => {
   try {
     console.log('🎥 Converting video to base64 for Gemini analysis...');
     console.log('📹 Video URL:', videoUrl);
 
-    // Extract storage path from Firebase URL
-    const storagePath = extractStoragePath(videoUrl);
-    console.log('📁 Storage path:', storagePath);
+    // Use backend proxy to avoid CORS issues
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+    const proxyUrl = `${backendUrl}/api/proxy/video?url=${encodeURIComponent(videoUrl)}`;
 
-    // Get Firebase Storage reference
-    const storage = getStorage();
-    const videoRef = ref(storage, storagePath);
+    console.log('🔄 Fetching video through backend proxy...');
+    console.log('🌐 Proxy URL:', proxyUrl);
 
-    console.log('⬇️ Downloading video using Firebase Storage SDK...');
+    // Add timeout for the request
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
 
-    // Use Firebase Storage SDK to get bytes - this handles auth and CORS properly
-    const uint8Array = await getBytes(videoRef);
+    const response = await fetch(proxyUrl, {
+      method: 'GET',
+      signal: controller.signal,
+      headers: {
+        'Accept': 'video/mp4,video/*,*/*',
+      }
+    });
 
-    const sizeMB = (uint8Array.length / 1024 / 1024);
-    console.log(`📦 Video size: ${sizeMB.toFixed(2)} MB`);
+    clearTimeout(timeoutId);
 
-    if (sizeMB > 50) { // Limit to 50MB
-      throw new Error(`Video too large: ${sizeMB.toFixed(2)} MB. Maximum allowed: 50 MB`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Proxy response error:', response.status, errorText);
+      throw new Error(`Backend proxy error: ${response.status} - ${errorText}`);
     }
+
+    // Check content length
+    const contentLength = response.headers.get('content-length');
+    if (contentLength) {
+      const sizeMB = parseInt(contentLength) / (1024 * 1024);
+      console.log(`📊 Video size: ${sizeMB.toFixed(2)} MB`);
+
+      if (sizeMB > 50) { // Limit to 50MB
+        throw new Error(`Video too large: ${sizeMB.toFixed(2)} MB. Maximum allowed: 50 MB`);
+      }
+    }
+
+    const blob = await response.blob();
+    console.log(`📦 Blob size: ${(blob.size / 1024 / 1024).toFixed(2)} MB`);
+
+    const arrayBuffer = await blob.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
 
     // Convert to base64
     let binary = '';
