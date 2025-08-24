@@ -234,20 +234,43 @@ export const analyzeVideoWithGemini = async (videoUrl, reportId) => {
 
   } catch (error) {
     console.error('❌ Gemini video analysis failed:', error);
-    
+
+    // Categorize the error for better debugging
+    let errorMessage = error.message;
+    let errorCategory = 'unknown';
+
+    if (error.message.includes('Failed to fetch')) {
+      errorCategory = 'network';
+      errorMessage = `Network error: ${error.message}. This could be due to internet connectivity, API access issues, or CORS problems.`;
+    } else if (error.message.includes('API key')) {
+      errorCategory = 'authentication';
+      errorMessage = `API authentication error: ${error.message}`;
+    } else if (error.message.includes('timeout')) {
+      errorCategory = 'timeout';
+      errorMessage = `Request timeout: ${error.message}`;
+    } else if (error.message.includes('too large')) {
+      errorCategory = 'file_size';
+      errorMessage = `File size error: ${error.message}`;
+    }
+
+    console.error(`❌ Error category: ${errorCategory}`);
+    console.error(`❌ Error details: ${errorMessage}`);
+
     // Save failed analysis to Firebase for tracking
     await saveAnalysisToFirebase(reportId, {
       is_emergency: false,
-      reason: `Analysis failed: ${error.message}`,
+      reason: `Analysis failed: ${errorMessage}`,
       primary_service: null,
       confidence: null,
       error: true,
-      error_message: error.message
+      error_message: errorMessage,
+      error_category: errorCategory
     }, videoUrl);
 
     return {
       success: false,
-      error: error.message,
+      error: errorMessage,
+      errorCategory: errorCategory,
       reportId: reportId
     };
   }
