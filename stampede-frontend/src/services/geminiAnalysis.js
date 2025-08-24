@@ -30,7 +30,10 @@ const videoToBase64 = async (videoUrl) => {
     console.log('🎥 Converting video to base64 for Gemini analysis...');
     console.log('📹 Video URL:', videoUrl);
 
-    // Add CORS headers and proper fetch options
+    // Add timeout and proper fetch options
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
     const response = await fetch(videoUrl, {
       method: 'GET',
       mode: 'cors',
@@ -38,26 +41,47 @@ const videoToBase64 = async (videoUrl) => {
         'Accept': 'video/mp4,video/*,*/*',
         'Origin': window.location.origin
       },
-      credentials: 'omit'
+      credentials: 'omit',
+      signal: controller.signal
     });
 
+    clearTimeout(timeoutId);
+
     if (!response.ok) {
-      throw new Error(`Failed to fetch video: ${response.status} ${response.statusText}`);
+      throw new Error(`Failed to fetch video: ${response.status} ${response.statusText}. URL: ${videoUrl}`);
     }
-    
+
+    // Check content length
+    const contentLength = response.headers.get('content-length');
+    if (contentLength) {
+      const sizeMB = parseInt(contentLength) / (1024 * 1024);
+      console.log(`📊 Video size: ${sizeMB.toFixed(2)} MB`);
+
+      if (sizeMB > 50) { // Limit to 50MB
+        throw new Error(`Video too large: ${sizeMB.toFixed(2)} MB. Maximum allowed: 50 MB`);
+      }
+    }
+
     const blob = await response.blob();
+    console.log(`📦 Blob size: ${(blob.size / 1024 / 1024).toFixed(2)} MB`);
+
     const arrayBuffer = await blob.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
-    
+
     // Convert to base64
     let binary = '';
     uint8Array.forEach(byte => {
       binary += String.fromCharCode(byte);
     });
-    
+
     const base64Video = btoa(binary);
-    console.log(`✅ Video converted to base64 (${(base64Video.length / 1024 / 1024).toFixed(2)} MB)`);
-    
+    const sizeMB = (base64Video.length / 1024 / 1024);
+    console.log(`✅ Video converted to base64 (${sizeMB.toFixed(2)} MB)`);
+
+    if (sizeMB > 20) { // Gemini has size limits
+      throw new Error(`Base64 video too large: ${sizeMB.toFixed(2)} MB. Gemini API limit exceeded.`);
+    }
+
     return base64Video;
   } catch (error) {
     console.error('❌ Error converting video to base64:', error);
