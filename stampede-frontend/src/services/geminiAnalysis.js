@@ -1,5 +1,6 @@
 // geminiAnalysis.js - Gemini API Integration for Emergency Video Analysis
 import { doc, updateDoc, addDoc, collection, serverTimestamp, getDocs } from 'firebase/firestore';
+import { getStorage, ref, getBytes } from 'firebase/storage';
 import { db } from '../firebase/config';
 
 // Gemini API configuration
