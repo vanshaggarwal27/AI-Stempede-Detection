@@ -28,10 +28,21 @@ Respond ONLY with a single valid JSON object following this exact structure. If 
 const videoToBase64 = async (videoUrl) => {
   try {
     console.log('🎥 Converting video to base64 for Gemini analysis...');
-    
-    const response = await fetch(videoUrl);
+    console.log('📹 Video URL:', videoUrl);
+
+    // Add CORS headers and proper fetch options
+    const response = await fetch(videoUrl, {
+      method: 'GET',
+      mode: 'cors',
+      headers: {
+        'Accept': 'video/mp4,video/*,*/*',
+        'Origin': window.location.origin
+      },
+      credentials: 'omit'
+    });
+
     if (!response.ok) {
-      throw new Error(`Failed to fetch video: ${response.statusText}`);
+      throw new Error(`Failed to fetch video: ${response.status} ${response.statusText}`);
     }
     
     const blob = await response.blob();
