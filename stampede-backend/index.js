@@ -5,6 +5,8 @@ const express = require('express');
 const bodyParser = require('body-parser'); // To parse JSON bodies
 const cors = require('cors'); // To handle CORS for frontend communication
 const twilio = require('twilio');
+const https = require('https');
+const http = require('http');
 
 const app = express();
 const port = process.env.PORT || 5000; // Use port 5000 for backend
