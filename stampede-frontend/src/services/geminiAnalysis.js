@@ -86,22 +86,21 @@ const videoToBase64 = async (videoUrl) => {
   } catch (error) {
     console.error('❌ Error converting video to base64:', error);
 
-    // Provide more specific error messages
-    if (error.name === 'AbortError') {
-      throw new Error('Video fetch timeout - video download took too long (>30s)');
-    } else if (error.message.includes('Failed to fetch')) {
-      throw new Error(`Network error fetching video. This could be due to:
-        1. CORS restrictions on Firebase Storage
-        2. Network connectivity issues
-        3. Invalid video URL
-        4. Video file is too large or corrupted
-
-        Original error: ${error.message}
-        Video URL: ${videoUrl}`);
+    // Provide more specific error messages for Firebase Storage SDK
+    if (error.code === 'storage/object-not-found') {
+      throw new Error(`Video not found in Firebase Storage: ${videoUrl}`);
+    } else if (error.code === 'storage/unauthorized') {
+      throw new Error(`Unauthorized access to video. Check Firebase Storage security rules: ${videoUrl}`);
+    } else if (error.code === 'storage/canceled') {
+      throw new Error('Video download was canceled');
+    } else if (error.code === 'storage/unknown') {
+      throw new Error(`Unknown Firebase Storage error: ${error.message}`);
     } else if (error.message.includes('too large')) {
       throw new Error(error.message);
+    } else if (error.message.includes('Firebase Storage URL')) {
+      throw new Error(`Invalid Firebase Storage URL format: ${videoUrl}`);
     } else {
-      throw new Error(`Video processing failed: ${error.message}`);
+      throw new Error(`Video processing failed: ${error.message}. URL: ${videoUrl}`);
     }
   }
 };
