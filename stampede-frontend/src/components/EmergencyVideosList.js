@@ -123,20 +123,20 @@ const EmergencyVideosList = () => {
 
   const getConfidenceColor = (confidence) => {
     switch (confidence) {
-      case 'High': return 'text-green-400 bg-green-500/20 border-green-500/30';
-      case 'Medium': return 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30';
-      case 'Low': return 'text-orange-400 bg-orange-500/20 border-orange-500/30';
-      default: return 'text-gray-400 bg-gray-500/20 border-gray-500/30';
+      case 'High': return 'text-green-600 bg-green-50 border-green-200';
+      case 'Medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+      case 'Low': return 'text-orange-600 bg-orange-50 border-orange-200';
+      default: return 'text-gray-600 bg-gray-50 border-gray-200';
     }
   };
 
   if (isLoading) {
     return (
-      <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-600 p-6 shadow-xl">
+      <div className="bg-white/90 backdrop-blur-md rounded-xl border border-yellow-200 p-6 shadow-xl">
         <div className="text-center py-8">
-          <RefreshCw className="text-blue-400 mx-auto mb-4 animate-spin" size={48} />
-          <p className="text-white text-lg font-bold mb-2">Loading Emergency Videos</p>
-          <p className="text-gray-400">Connecting to Firebase...</p>
+          <RefreshCw className="text-yellow-500 mx-auto mb-4 animate-spin" size={48} />
+          <p className="text-gray-800 text-lg font-bold mb-2">Loading Emergency Videos</p>
+          <p className="text-gray-600">Connecting to Firebase...</p>
         </div>
       </div>
     );
@@ -145,26 +145,26 @@ const EmergencyVideosList = () => {
   return (
     <div className="space-y-6">
       {/* Header with Controls */}
-      <div className="bg-black/40 backdrop-blur-md rounded-xl border border-red-500/50 p-6 shadow-xl">
+      <div className="bg-white/90 backdrop-blur-md rounded-xl border border-red-200 p-6 shadow-xl">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <AlertTriangle className="text-red-400" size={24} />
+            <AlertTriangle className="text-red-500" size={24} />
             <div>
-              <h2 className="text-white font-bold text-xl">Emergency Videos</h2>
-              <p className="text-red-300 text-sm">AI-Verified Emergency Situations Only</p>
+              <h2 className="text-gray-800 font-bold text-xl">Emergency Videos</h2>
+              <p className="text-red-600 text-sm">AI-Verified Emergency Situations Only</p>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-3">
-            <div className="bg-red-600/20 border border-red-500/30 rounded-lg px-3 py-2">
-              <span className="text-red-400 font-bold text-lg">{emergencyReports.length}</span>
-              <span className="text-red-300 text-xs ml-1">Active</span>
+            <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              <span className="text-red-600 font-bold text-lg">{emergencyReports.length}</span>
+              <span className="text-red-500 text-xs ml-1">Active</span>
             </div>
-            
+
             <button
               onClick={handleAnalyzeAll}
               disabled={analyzing}
-              className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg transition-colors"
+              className="flex items-center space-x-2 bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg transition-colors"
             >
               <Bot size={16} />
               <span>{analyzing ? 'Analyzing...' : 'Analyze All'}</span>
@@ -174,29 +174,29 @@ const EmergencyVideosList = () => {
 
         <div className="flex items-center space-x-4 text-sm">
           <div className="flex items-center space-x-2">
-            <Bot className="text-blue-400" size={16} />
-            <span className="text-gray-300">Powered by Google Gemini AI</span>
+            <Bot className="text-yellow-600" size={16} />
+            <span className="text-gray-600">Powered by Google Gemini AI</span>
           </div>
           <div className="flex items-center space-x-2">
-            <Shield className="text-green-400" size={16} />
-            <span className="text-gray-300">Real-time Analysis</span>
+            <Shield className="text-green-600" size={16} />
+            <span className="text-gray-600">Real-time Analysis</span>
           </div>
         </div>
       </div>
 
       {/* Emergency Videos List */}
       {emergencyReports.length === 0 ? (
-        <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-600 p-8 shadow-xl text-center">
-          <AlertTriangle className="text-gray-500 mx-auto mb-4" size={64} />
-          <h3 className="text-white font-bold text-lg mb-2">No Emergency Videos</h3>
-          <p className="text-gray-400 mb-4">
-            {allReports.length === 0 
+        <div className="bg-white/90 backdrop-blur-md rounded-xl border border-yellow-200 p-8 shadow-xl text-center">
+          <AlertTriangle className="text-gray-400 mx-auto mb-4" size={64} />
+          <h3 className="text-gray-800 font-bold text-lg mb-2">No Emergency Videos</h3>
+          <p className="text-gray-600 mb-4">
+            {allReports.length === 0
               ? 'No SOS videos have been uploaded yet.'
               : `${allReports.length} videos uploaded, but none classified as emergencies by AI.`
             }
           </p>
           {allReports.filter(r => !r.geminiAnalysis).length > 0 && (
-            <p className="text-blue-400 text-sm">
+            <p className="text-yellow-600 text-sm">
               {allReports.filter(r => !r.geminiAnalysis).length} videos pending analysis.
             </p>
           )}
@@ -204,9 +204,9 @@ const EmergencyVideosList = () => {
       ) : (
         <div className="grid gap-6">
           {emergencyReports.map((report) => (
-            <div 
-              key={report.id} 
-              className="bg-black/40 backdrop-blur-md rounded-xl border border-red-500/30 p-6 shadow-xl hover:border-red-400/50 transition-colors"
+            <div
+              key={report.id}
+              className="bg-white/90 backdrop-blur-md rounded-xl border border-red-200 p-6 shadow-xl hover:border-red-300 transition-colors"
             >
               <div className="grid lg:grid-cols-3 gap-6">
                 {/* Video Player */}
@@ -234,34 +234,34 @@ const EmergencyVideosList = () => {
                   {/* Header */}
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="text-white font-bold text-lg mb-1">
+                      <h3 className="text-gray-800 font-bold text-lg mb-1">
                         Emergency Report #{report.id.slice(-6)}
                       </h3>
-                      <p className="text-gray-400 text-sm flex items-center">
+                      <p className="text-gray-600 text-sm flex items-center">
                         <Clock size={14} className="mr-1" />
                         {formatTimestamp(report.createdAt)}
                       </p>
                     </div>
-                    
+
                     {report.geminiAnalysis?.primary_service && (
-                      <div className="flex items-center space-x-2 bg-red-600/20 border border-red-500/30 rounded-lg px-3 py-2">
+                      <div className="flex items-center space-x-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
                         <span className="text-lg">{getServiceIcon(report.geminiAnalysis.primary_service)}</span>
-                        <span className="text-red-300 font-bold text-sm">{report.geminiAnalysis.primary_service}</span>
+                        <span className="text-red-600 font-bold text-sm">{report.geminiAnalysis.primary_service}</span>
                       </div>
                     )}
                   </div>
 
                   {/* AI Analysis */}
-                  <div className="bg-blue-600/10 border border-blue-500/20 rounded-lg p-4">
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                     <div className="flex items-center space-x-2 mb-2">
-                      <Bot className="text-blue-400" size={16} />
-                      <span className="text-blue-400 font-bold text-sm">Gemini AI Analysis</span>
+                      <Bot className="text-yellow-600" size={16} />
+                      <span className="text-yellow-700 font-bold text-sm">Gemini AI Analysis</span>
                     </div>
-                    <p className="text-white text-sm mb-2">"{report.geminiAnalysis?.reason}"</p>
-                    
+                    <p className="text-gray-800 text-sm mb-2">"{report.geminiAnalysis?.reason}"</p>
+
                     <div className="flex items-center space-x-4 text-xs">
-                      <span className="text-green-400">✅ Verified Emergency</span>
-                      <span className="text-blue-400">Service: {report.geminiAnalysis?.primary_service}</span>
+                      <span className="text-green-600">✅ Verified Emergency</span>
+                      <span className="text-yellow-600">Service: {report.geminiAnalysis?.primary_service}</span>
                       <span className={`${getConfidenceColor(report.geminiAnalysis?.confidence).split(' ')[0]}`}>
                         Confidence: {report.geminiAnalysis?.confidence}
                       </span>
@@ -270,12 +270,12 @@ const EmergencyVideosList = () => {
 
                   {/* Location & Contact */}
                   <div className="grid md:grid-cols-2 gap-4">
-                    <div className="bg-gray-800/40 rounded-lg p-3">
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                       <div className="flex items-center space-x-2 mb-2">
-                        <MapPin className="text-cyan-400" size={16} />
-                        <span className="text-cyan-400 font-bold text-sm">Location</span>
+                        <MapPin className="text-cyan-600" size={16} />
+                        <span className="text-cyan-700 font-bold text-sm">Location</span>
                       </div>
-                      <p className="text-gray-300 text-sm">
+                      <p className="text-gray-700 text-sm">
                         {report.location?.address || 'Location not available'}
                       </p>
                       {report.location?.latitude && report.location?.longitude && (
@@ -285,12 +285,12 @@ const EmergencyVideosList = () => {
                       )}
                     </div>
 
-                    <div className="bg-gray-800/40 rounded-lg p-3">
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                       <div className="flex items-center space-x-2 mb-2">
-                        <Phone className="text-green-400" size={16} />
-                        <span className="text-green-400 font-bold text-sm">Reporter</span>
+                        <Phone className="text-green-600" size={16} />
+                        <span className="text-green-700 font-bold text-sm">Reporter</span>
                       </div>
-                      <p className="text-gray-300 text-sm">
+                      <p className="text-gray-700 text-sm">
                         User {report.userId?.slice(-4) || 'Anonymous'}
                       </p>
                       <p className="text-gray-500 text-xs mt-1">Emergency Contact Available</p>
@@ -298,8 +298,8 @@ const EmergencyVideosList = () => {
                   </div>
 
                   {/* Message */}
-                  <div className="bg-gray-800/40 rounded-lg p-3">
-                    <p className="text-white text-sm">
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                    <p className="text-gray-800 text-sm">
                       <strong>Report:</strong> {report.message || 'No additional message provided'}
                     </p>
                   </div>
@@ -309,7 +309,7 @@ const EmergencyVideosList = () => {
                     <button
                       onClick={() => window.open(`https://maps.google.com/maps?q=${report.location?.latitude},${report.location?.longitude}`, '_blank')}
                       disabled={!report.location?.latitude}
-                      className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-3 py-2 rounded-lg text-sm transition-colors"
+                      className="flex items-center space-x-2 bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-3 py-2 rounded-lg text-sm transition-colors"
                     >
                       <MapPin size={14} />
                       <span>View Location</span>
@@ -318,7 +318,7 @@ const EmergencyVideosList = () => {
                     <button
                       onClick={() => handleAnalyzeSingle(report)}
                       disabled={analyzing || report.geminiAnalysis}
-                      className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-3 py-2 rounded-lg text-sm transition-colors"
+                      className="flex items-center space-x-2 bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-3 py-2 rounded-lg text-sm transition-colors"
                     >
                       <Bot size={14} />
                       <span>{report.geminiAnalysis ? 'Analyzed' : 'Re-analyze'}</span>
@@ -327,7 +327,7 @@ const EmergencyVideosList = () => {
                     <div className="flex-1"></div>
                     
                     <div className="text-right">
-                      <p className="text-gray-500 text-xs">
+                      <p className="text-gray-600 text-xs">
                         Analyzed: {report.geminiAnalysis?.analyzedAt?.toDate().toLocaleString() || 'Processing...'}
                       </p>
                     </div>

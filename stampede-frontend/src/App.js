@@ -296,19 +296,19 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
+    <div className="min-h-screen bg-gradient-to-br from-white via-yellow-50 to-yellow-100">
       <div className="flex flex-col items-center p-6 min-h-screen">
         {/* Header */}
         <header className="w-full max-w-6xl flex items-center justify-between py-6 px-8 mb-8">
           <div className="flex items-center space-x-4">
-            <div className="p-4 bg-blue-600 rounded-xl shadow-lg">
+            <div className="p-4 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-xl shadow-lg">
               <Shield size={32} className="text-white" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold text-white">
+              <h1 className="text-4xl font-bold text-gray-800">
                 SAFE GUARD
               </h1>
-              <p className="text-blue-300 text-sm font-medium mt-1">
+              <p className="text-gray-600 text-sm font-medium mt-1">
                 AI-Powered Crowd Monitoring & Emergency Response System
               </p>
               
@@ -317,13 +317,13 @@ function App() {
 
           <div className="flex items-center space-x-6">
             {/* Tab Navigation */}
-            <div className="flex items-center space-x-2 bg-black/30 backdrop-blur-md rounded-xl p-2 border border-gray-600">
+            <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-md rounded-xl p-2 border border-yellow-200 shadow-lg">
               <button
                 onClick={() => setActiveTab('monitoring')}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 ${
                   activeTab === 'monitoring'
-                    ? 'bg-blue-600 text-white shadow-lg'
-                    : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                    ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-white shadow-lg'
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-yellow-50'
                 }`}
               >
                 <Activity size={20} />
@@ -334,8 +334,8 @@ function App() {
                 onClick={() => setActiveTab('sos-alerts')}
                 className={`relative flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 ${
                   activeTab === 'sos-alerts'
-                    ? 'bg-red-600 text-white shadow-lg'
-                    : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                    ? 'bg-gradient-to-r from-red-400 to-red-500 text-white shadow-lg'
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-yellow-50'
                 }`}
               >
                 <Bell size={20} />
@@ -355,8 +355,8 @@ function App() {
                 onClick={toggleWebcam}
                 className={`p-4 rounded-2xl backdrop-blur-md transition-all duration-500 transform hover:scale-110 shadow-lg ${
                   webcamEnabled
-                    ? 'bg-gradient-to-r from-red-500 to-red-600 border-2 border-red-300 hover:from-red-600 hover:to-red-700'
-                    : 'bg-gradient-to-r from-green-500 to-green-600 border-2 border-green-300 hover:from-green-600 hover:to-green-700'
+                    ? 'bg-gradient-to-r from-red-400 to-red-500 border-2 border-red-200 hover:from-red-500 hover:to-red-600'
+                    : 'bg-gradient-to-r from-green-400 to-green-500 border-2 border-green-200 hover:from-green-500 hover:to-green-600'
                 }`}
                 title={webcamEnabled ? "Disable Monitoring" : "Enable Monitoring"}
               >
@@ -393,10 +393,10 @@ function App() {
 
                 <div className="relative aspect-video bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg overflow-hidden">
                   {!webcamEnabled ? (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-yellow-50/80">
-                      <Camera size={48} className="text-gray-400 mb-3" />
-                      <p className="text-gray-800 font-bold">CCTV Standby</p>
-                      <p className="text-gray-600 text-xs text-center">Activate monitoring system</p>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-yellow-50">
+                      <Camera size={48} className="text-green-400 mb-3 animate-pulse" />
+                      <p className="text-gray-700 font-bold">CCTV Ready</p>
+                      <p className="text-gray-500 text-xs text-center">Click camera button to start</p>
                     </div>
                   ) : (
                     <div className="relative w-full h-full">
@@ -473,15 +473,15 @@ function App() {
                   </div>
                 </div>
 
-                <div className="relative aspect-video bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg overflow-hidden">
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-yellow-50/80">
-                    <Activity size={48} className="text-gray-400 mb-3" />
-                    <p className="text-gray-800 font-bold">Drone Standby</p>
-                    <p className="text-gray-600 text-xs text-center">Waiting for aerial connection</p>
+                <div className="relative aspect-video bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg overflow-hidden">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <Activity size={48} className="text-purple-400 mb-3 animate-pulse" />
+                    <p className="text-gray-700 font-bold">Drone Feed</p>
+                    <p className="text-gray-500 text-xs text-center">Aerial monitoring ready</p>
                   </div>
                   <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-md rounded-lg p-2 shadow-lg">
                     <div className="text-purple-600 text-xs font-bold">DRONE-01</div>
-                    <div className="text-gray-700 text-xs">Offline</div>
+                    <div className="text-gray-700 text-xs">Ready</div>
                   </div>
                 </div>
 
@@ -513,15 +513,15 @@ function App() {
                   </div>
                 </div>
 
-                <div className="relative aspect-video bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg overflow-hidden">
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-yellow-50/80">
-                    <Shield size={48} className="text-gray-400 mb-3" />
-                    <p className="text-gray-800 font-bold">Satellite Standby</p>
-                    <p className="text-gray-600 text-xs text-center">Connecting to orbital feed</p>
+                <div className="relative aspect-video bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg overflow-hidden">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <Shield size={48} className="text-cyan-400 mb-3 animate-pulse" />
+                    <p className="text-gray-700 font-bold">Satellite Feed</p>
+                    <p className="text-gray-500 text-xs text-center">Global monitoring ready</p>
                   </div>
                   <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-md rounded-lg p-2 shadow-lg">
                     <div className="text-cyan-600 text-xs font-bold">SAT-01</div>
-                    <div className="text-gray-700 text-xs">Syncing...</div>
+                    <div className="text-gray-700 text-xs">Ready</div>
                   </div>
                 </div>
 
@@ -565,7 +565,7 @@ function App() {
               {/* System Status */}
               <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-yellow-200 p-6 shadow-xl transition-all duration-300 hover:shadow-2xl">
                 <h3 className="text-gray-800 font-bold text-sm mb-4 flex items-center">
-                  <Shield className="text-blue-600 mr-2" size={16} />
+                  <Shield className="text-yellow-600 mr-2" size={16} />
                   System Status
                 </h3>
 
@@ -581,21 +581,11 @@ function App() {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600 text-xs font-medium">Firebase</span>
-                    <div className="flex items-center space-x-2">
-                      <div className={`w-2 h-2 rounded-full ${firebaseConnected ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
-                      <span className={`text-xs font-semibold ${firebaseConnected ? 'text-green-600' : 'text-red-600'}`}>
-                        {firebaseConnected ? 'Connected' : 'Disconnected'}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
                     <span className="text-gray-600 text-xs font-medium">Monitoring</span>
                     <div className="flex items-center space-x-2">
-                      <div className={`w-2 h-2 rounded-full ${webcamEnabled ? 'bg-green-500' : 'bg-gray-400'} animate-pulse`}></div>
-                      <span className={`text-xs font-semibold ${webcamEnabled ? 'text-green-600' : 'text-gray-500'}`}>
-                        {webcamEnabled ? 'Active' : 'Standby'}
+                      <div className={`w-2 h-2 rounded-full ${webcamEnabled ? 'bg-green-500' : 'bg-yellow-400'} animate-pulse`}></div>
+                      <span className={`text-xs font-semibold ${webcamEnabled ? 'text-green-600' : 'text-yellow-600'}`}>
+                        {webcamEnabled ? 'Active' : 'Ready'}
                       </span>
                     </div>
                   </div>
@@ -605,7 +595,7 @@ function App() {
               {/* Feed Status */}
               <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-yellow-200 p-6 shadow-xl transition-all duration-300 hover:shadow-2xl">
                 <h3 className="text-gray-800 font-bold text-sm mb-4 flex items-center">
-                  <Activity className="text-green-600 mr-2" size={16} />
+                  <Activity className="text-yellow-600 mr-2" size={16} />
                   Feed Status
                 </h3>
 
@@ -623,16 +613,16 @@ function App() {
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600 text-xs font-medium">Drone</span>
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                      <span className="text-xs font-semibold text-gray-500">OFF</span>
+                      <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></div>
+                      <span className="text-xs font-semibold text-yellow-600">READY</span>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600 text-xs font-medium">Satellite</span>
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                      <span className="text-xs font-semibold text-gray-500">OFF</span>
+                      <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></div>
+                      <span className="text-xs font-semibold text-yellow-600">READY</span>
                     </div>
                   </div>
                 </div>
@@ -641,7 +631,7 @@ function App() {
               {/* Activity Log */}
               <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-yellow-200 p-6 shadow-xl transition-all duration-300 hover:shadow-2xl">
                 <h3 className="text-gray-800 font-bold text-sm mb-4 flex items-center">
-                  <Activity className="text-blue-600 mr-2" size={16} />
+                  <Activity className="text-yellow-600 mr-2" size={16} />
                   Recent Activity
                 </h3>
 
@@ -712,36 +702,36 @@ function App() {
 
         {/* Alert Messages */}
         {alertStatus === 'error' && (
-          <div className="fixed bottom-6 right-6 bg-white/95 backdrop-blur-md border-2 border-red-300 rounded-2xl p-4 shadow-2xl animate-bounce">
+          <div className="fixed bottom-6 right-6 bg-white/98 backdrop-blur-md border-2 border-red-200 rounded-2xl p-4 shadow-xl animate-bounce">
             <div className="flex items-center space-x-3">
-              <XCircle size={24} className="text-red-600" />
+              <XCircle size={24} className="text-red-500" />
               <div>
-                <p className="text-red-700 font-bold">System Error</p>
-                <p className="text-red-600 text-sm">Check console for details</p>
+                <p className="text-red-600 font-bold">System Error</p>
+                <p className="text-red-500 text-sm">Check console for details</p>
               </div>
             </div>
           </div>
         )}
 
         {alertStatus === 'no-webcam' && (
-          <div className="fixed bottom-6 right-6 bg-white/95 backdrop-blur-md border-2 border-yellow-300 rounded-2xl p-4 shadow-2xl animate-bounce">
+          <div className="fixed bottom-6 right-6 bg-white/98 backdrop-blur-md border-2 border-yellow-200 rounded-2xl p-4 shadow-xl animate-bounce">
             <div className="flex items-center space-x-3">
-              <WifiOff size={24} className="text-yellow-600" />
+              <WifiOff size={24} className="text-yellow-500" />
               <div>
-                <p className="text-yellow-700 font-bold">Camera Access Required</p>
-                <p className="text-yellow-600 text-sm">Grant webcam permissions</p>
+                <p className="text-yellow-600 font-bold">Camera Access Required</p>
+                <p className="text-yellow-500 text-sm">Grant webcam permissions</p>
               </div>
             </div>
           </div>
         )}
 
         {alertStatus === 'sent' && (
-          <div className="fixed bottom-6 right-6 bg-white/95 backdrop-blur-md border-2 border-green-300 rounded-2xl p-4 shadow-2xl animate-bounce">
+          <div className="fixed bottom-6 right-6 bg-white/98 backdrop-blur-md border-2 border-green-200 rounded-2xl p-4 shadow-xl animate-bounce">
             <div className="flex items-center space-x-3">
-              <CheckCircle size={24} className="text-green-600" />
+              <CheckCircle size={24} className="text-green-500" />
               <div>
-                <p className="text-green-700 font-bold">Alert Sent Successfully!</p>
-                <p className="text-green-600 text-sm">Emergency services notified</p>
+                <p className="text-green-600 font-bold">Alert Sent Successfully!</p>
+                <p className="text-green-500 text-sm">Emergency services notified</p>
               </div>
             </div>
           </div>
