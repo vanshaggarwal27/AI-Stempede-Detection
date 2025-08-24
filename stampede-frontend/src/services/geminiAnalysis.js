@@ -290,7 +290,25 @@ export const analyzeVideoWithGemini = async (videoUrl, reportId) => {
   } catch (error) {
     console.error('❌ Gemini video analysis failed:', error);
 
-    // Categorize the error for better debugging
+    // Handle CORS fallback case specifically
+    if (error.message === 'CORS_FALLBACK_NEEDED') {
+      console.log('🔄 Using fallback analysis due to CORS restrictions...');
+
+      const fallbackResult = performFallbackAnalysis(videoUrl);
+
+      // Save fallback analysis result to Firebase
+      await saveAnalysisToFirebase(reportId, fallbackResult, videoUrl);
+
+      return {
+        success: true,
+        analysis: fallbackResult,
+        reportId: reportId,
+        usedFallback: true,
+        message: 'Analysis completed using fallback method due to video access restrictions. Manual review recommended.'
+      };
+    }
+
+    // Categorize other errors for better debugging
     let errorMessage = error.message;
     let errorCategory = 'unknown';
 
@@ -310,6 +328,31 @@ export const analyzeVideoWithGemini = async (videoUrl, reportId) => {
 
     console.error(`❌ Error category: ${errorCategory}`);
     console.error(`❌ Error details: ${errorMessage}`);
+
+    // For other errors, try fallback analysis if video processing failed
+    if (errorCategory === 'network' || errorCategory === 'timeout') {
+      console.log('🔄 Attempting fallback analysis due to technical issues...');
+
+      const fallbackResult = performFallbackAnalysis(videoUrl);
+
+      // Save fallback analysis result to Firebase
+      await saveAnalysisToFirebase(reportId, {
+        ...fallbackResult,
+        error: true,
+        error_message: `Primary analysis failed: ${errorMessage}. Used fallback method.`,
+        error_category: errorCategory
+      }, videoUrl);
+
+      return {
+        success: true,
+        analysis: fallbackResult,
+        reportId: reportId,
+        usedFallback: true,
+        error: errorMessage,
+        errorCategory: errorCategory,
+        message: 'Analysis completed using fallback method due to technical issues. Manual review recommended.'
+      };
+    }
 
     // Save failed analysis to Firebase for tracking
     await saveAnalysisToFirebase(reportId, {
