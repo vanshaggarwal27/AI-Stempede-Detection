@@ -92,19 +92,15 @@ const videoToBase64 = async (videoUrl) => {
   } catch (error) {
     console.error('❌ Error converting video to base64:', error);
 
-    // Provide more specific error messages for Firebase Storage SDK
-    if (error.code === 'storage/object-not-found') {
-      throw new Error(`Video not found in Firebase Storage: ${videoUrl}`);
-    } else if (error.code === 'storage/unauthorized') {
-      throw new Error(`Unauthorized access to video. Check Firebase Storage security rules: ${videoUrl}`);
-    } else if (error.code === 'storage/canceled') {
-      throw new Error('Video download was canceled');
-    } else if (error.code === 'storage/unknown') {
-      throw new Error(`Unknown Firebase Storage error: ${error.message}`);
+    // Provide more specific error messages for backend proxy approach
+    if (error.name === 'AbortError') {
+      throw new Error('Video download timeout - video took too long to download (>60s)');
+    } else if (error.message.includes('Backend proxy error')) {
+      throw new Error(`Backend proxy error: ${error.message}`);
+    } else if (error.message.includes('Failed to fetch')) {
+      throw new Error(`Network error connecting to backend proxy. Make sure the backend is running at ${process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000'}`);
     } else if (error.message.includes('too large')) {
       throw new Error(error.message);
-    } else if (error.message.includes('Firebase Storage URL')) {
-      throw new Error(`Invalid Firebase Storage URL format: ${videoUrl}`);
     } else {
       throw new Error(`Video processing failed: ${error.message}. URL: ${videoUrl}`);
     }
