@@ -85,7 +85,24 @@ const videoToBase64 = async (videoUrl) => {
     return base64Video;
   } catch (error) {
     console.error('❌ Error converting video to base64:', error);
-    throw error;
+
+    // Provide more specific error messages
+    if (error.name === 'AbortError') {
+      throw new Error('Video fetch timeout - video download took too long (>30s)');
+    } else if (error.message.includes('Failed to fetch')) {
+      throw new Error(`Network error fetching video. This could be due to:
+        1. CORS restrictions on Firebase Storage
+        2. Network connectivity issues
+        3. Invalid video URL
+        4. Video file is too large or corrupted
+
+        Original error: ${error.message}
+        Video URL: ${videoUrl}`);
+    } else if (error.message.includes('too large')) {
+      throw new Error(error.message);
+    } else {
+      throw new Error(`Video processing failed: ${error.message}`);
+    }
   }
 };
 
