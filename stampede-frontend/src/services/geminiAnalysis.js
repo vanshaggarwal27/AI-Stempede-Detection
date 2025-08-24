@@ -108,14 +108,21 @@ export const analyzeVideoWithGemini = async (videoUrl, reportId) => {
     };
 
     console.log('📤 Sending request to Gemini API...');
-    
+    console.log('🔗 API URL:', `${GEMINI_API_URL}?key=${GEMINI_API_KEY.substring(0, 20)}...`);
+    console.log('📊 Request body size:', JSON.stringify(requestBody).length, 'bytes');
+
     const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
       method: 'POST',
+      mode: 'cors',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Origin': window.location.origin
       },
       body: JSON.stringify(requestBody)
     });
+
+    console.log('📡 Response status:', response.status, response.statusText);
 
     if (!response.ok) {
       const errorData = await response.text();
