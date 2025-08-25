@@ -96,13 +96,8 @@ const videoToBase64 = async (videoUrl) => {
     console.log(`📦 Data size: ${(arrayBuffer.byteLength / 1024 / 1024).toFixed(2)} MB`);
     const uint8Array = new Uint8Array(arrayBuffer);
 
-    // Convert to base64
-    let binary = '';
-    uint8Array.forEach(byte => {
-      binary += String.fromCharCode(byte);
-    });
-
-    const base64Video = btoa(binary);
+    // Convert to base64 using more efficient method
+    const base64Video = btoa(String.fromCharCode.apply(null, uint8Array));
     const base64SizeMB = (base64Video.length / 1024 / 1024);
     console.log(`✅ Video converted to base64 (${base64SizeMB.toFixed(2)} MB)`);
 
