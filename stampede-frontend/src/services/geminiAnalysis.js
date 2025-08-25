@@ -184,7 +184,7 @@ export const analyzeVideoWithGemini = async (videoUrl, reportId) => {
     console.log('🔗 API URL:', `${GEMINI_API_URL}?key=${GEMINI_API_KEY.substring(0, 20)}...`);
     console.log('📊 Request body size:', JSON.stringify(requestBody).length, 'bytes');
 
-    // Custom fetch wrapper to handle response more safely
+    // Simplified fetch with guaranteed single response read
     let data;
     try {
       const controller = new AbortController();
@@ -205,36 +205,30 @@ export const analyzeVideoWithGemini = async (videoUrl, reportId) => {
 
       console.log('📡 Response status:', response.status, response.statusText);
 
-      // Handle response based on content type
-      const contentType = response.headers.get('content-type');
-      console.log('📋 Content-Type:', contentType);
-
-      let responseData;
-      if (contentType && contentType.includes('application/json')) {
-        responseData = await response.json();
-      } else {
-        const textData = await response.text();
-        if (!response.ok) {
-          throw new Error(`Gemini API error: ${response.status} - ${textData}`);
-        }
-        try {
-          responseData = JSON.parse(textData);
-        } catch (parseError) {
-          throw new Error(`Invalid JSON response: ${textData}`);
-        }
-      }
+      // ALWAYS read as text first to avoid stream consumption issues
+      const responseText = await response.text();
+      console.log('📄 Response length:', responseText.length, 'characters');
 
       if (!response.ok) {
-        const errorMessage = responseData?.error?.message || JSON.stringify(responseData);
-        throw new Error(`Gemini API error: ${response.status} - ${errorMessage}`);
+        console.error('❌ Gemini API error response:', responseText);
+        throw new Error(`Gemini API error: ${response.status} - ${responseText}`);
       }
 
-      data = responseData;
+      // Parse the text as JSON
+      try {
+        data = JSON.parse(responseText);
+        console.log('✅ Response parsed successfully');
+      } catch (parseError) {
+        console.error('❌ Failed to parse JSON response:', parseError);
+        console.log('📄 Raw response text:', responseText.substring(0, 500) + '...');
+        throw new Error(`Invalid JSON response from Gemini API: ${parseError.message}`);
+      }
 
     } catch (fetchError) {
       if (fetchError.name === 'AbortError') {
         throw new Error('Request timeout - Gemini API took too long to respond');
       }
+      console.error('❌ Fetch error:', fetchError);
       throw fetchError;
     }
     console.log('📥 Gemini API response received:', data);
