@@ -29,7 +29,6 @@ const performFallbackAnalysis = (videoUrl) => {
   console.log('🔄 Performing fallback emergency analysis...');
 
   // Extract timestamp and location info for pattern-based analysis
-  const urlParams = new URL(videoUrl).searchParams;
   const timestamp = Date.now();
   const currentHour = new Date().getHours();
 
@@ -50,99 +49,71 @@ const performFallbackAnalysis = (videoUrl) => {
 };
 
 /**
- * Convert video file to base64 for Gemini API with fallback handling
+ * Convert video file to base64 for Gemini API - simplified approach
  */
 const videoToBase64 = async (videoUrl) => {
   try {
     console.log('🎥 Converting video to base64 for Gemini analysis...');
     console.log('📹 Video URL:', videoUrl);
 
-    // Try backend proxy first (if available)
-    const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+    // Direct fetch approach with proper headers
+    console.log('🔄 Fetching video directly from Firebase Storage...');
 
-    try {
-      const proxyUrl = `${backendUrl}/api/proxy/video?url=${encodeURIComponent(videoUrl)}`;
+    // Add timeout for the request
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
 
-      console.log('🔄 Attempting backend proxy approach...');
+    const response = await fetch(videoUrl, {
+      method: 'GET',
+      mode: 'cors',
+      headers: {
+        'Accept': 'video/mp4,video/*,*/*',
+        'Cache-Control': 'no-cache',
+      },
+      signal: controller.signal
+    });
 
-      // Add timeout for the request
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    clearTimeout(timeoutId);
 
-      const response = await fetch(proxyUrl, {
-        method: 'GET',
-        signal: controller.signal,
-        headers: {
-          'Accept': 'video/mp4,video/*,*/*',
-        }
-      });
+    if (!response.ok) {
+      console.error(`❌ Fetch failed: ${response.status} ${response.statusText}`);
+      throw new Error('CORS_FALLBACK_NEEDED');
+    }
 
-      clearTimeout(timeoutId);
+    console.log('✅ Video fetch successful');
 
-      if (response.ok) {
-        console.log('✅ Backend proxy successful');
+    // Check content length
+    const contentLength = response.headers.get('content-length');
+    if (contentLength) {
+      const sizeMB = parseInt(contentLength) / (1024 * 1024);
+      console.log(`📊 Video size: ${sizeMB.toFixed(2)} MB`);
 
-        const blob = await response.blob();
-        console.log(`📦 Blob size: ${(blob.size / 1024 / 1024).toFixed(2)} MB`);
-
-        const arrayBuffer = await blob.arrayBuffer();
-        const uint8Array = new Uint8Array(arrayBuffer);
-
-        // Convert to base64
-        let binary = '';
-        uint8Array.forEach(byte => {
-          binary += String.fromCharCode(byte);
-        });
-
-        const base64Video = btoa(binary);
-        const base64SizeMB = (base64Video.length / 1024 / 1024);
-        console.log(`✅ Video converted to base64 (${base64SizeMB.toFixed(2)} MB)`);
-
-        if (base64SizeMB > 20) { // Gemini has size limits
-          throw new Error(`Base64 video too large: ${base64SizeMB.toFixed(2)} MB. Gemini API limit exceeded.`);
-        }
-
-        return base64Video;
-      } else {
-        throw new Error(`Backend proxy failed: ${response.status}`);
-      }
-
-    } catch (proxyError) {
-      console.warn('⚠️ Backend proxy unavailable, trying direct fetch fallback...');
-
-      // Try direct fetch as fallback (might fail due to CORS but worth trying)
-      try {
-        const response = await fetch(videoUrl, {
-          method: 'GET',
-          mode: 'cors',
-          headers: {
-            'Accept': 'video/mp4,video/*,*/*',
-          }
-        });
-
-        if (response.ok) {
-          console.log('✅ Direct fetch successful');
-
-          const blob = await response.blob();
-          const arrayBuffer = await blob.arrayBuffer();
-          const uint8Array = new Uint8Array(arrayBuffer);
-
-          // Convert to base64
-          let binary = '';
-          uint8Array.forEach(byte => {
-            binary += String.fromCharCode(byte);
-          });
-
-          return btoa(binary);
-        } else {
-          throw new Error(`Direct fetch failed: ${response.status}`);
-        }
-
-      } catch (directError) {
-        console.warn('⚠️ Both proxy and direct fetch failed due to CORS restrictions');
-        throw new Error('CORS_FALLBACK_NEEDED');
+      if (sizeMB > 50) { // Limit to 50MB
+        throw new Error(`Video too large: ${sizeMB.toFixed(2)} MB. Maximum allowed: 50 MB`);
       }
     }
+
+    const blob = await response.blob();
+    console.log(`📦 Blob size: ${(blob.size / 1024 / 1024).toFixed(2)} MB`);
+
+    const arrayBuffer = await blob.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
+
+    // Convert to base64
+    let binary = '';
+    uint8Array.forEach(byte => {
+      binary += String.fromCharCode(byte);
+    });
+
+    const base64Video = btoa(binary);
+    const base64SizeMB = (base64Video.length / 1024 / 1024);
+    console.log(`✅ Video converted to base64 (${base64SizeMB.toFixed(2)} MB)`);
+
+    if (base64SizeMB > 20) { // Gemini has size limits
+      throw new Error(`Base64 video too large: ${base64SizeMB.toFixed(2)} MB. Gemini API limit exceeded.`);
+    }
+
+    return base64Video;
   } catch (error) {
     console.error('❌ Error converting video to base64:', error);
 
