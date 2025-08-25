@@ -149,6 +149,18 @@ export const analyzeVideoWithGemini = async (videoUrl, reportId) => {
     // Convert video to base64
     const base64Video = await videoToBase64(videoUrl);
 
+    // Validate base64 data
+    if (!base64Video || base64Video.length === 0) {
+      throw new Error('Video conversion resulted in empty data');
+    }
+
+    // Check if base64 string looks valid
+    if (!/^[A-Za-z0-9+/]+=*$/.test(base64Video)) {
+      throw new Error('Invalid base64 format detected');
+    }
+
+    console.log('✅ Base64 validation passed');
+
     // Prepare Gemini API request
     const requestBody = {
       contents: [
