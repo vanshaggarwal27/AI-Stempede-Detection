@@ -193,13 +193,28 @@ export const analyzeVideoWithGemini = async (videoUrl, reportId) => {
 
     console.log('📡 Response status:', response.status, response.statusText);
 
-    if (!response.ok) {
-      const errorData = await response.text();
-      console.error('❌ Gemini API error response:', errorData);
-      throw new Error(`Gemini API error: ${response.status} - ${errorData}`);
+    // Read response body only once
+    let responseData;
+    try {
+      responseData = await response.text();
+    } catch (error) {
+      throw new Error(`Failed to read response: ${error.message}`);
     }
 
-    const data = await response.json();
+    if (!response.ok) {
+      console.error('❌ Gemini API error response:', responseData);
+      throw new Error(`Gemini API error: ${response.status} - ${responseData}`);
+    }
+
+    // Parse JSON from the text response
+    let data;
+    try {
+      data = JSON.parse(responseData);
+    } catch (error) {
+      console.error('❌ Failed to parse response as JSON:', error);
+      console.log('📄 Raw response:', responseData);
+      throw new Error(`Invalid JSON response from Gemini API: ${error.message}`);
+    }
     console.log('📥 Gemini API response received:', data);
 
     // Extract the generated content
