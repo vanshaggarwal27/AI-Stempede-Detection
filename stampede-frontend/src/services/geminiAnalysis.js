@@ -92,10 +92,8 @@ const videoToBase64 = async (videoUrl) => {
       }
     }
 
-    const blob = await response.blob();
-    console.log(`📦 Blob size: ${(blob.size / 1024 / 1024).toFixed(2)} MB`);
-
-    const arrayBuffer = await blob.arrayBuffer();
+    const arrayBuffer = await response.arrayBuffer();
+    console.log(`📦 Data size: ${(arrayBuffer.byteLength / 1024 / 1024).toFixed(2)} MB`);
     const uint8Array = new Uint8Array(arrayBuffer);
 
     // Convert to base64
