@@ -197,26 +197,33 @@ export const analyzeVideoWithGemini = async (videoUrl, reportId) => {
 
     console.log('📡 Response status:', response.status, response.statusText);
 
-    // Read response body only once
-    let responseData;
-    try {
-      responseData = await response.text();
-    } catch (error) {
-      throw new Error(`Failed to read response: ${error.message}`);
-    }
-
     if (!response.ok) {
-      console.error('❌ Gemini API error response:', responseData);
-      throw new Error(`Gemini API error: ${response.status} - ${responseData}`);
+      // Clone response for error handling to avoid consuming the original stream
+      const errorResponse = response.clone();
+      let errorData;
+      try {
+        errorData = await errorResponse.text();
+      } catch (readError) {
+        errorData = `Could not read error response: ${readError.message}`;
+      }
+      console.error('❌ Gemini API error response:', errorData);
+      throw new Error(`Gemini API error: ${response.status} - ${errorData}`);
     }
 
-    // Parse JSON from the text response
+    // Read response for successful case
     let data;
     try {
-      data = JSON.parse(responseData);
+      data = await response.json();
     } catch (error) {
       console.error('❌ Failed to parse response as JSON:', error);
-      console.log('📄 Raw response:', responseData);
+      // Try to read as text for debugging
+      try {
+        const responseClone = response.clone();
+        const textData = await responseClone.text();
+        console.log('📄 Raw response:', textData);
+      } catch (debugError) {
+        console.log('📄 Could not read response for debugging');
+      }
       throw new Error(`Invalid JSON response from Gemini API: ${error.message}`);
     }
     console.log('📥 Gemini API response received:', data);
