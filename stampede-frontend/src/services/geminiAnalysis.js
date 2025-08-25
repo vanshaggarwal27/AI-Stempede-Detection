@@ -63,14 +63,23 @@ const videoToBase64 = async (videoUrl) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
 
-    const response = await fetch(videoUrl, {
-      method: 'GET',
-      mode: 'cors',
-      headers: {
-        'Accept': 'video/mp4,video/*,*/*',
-      },
-      signal: controller.signal
-    });
+    let response;
+    try {
+      response = await fetch(videoUrl, {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+          'Accept': 'video/mp4,video/*,*/*',
+        },
+        signal: controller.signal
+      });
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError.name === 'AbortError') {
+        throw new Error('Video download timeout (>60s)');
+      }
+      throw new Error('CORS_FALLBACK_NEEDED');
+    }
 
     clearTimeout(timeoutId);
 
