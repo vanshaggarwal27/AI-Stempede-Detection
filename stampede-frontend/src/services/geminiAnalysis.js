@@ -110,6 +110,12 @@ const videoToBase64 = async (videoUrl) => {
       throw new Error(`Base64 video too large: ${base64SizeMB.toFixed(2)} MB. Gemini API limit exceeded.`);
     }
 
+    // Additional size validation using actual data size
+    const actualSizeMB = arrayBuffer.byteLength / (1024 * 1024);
+    if (actualSizeMB > 50) { // Limit to 50MB
+      throw new Error(`Video too large: ${actualSizeMB.toFixed(2)} MB. Maximum allowed: 50 MB`);
+    }
+
     return base64Video;
   } catch (error) {
     console.error('❌ Error converting video to base64:', error);
