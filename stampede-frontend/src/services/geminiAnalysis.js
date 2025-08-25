@@ -184,40 +184,58 @@ export const analyzeVideoWithGemini = async (videoUrl, reportId) => {
     console.log('🔗 API URL:', `${GEMINI_API_URL}?key=${GEMINI_API_KEY.substring(0, 20)}...`);
     console.log('📊 Request body size:', JSON.stringify(requestBody).length, 'bytes');
 
-    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Origin': window.location.origin
-      },
-      body: JSON.stringify(requestBody)
-    });
-
-    console.log('📡 Response status:', response.status, response.statusText);
-
-    // Read response body once as text, then handle both success and error cases
-    let responseText;
-    try {
-      responseText = await response.text();
-    } catch (error) {
-      throw new Error(`Failed to read response: ${error.message}`);
-    }
-
-    if (!response.ok) {
-      console.error('❌ Gemini API error response:', responseText);
-      throw new Error(`Gemini API error: ${response.status} - ${responseText}`);
-    }
-
-    // Parse JSON from the text response
+    // Custom fetch wrapper to handle response more safely
     let data;
     try {
-      data = JSON.parse(responseText);
-    } catch (error) {
-      console.error('❌ Failed to parse response as JSON:', error);
-      console.log('📄 Raw response:', responseText);
-      throw new Error(`Invalid JSON response from Gemini API: ${error.message}`);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
+
+      const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(requestBody),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      console.log('📡 Response status:', response.status, response.statusText);
+
+      // Handle response based on content type
+      const contentType = response.headers.get('content-type');
+      console.log('📋 Content-Type:', contentType);
+
+      let responseData;
+      if (contentType && contentType.includes('application/json')) {
+        responseData = await response.json();
+      } else {
+        const textData = await response.text();
+        if (!response.ok) {
+          throw new Error(`Gemini API error: ${response.status} - ${textData}`);
+        }
+        try {
+          responseData = JSON.parse(textData);
+        } catch (parseError) {
+          throw new Error(`Invalid JSON response: ${textData}`);
+        }
+      }
+
+      if (!response.ok) {
+        const errorMessage = responseData?.error?.message || JSON.stringify(responseData);
+        throw new Error(`Gemini API error: ${response.status} - ${errorMessage}`);
+      }
+
+      data = responseData;
+
+    } catch (fetchError) {
+      if (fetchError.name === 'AbortError') {
+        throw new Error('Request timeout - Gemini API took too long to respond');
+      }
+      throw fetchError;
     }
     console.log('📥 Gemini API response received:', data);
 
