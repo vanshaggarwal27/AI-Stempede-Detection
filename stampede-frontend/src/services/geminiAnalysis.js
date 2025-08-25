@@ -68,7 +68,6 @@ const videoToBase64 = async (videoUrl) => {
       mode: 'cors',
       headers: {
         'Accept': 'video/mp4,video/*,*/*',
-        'Cache-Control': 'no-cache',
       },
       signal: controller.signal
     });
