@@ -125,10 +125,8 @@ const videoToBase64 = async (videoUrl) => {
     // Provide more specific error messages for other cases
     if (error.name === 'AbortError') {
       throw new Error('Video download timeout - video took too long to download (>60s)');
-    } else if (error.message.includes('Backend proxy error')) {
-      throw new Error(`Backend proxy error: ${error.message}`);
-    } else if (error.message.includes('Failed to fetch')) {
-      throw new Error(`Network error connecting to backend proxy. Make sure the backend is running at ${process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000'}`);
+    } else if (error.message.includes('Failed to fetch') || error.message.includes('CORS')) {
+      throw new Error('CORS_FALLBACK_NEEDED'); // Treat all CORS/fetch errors as fallback cases
     } else if (error.message.includes('too large')) {
       throw new Error(error.message);
     } else {
