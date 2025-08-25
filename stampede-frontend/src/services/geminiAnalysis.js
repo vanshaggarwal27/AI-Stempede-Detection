@@ -197,12 +197,13 @@ export const analyzeVideoWithGemini = async (videoUrl, reportId) => {
 
     console.log('📡 Response status:', response.status, response.statusText);
 
+    // Clone response immediately to avoid stream consumption issues
+    const responseClone = response.clone();
+
     if (!response.ok) {
-      // Clone response for error handling to avoid consuming the original stream
-      const errorResponse = response.clone();
       let errorData;
       try {
-        errorData = await errorResponse.text();
+        errorData = await responseClone.text();
       } catch (readError) {
         errorData = `Could not read error response: ${readError.message}`;
       }
@@ -216,9 +217,8 @@ export const analyzeVideoWithGemini = async (videoUrl, reportId) => {
       data = await response.json();
     } catch (error) {
       console.error('❌ Failed to parse response as JSON:', error);
-      // Try to read as text for debugging
+      // Try to read as text for debugging using the clone
       try {
-        const responseClone = response.clone();
         const textData = await responseClone.text();
         console.log('📄 Raw response:', textData);
       } catch (debugError) {
